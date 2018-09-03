@@ -12,7 +12,7 @@ from lib.profile import get_profile_data
 class User(object):
     def __init__(self, uname):
         '''
-            Constructor for the User class taking the username
+        Constructor for the User class taking the username
         '''
         self.userName = uname
         self.isLoggedIn = False
@@ -22,7 +22,15 @@ class User(object):
         data = get_profile_data(uname)
         self.rating = data[0]
         self.title = data[1]
+        self.Colour = User.get_color(self.title)
         self.max_rating = data[2]
+
+    @static
+    def get_color(title):
+        Colour_map = {
+                    "specialist"
+                }
+        return Colour.
 
     def _authenticator(func):
         def wrapper(self, *args, **kargs):
@@ -33,8 +41,8 @@ class User(object):
 
     def login(self, passW='not_given'):
         '''
-            Used to login to the Spoj,
-            its necessary for submitting the problem
+        Used to login,
+        its necessary for submitting the problem
         '''
         self.__session = requests.Session()
         if(passW=='not_given'):
@@ -47,7 +55,6 @@ class User(object):
             print(resp.text)
             self.__session.close()
             print('Invalid handle or password')
-#            raise exception.LoginFalied('Invalid handle or password')
             return
         self.isLoggedIn = True
 
@@ -67,4 +74,3 @@ if(__name__=="__main__"):
     print(" max rating     : "+temp_user.max_rating)
     print(" current rating : "+temp_user.rating)
     print(" title          : "+temp_user.title)
-
