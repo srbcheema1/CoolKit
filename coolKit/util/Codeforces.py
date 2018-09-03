@@ -42,14 +42,12 @@ class Codeforces:
         return formatted_inputs , formatted_outputs
         """
         soup = bs(req.text, 'html.parser')
-
         inputs = soup.findAll('div', {'class': 'input'})
         outputs = soup.findAll('div', {'class': 'output'})
 
         if len(inputs) == 0 or len(outputs) == 0:
             print 'Problem not found..'
-            Utilities.handle_kbd_interrupt(
-                self.site, self.contest, self.problem)
+            Utilities.handle_kbd_interrupt(self.site, self.contest, self.problem)
             sys.exit(0)
 
         repls = ('<br>', '\n'), ('<br/>', '\n'), ('</br>', '')
