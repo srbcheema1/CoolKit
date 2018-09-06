@@ -99,5 +99,6 @@ def display_ques(contest_num = 920,prob_num='A'):
 if(__name__=="__main__"):
     prob_num = 'A'
     if(len(argv)==2):
-            prob_num=argv[1]
+        prob_num=argv[1]
+    contest_num = 920
     display_ques(contest_num,prob_num)
