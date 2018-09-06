@@ -43,8 +43,9 @@ class Colour:
     def get_colour(title):
         title = title.lower()
         Colour_map = {
+                "legendary grandmaster":Colour.DARKRED,
                 "international grandmaster":Colour.DARKRED,
-                "grandmaster":Colour.DARKRED,
+                "grandmaster":Colour.RED,
                 "international master":Colour.DARKYELLOW,
                 "master":Colour.DARKYELLOW,
                 "candidate master":Colour.DARKPURPLE,
@@ -56,7 +57,8 @@ class Colour:
         return Colour_map[title]
 
 '''
-2600 - 9999 Red	    International grandmaster	1
+3000 - 9999 Darkred Legendary grandmaster       1
+2600 - 3000 Red	    International grandmaster	1
 2200 - 2599	red	    Grandmaster	                1
 2050 - 2199	Orange	International master	    1
 1900 - 2049	Orange	Master	                    1
