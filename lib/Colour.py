@@ -53,7 +53,8 @@ class Colour:
                 "specialist":Colour.GREEN,
                 "pupil":Colour.GREEN,
                 "newbie":Colour.GRAY,
-                "":''
+                "":'',
+                None:''
                 }
         return Colour_map[title]
 

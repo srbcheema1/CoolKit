@@ -1,6 +1,99 @@
+import sys
+
+try:
+    from util.Problem import Problem
+    from util.Soup import Soup
+except:
+    from Problem import Problem
+    from Soup import Soup
+
+
 class Contest:
-    def __init__():
-        pass
+    def __init__(self,c_num,name=None):
+        if(name == None):
+            name = ""
+            # fetch name
+        init(c_num,name)
+
+    def init(self,c_num,name):
+        # check for cached
+        self.name = name
+        self.contest = str(c_num)
+        self.link = "https://codeforces.com/contest/"+self.contest
+        self.prob_arr = Contest.fetch_problems(self.contest)
+
+    def display(self):
+        Contest.display(self.prob_arr)
+
+    @staticmethod
+    def display(prob_arr):
+        from terminaltables import AsciiTable
+        table_data = [['#','Name','submissions','Link']]
+        for prob in prob_arr:
+            table_data.append([prob.seq,prob.name,prob.subm,prob.link])
+        print(AsciiTable(table_data).table)
+
+
+    @staticmethod
+    def fetch_problems(contest_num):
+        contest_num = str(contest_num)
+        soup = Soup.get_soup("https://codeforces.com/contest/"+contest_num)
+
+        if(soup is None):
+            return []
+
+        prob_table = soup.findAll('table',{'class':'problems'})[0]
+        prob_list = prob_table.findAll('tr')[1:]
+
+        prob_arr = []
+        for prob in prob_list:
+            seq = prob.findAll('td')[0].get_text().strip()
+            name = prob.findAll('td')[1].findAll('a')[0].get_text().strip()
+            subm = prob.findAll('td')[3].get_text().strip().split('x')[-1]
+            prob_arr.append(Problem(seq,name,subm,contest_num))
+        return prob_arr
+
+    @staticmethod
+    def upcoming_contest(display=False):
+        url = "http://codeforces.com/contests"
+        soup = Soup.get_soup(url)
+
+        contests = [['id','name','','time','dur.','link']]
+        if(soup is None):
+            return contests
+
+        datatable = soup.find_all('div',{'class':'datatable'})[0].find_all('table')[0]
+        contest_rows = datatable.find_all('tr')[1:]
+        for row in contest_rows:
+            c_id = row['data-contestid']
+            data = row.find_all('td')
+            name = data[0].get_text().strip()
+            name = Contest.get_short_contest_name(name)
+            writer = data[1].get_text().strip()
+            time = data[2].get_text().strip()
+            time = Contest.get_formatted_time(time)
+            duration = data[3].get_text().strip()
+            link = "www.codeforces.com/contest/"+c_id
+            contests.append([c_id,name,writer,time,duration,link])
+
+        from terminaltables import AsciiTable
+        if(display is True): print(AsciiTable(contests).table)
+        return contests
+
+
+    @staticmethod
+    def get_number_of_problems(contest_num):
+        return "-"
+        # implementing caching else it is slow
+        url = "https://codeforces.com/contest/"+contest_num
+        soup = Soup.get_soup(url)
+        if(soup is None):
+            return
+
+        prob_table = soup.findAll('table',{'class':'problems'})[0]
+        prob_list = prob_table.findAll('tr')[1:]
+        return str(len(prob_list))
+
 
     @staticmethod
     def get_short_contest_name(contest):
@@ -42,3 +135,13 @@ class Contest:
             date +=1
 
         return str(date).zfill(2) + '-' + month + ' ' + str(hour).zfill(2) + ':' + str(mins).zfill(2)
+
+if(__name__=="__main__"):
+    contest_num=920
+    if(len(sys.argv)==2):
+        contest_num = sys.argv[1]
+
+    prob_arr = Contest.fetch_problems(contest_num)
+    Contest.display(prob_arr)
+
+    Contest.upcoming_contest(display=True)
