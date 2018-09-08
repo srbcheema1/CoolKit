@@ -1,35 +1,35 @@
-import requests
-import bs4
-debug = False
+try:
+    from util.Contest import Contest
+    from util.Soup import get_soup
+except:
+    from Contest import Contest
+    from Soup import get_soup
 
 def display_upcoming():
-    req = requests.get("http://codeforces.com/contests")
-    soup = bs4.BeautifulSoup(req.text,"html.parser")
+    url = "http://codeforces.com/contests"
+    soup = get_soup(url)
 
-    a= soup.find_all(id='body')
-    b=a[0].find_all('div',recursive=False)
-    c=b[3].find_all('div',recursive=False)
-    d=c[1].find_all('div',recursive=False)
+    contests = [['id','name','','time','dur.','link']]
+    if(soup is None):
+        return contests
 
-    constestList = d[0]
+    datatable = soup.find_all('div',{'class':'datatable'})[0].find_all('table')[0]
+    contest_rows = datatable.find_all('tr')[1:]
+    for row in contest_rows:
+        c_id = row['data-contestid']
+        data = row.find_all('td')
+        name = data[0].get_text().strip()
+        name = Contest.get_short_contest_name(name)
+        writer = data[1].get_text().strip()
+        time = data[2].get_text().strip()
+        time = Contest.get_formatted_time(time)
+        duration = data[3].get_text().strip()
+        link = "www.codeforces.com/contest/"+c_id
+        contests.append([c_id,name,writer,time,duration,link])
 
-    datatable,contesttable = constestList.find_all('div',recursive=False)
-
-    table_div=datatable.find_all('div',recursive=False)
-    table = table_div[5].find_all('table',recursive=False)
-
-    upcoming_contest=table[0].find_all('tr',recursive=False)[1:]
-
-    print("number of upcoming contests is",len(upcoming_contest))
-    for contest in upcoming_contest:
-        name_of_contest = contest.find_all('td',recursive=False)[0]
-        contest_id = contest.get('data-contestid')
-        print(" ",contest_id," : ",name_of_contest.get_text()[1:])
-
-    print("select one contest you want to participate : ",end='')
-    contest_id = str(input())
-    link = "www.codeforces.com/contest/"+contest_id+""
-    print(link)
+    return contests
 
 if(__name__=="__main__"):
-    display_upcoming()
+    contests = display_upcoming()
+    from terminaltables import AsciiTable
+    print(AsciiTable(contests).table)

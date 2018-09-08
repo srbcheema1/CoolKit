@@ -52,7 +52,8 @@ class Colour:
                 "expert":Colour.DARKBLUE,
                 "specialist":Colour.GREEN,
                 "pupil":Colour.GREEN,
-                "newbie":Colour.GRAY
+                "newbie":Colour.GRAY,
+                "":''
                 }
         return Colour_map[title]
 

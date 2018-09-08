@@ -1,24 +1,25 @@
-import grequests
-from bs4 import BeautifulSoup
-
 try:
     from util.Colour import Colour
+    from util.Soup import get_soup
+    from util.Contest import Contest
 except:
     from Colour import Colour
+    from Soup import get_soup
+    from Contest import Contest
 
 class Dummy_user:
     def __init__(self,uname):
         self.user_name = uname
         self.link = 'https://codeforces.com/profile/'+self.user_name
-        self.title = None
-        self.rating = None
-        self.max_rating = None
-        self.max_title = None
-        self.friends = None
-        self.reg_date = None
-        self.colour = None
-        self.div = None
-        self.contests = None
+        self.title = ""
+        self.rating = ""
+        self.max_rating = ""
+        self.max_title = ""
+        self.friends = ""
+        self.reg_date = ""
+        self.colour = ""
+        self.div = ""
+        self.contests = []
 
 
     def init(self):
@@ -32,11 +33,11 @@ class Dummy_user:
 
     def fetch_profile_data(self):
         url = 'https://codeforces.com/profile/' + self.user_name
-        unsent_requests = (grequests.get(url) for url in [url])
-        results = grequests.map(unsent_requests)[0]
-        soup = BeautifulSoup(results.text, 'html.parser')
+        soup = get_soup(url)
+        if(soup is None):
+            return
 
-        if(not uname in soup.get_text()):
+        if(not uname.lower() in soup.get_text().lower()):
             return
 
         self.title = soup.find_all('div', {'class': 'user-rank'})[0].get_text().strip()
@@ -61,16 +62,19 @@ class Dummy_user:
 
     def fetch_contests_data(self):
         url = 'http://codeforces.com/contests/with/'+uname
-        unsent_requests = (grequests.get(url) for url in [url])
-        results = grequests.map(unsent_requests)[0]
-        soup=BeautifulSoup(results.text,'html.parser')
+        soup = get_soup(url)
+        if(soup is None):
+            return
+
+        if(not uname.lower() in soup.get_text().lower()):
+            return
 
         table_rows = soup.findAll('table',{'class':'tablesorter'})[0].findAll('tr')[1:]
         contest_table = []
         for row in table_rows:
             num = row.findAll('td')[0].get_text().strip()
             contest = row.findAll('td')[1].get_text().strip()
-            contest = Dummy_user._get_short_contest_name(contest)
+            contest = Contest.get_short_contest_name(contest)
             link = row.findAll('td')[1].findAll('a')[0]['href'].strip().split('/')[-1]
             rank = row.findAll('td')[2].get_text().strip()
             solved = row.findAll('td')[3].get_text().strip()
@@ -88,7 +92,6 @@ class Dummy_user:
         '''
         print data of user as displayed on his profile-page
         '''
-        from terminaltables import AsciiTable
         table_data = [[self.link]]
         table_data.append([self.colour + self.title + Colour.END])
         table_data.append([self.colour + self.user_name + Colour.END])
@@ -96,6 +99,7 @@ class Dummy_user:
             ' (max. ' + Colour.get_colour(self.max_title) + self.max_title + ',' + self.max_rating + Colour.END + ')'])
         table_data.append(['Friend of: ' + self.friends + ' users'])
         table_data.append(['Registered: '+self.reg_date])
+        from terminaltables import AsciiTable
         print(AsciiTable(table_data).table)
 
 
@@ -104,7 +108,7 @@ class Dummy_user:
         print contests played by an user
         '''
         from terminaltables import AsciiTable
-        table_data = [['num','contest','rank','done','change','rating','change','link']]
+        table_data = [['num','contest','rank','done','change','rating','title-change','link']]
         table_data.extend(self.contests)
         print(AsciiTable(table_data).table)
 
@@ -128,9 +132,10 @@ class Dummy_user:
         return "-"
         # implementing caching else it is slow
         url = "https://codeforces.com/contest/"+contest_num
-        unsent_requests = (grequests.get(url) for url in [url])
-        results = grequests.map(unsent_requests)[0]
-        soup = BeautifulSoup(results.text, 'html.parser')
+        soup = get_soup(url)
+        if(soup is None):
+            return
+
         prob_table = soup.findAll('table',{'class':'problems'})[0]
         prob_list = prob_table.findAll('tr')[1:]
         return str(len(prob_list))
