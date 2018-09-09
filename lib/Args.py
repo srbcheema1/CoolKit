@@ -77,3 +77,38 @@ def set_global_config(args={},debug=False):
     set config to global config file.
     '''
     dump_data(args,abs_path('~/.config/coolkit/config'))
+
+
+def check_init(args={},debug=False):
+    '''
+    set config to global config file.
+    '''
+    cwd = abs_path(os.getcwd())
+    home_loc = abs_path('~')
+    now = cwd
+    while(now != home_loc):
+        if('.coolkit' in os.listdir(now) and os.path.isdir(os.path.join(now,'.coolkit'))):
+            return True
+        now = abs_path(os.path.join(now,os.pardir))
+    return False
+
+def fetch_contest_name_from_config():
+    cwd = abs_path(os.getcwd())
+    home_loc = abs_path('~')
+    now = cwd
+    while(now != home_loc):
+        if('.coolkit' in os.listdir(now) and os.path.isdir(os.path.join(now,'.coolkit'))):
+            if(debug): print('got .coolkit at ',now)
+            break
+        now = abs_path(os.path.join(now,os.pardir))
+    if(now == home_loc):
+        return "None"
+
+    data = extract_data(now+'/.coolkit/config')
+    return data.get('contest')
+
+def fetch_contest():
+    '''
+    check cache
+    '''
+    pass

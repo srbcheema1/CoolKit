@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import os
-from sys import argv
+import sys
 
 def reactified(path):
     direc = []
@@ -43,7 +43,7 @@ def abs_path(path):
 
 help1 = "require 1 argument as path name to be made absolute"
 if(__name__=="__main__"):
-    if(len(argv)!=2):
+    if(len(sys.argv)!=2):
         print(help1)
         exit()
-    print(abs_path(argv[1]))
+    print(abs_path(sys.argv[1]))

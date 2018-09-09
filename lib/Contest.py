@@ -2,6 +2,17 @@
 import sys
 
 try:
+    from terminaltables import AsciiTable
+except:
+    err = """
+    You haven't installed the required dependencies.
+    """
+    import sys, traceback
+    traceback.print_exc()
+    print(err)
+    sys.exit(0)
+
+try:
     from lib.Problem import Problem
     from lib.Soup import Soup
 except:
@@ -14,34 +25,33 @@ class Contest:
         if(name == None):
             name = ""
             # fetch name
-        init(c_num,name)
+        self.init(c_num,name)
 
     def init(self,c_num,name):
         # check for cached
         self.name = name
         self.contest = str(c_num)
         self.link = "https://codeforces.com/contest/"+self.contest
-        self.prob_arr = Contest.fetch_problems(self.contest)
+        self.prob_arr = []
+        self.fetch_problems()
+        self.no_probs = len(self.prob_arr)
 
     def display(self):
-        Contest.display(self.prob_arr)
+        self.display_prob_arr()
 
-    @staticmethod
-    def display(prob_arr):
+    def display_prob_arr(self):
         from terminaltables import AsciiTable
         table_data = [['#','Name','submissions','Link']]
-        for prob in prob_arr:
+        for prob in self.prob_arr:
             table_data.append([prob.seq,prob.name,prob.subm,prob.link])
         print(AsciiTable(table_data).table)
 
-
-    @staticmethod
-    def fetch_problems(contest_num):
-        contest_num = str(contest_num)
+    def fetch_problems(self):
+        contest_num = str(self.contest)
         soup = Soup.get_soup("https://codeforces.com/contest/"+contest_num)
 
         if(soup is None):
-            return []
+            return
 
         prob_table = soup.findAll('table',{'class':'problems'})[0]
         prob_list = prob_table.findAll('tr')[1:]
@@ -51,8 +61,11 @@ class Contest:
             seq = prob.findAll('td')[0].get_text().strip()
             name = prob.findAll('td')[1].findAll('a')[0].get_text().strip()
             subm = prob.findAll('td')[3].get_text().strip().split('x')[-1]
-            prob_arr.append(Problem(seq,name,subm,contest_num))
-        return prob_arr
+            temp_prob = Problem(seq,name)
+            temp_prob.subm = subm
+            temp_prob.contest_num = contest_num
+            prob_arr.append(temp_prob)
+        self.prob_arr = prob_arr
 
     @staticmethod
     def upcoming_contest(display=False):
@@ -77,7 +90,6 @@ class Contest:
             link = "www.codeforces.com/contest/"+c_id
             contests.append([c_id,name,writer,time,duration,link])
 
-        from terminaltables import AsciiTable
         if(display is True): print(AsciiTable(contests).table)
         return contests
 
@@ -142,7 +154,8 @@ if(__name__=="__main__"):
     if(len(sys.argv)==2):
         contest_num = sys.argv[1]
 
-    prob_arr = Contest.fetch_problems(contest_num)
-    Contest.display(prob_arr)
+    temp_contest = Contest(contest_num)
+    temp_contest.fetch_problems()
+    temp_contest.display()
 
     Contest.upcoming_contest(display=True)

@@ -124,11 +124,22 @@ def parse_args():
         parser.add_argument('-s',"--site",
                             default='codeforces',
                             help="contest_site ex: codeforces")
-        # Args.check_init() # fetching can be done even without this
+        # Args.check_init() # fetching can be done even without this if contest name given
         pars_args = parser.parse_args()
         if(pars_args.contest): args['contest'] = pars_args.contest
         if(pars_args.type): args['type'] = pars_args.type
         if(pars_args.site): args['site'] = pars_args.site
+        if(not pars_args.contest):
+            if(not Args.check_init()):
+                print('no contest provided either provide contest using -c or run command from coolkit repo')
+                sys.exit(0)
+            args['contest'] = Args.fetch_contest_name_from_config()
+            if(args['contet']=='None'):
+                print('contest not set, use `coolkit set -c <contest num>`, or provide contest name using -c parameter')
+                sys.exit(0)
+        Args.fetch_contest(args):
+
+
 
     elif(first_arg == "submit"):
         parser.add_argument('-c',"--contest",

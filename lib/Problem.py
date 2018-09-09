@@ -3,6 +3,17 @@ from functools import reduce
 import re
 
 try:
+	import texttable
+except:
+    err = """
+    You haven't installed the required dependencies.
+    """
+    import sys, traceback
+    traceback.print_exc()
+    print(err)
+    sys.exit(0)
+
+try:
     from lib.Soup import Soup
 except:
     from Soup import Soup
@@ -37,7 +48,6 @@ class Problem:
             out = self.output[i]
             printer.append([i+1,inp,out])
 
-        import texttable
         tt = texttable.Texttable()
         tt.add_rows(printer)
         print(tt.draw())

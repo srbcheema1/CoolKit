@@ -7,6 +7,8 @@ except:
     err = """
     You haven't installed the required dependencies.
     """
+    import sys, traceback
+    traceback.print_exc()
     print(err)
     sys.exit(0)
 
