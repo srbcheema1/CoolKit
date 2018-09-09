@@ -10,9 +10,9 @@ except:
     sys.exit(0)
 
 try:
-    from util.Soup import Soup
-    from util.Colour import Colour
-    from util.Contest import Contest
+    from lib.Soup import Soup
+    from lib.Colour import Colour
+    from lib.Contest import Contest
 except:
     from Soup import Soup
     from Colour import Colour

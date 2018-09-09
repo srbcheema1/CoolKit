@@ -12,7 +12,7 @@ except:
     You haven't installed the required dependencies.
     Run 'python setup.py install' to install the dependencies.
     """
-    print err
+    print(err)
     sys.exit(0)
 
 import util
@@ -34,37 +34,6 @@ class Codeforces:
         self.contest = args['contest']
         self.problem = args['problem']
         self.force_download = args['force']
-
-    def parse_html(self, req):
-        """
-        Method to parse the html and get test cases
-        from a codeforces problem
-        return formatted_inputs , formatted_outputs
-        """
-        soup = bs(req.text, 'html.parser')
-        inputs = soup.findAll('div', {'class': 'input'})
-        outputs = soup.findAll('div', {'class': 'output'})
-
-        if len(inputs) == 0 or len(outputs) == 0:
-            print 'Problem not found..'
-            Utilities.handle_kbd_interrupt(self.site, self.contest, self.problem)
-            sys.exit(0)
-
-        repls = ('<br>', '\n'), ('<br/>', '\n'), ('</br>', '')
-
-        formatted_inputs, formatted_outputs = [], []
-        for inp in inputs:
-            pre = inp.find('pre').decode_contents()
-            pre = reduce(lambda a, kv: a.replace(*kv), repls, pre)
-            pre = re.sub('<[^<]+?>', '', pre)
-            formatted_inputs += [pre]
-        for out in outputs:
-            pre = out.find('pre').decode_contents()
-            pre = reduce(lambda a, kv: a.replace(*kv), repls, pre)
-            pre = re.sub('<[^<]+?>', '', pre)
-            formatted_outputs += [pre]
-
-        return formatted_inputs, formatted_outputs
 
     def get_problem_links(self, req):
         """
@@ -100,17 +69,6 @@ class Codeforces:
                 failed_requests += [response.url]
         return failed_requests
 
-    def scrape_problem(self):
-        """
-        Method to scrape a single problem from codeforces
-        """
-        print 'Fetching problem ' + self.contest + '-' + self.problem + ' from Codeforces...'
-        type_of_contest = 'contest' if int(self.contest) <= 100000 else 'gym'
-        url = 'http://codeforces.com/%s/%s/problem/%s' % (type_of_contest, self.contest, self.problem)
-        req = Utilities.get_html(url)
-        inputs, outputs = self.parse_html(req)
-        Utilities.store_files(self.site, self.contest, self.problem, inputs, outputs)
-        print 'Done.'
 
     def scrape_contest(self):
         """
@@ -130,3 +88,49 @@ class Codeforces:
         failed_requests = self.handle_batch_requests(links)
         if len(failed_requests) > 0:
             self.handle_batch_requests(failed_requests)
+
+
+    def parse_html(self, req):
+        """
+        Method to parse the html and get test cases
+        from a codeforces problem
+        return formatted_inputs , formatted_outputs
+        """
+        soup = bs(req.text, 'html.parser')
+        inputs = soup.findAll('div', {'class': 'input'})
+        outputs = soup.findAll('div', {'class': 'output'})
+
+        if len(inputs) == 0 or len(outputs) == 0:
+            print 'Problem not found..'
+            Utilities.handle_kbd_interrupt(self.site, self.contest, self.problem)
+            sys.exit(0)
+
+        repls = ('<br>', '\n'), ('<br/>', '\n'), ('</br>', '')
+
+        formatted_inputs, formatted_outputs = [], []
+        for inp in inputs:
+            pre = inp.find('pre').decode_contents()
+            pre = reduce(lambda a, kv: a.replace(*kv), repls, pre)
+            pre = re.sub('<[^<]+?>', '', pre)
+            formatted_inputs += [pre]
+        for out in outputs:
+            pre = out.find('pre').decode_contents()
+            pre = reduce(lambda a, kv: a.replace(*kv), repls, pre)
+            pre = re.sub('<[^<]+?>', '', pre)
+            formatted_outputs += [pre]
+
+        return formatted_inputs, formatted_outputs
+
+
+
+    def scrape_problem(self):
+        """
+        Method to scrape a single problem from codeforces
+        """
+        print 'Fetching problem ' + self.contest + '-' + self.problem + ' from Codeforces...'
+        type_of_contest = 'contest' if int(self.contest) <= 100000 else 'gym'
+        url = 'http://codeforces.com/%s/%s/problem/%s' % (type_of_contest, self.contest, self.problem)
+        req = Utilities.get_html(url)
+        inputs, outputs = self.parse_html(req)
+        Utilities.store_files(self.site, self.contest, self.problem, inputs, outputs)
+        print 'Done.'

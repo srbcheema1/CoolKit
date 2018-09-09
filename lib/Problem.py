@@ -1,8 +1,9 @@
+#! /usr/bin/env python3
 from functools import reduce
 import re
 
 try:
-    from util.Soup import Soup
+    from lib.Soup import Soup
 except:
     from Soup import Soup
 

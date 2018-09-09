@@ -1,8 +1,9 @@
+#!/usr/bin/env python3
 import sys
 
 try:
-    from util.Problem import Problem
-    from util.Soup import Soup
+    from lib.Problem import Problem
+    from lib.Soup import Soup
 except:
     from Problem import Problem
     from Soup import Soup
