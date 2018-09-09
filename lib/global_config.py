@@ -10,7 +10,7 @@ def get_contest_name(folder):
     if(user == 'srb'):
         # I kept for me, you too can use this ready made function
         return srb_contest_name(folder)
-    return "None"
+    return None
 
 def get_problem_name(file_name):
     '''
@@ -22,7 +22,7 @@ def get_problem_name(file_name):
     if(user == 'srb'):
         # I kept for me, you too can use this ready made function
         return srb_problem_name(file_name) # my way
-    return "None"
+    return None
 
 
 
@@ -33,8 +33,8 @@ def srb_contest_name(folder):
     newstr = ''.join((ch if ch in '0123456789' else ' ') for ch in folder)
     number_list = [int(i) for i in newstr.split()]
     if(len(number_list) == 1):
-        return number_list[0]
-    return "None"
+        return str(number_list[0])
+    return None
 
 
 def srb_problem_name(file_name):

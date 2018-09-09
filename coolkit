@@ -116,6 +116,10 @@ def parse_args():
         if(pars_args.prob): args['prob'] = pars_args.prob
 
     elif(first_arg == "fetch"):
+        parser.add_argument('-f',"--force",
+                            action='store_true',
+                            default=False,
+                            help="forcefully fetch contest")
         parser.add_argument('-c',"--contest",
                             help="contest num ex: 1080, 987, 840")
         parser.add_argument('-t',"--type",
@@ -129,15 +133,17 @@ def parse_args():
         if(pars_args.contest): args['contest'] = pars_args.contest
         if(pars_args.type): args['type'] = pars_args.type
         if(pars_args.site): args['site'] = pars_args.site
+        args['force'] = pars_args.force
         if(not pars_args.contest):
             if(not Args.check_init()):
                 print('no contest provided either provide contest using -c or run command from coolkit repo')
                 sys.exit(0)
             args['contest'] = Args.fetch_contest_name_from_config()
-            if(args['contet']=='None'):
+            if(not args['contest']):
                 print('contest not set, use `coolkit set -c <contest num>`, or provide contest name using -c parameter')
                 sys.exit(0)
-        Args.fetch_contest(args):
+            print('detected contest num : ' + args['contest'])
+        Args.fetch_contest(args)
 
 
 

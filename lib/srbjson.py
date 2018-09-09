@@ -2,21 +2,27 @@ import json
 
 try:
     from lib.abs_path import abs_path
+    from lib.files import verify_file
 except:
     from abs_path import abs_path
 
 
-def create_file(fille):
-    template = {
-        "coolkit":{
-            "contest":"None",
-            "type":"contest",
-            "site":"codeforces",
-            "prob":"A",
-            "user":"-",
-            "pswd":'-'
-        }
+config_template = {
+    "coolkit":{
+        "contest":None,
+        "type":"contest",
+        "site":"codeforces",
+        "prob":"A",
+        "num_prob":0,
+        "is_good":False,
+        "mult_soln":False,
+        "user":None,
+        "pswd":None
     }
+}
+
+def create_file(fille,template=config_template):
+    verify_file(fille)
     jfile = open(fille, 'w')
     json.dump(template,jfile,indent = 4,ensure_ascii = False)
     jfile.close()

@@ -4,14 +4,15 @@ import shutil
 try:
     from lib.abs_path import abs_path
     from lib.Constants import Const
+    from lib.Contest import Contest
     from lib.files import verify_folder, verify_file
-    from lib.srbjson import create_file, dump_data
+    from lib.srbjson import create_file, dump_data, extract_data
     from lib.global_config import get_contest_name, get_problem_name
 except:
     from abs_path import abs_path
     from Constants import Const
     from files import verify_folder, verify_file, dump_data
-    from srbjson import create_file, dump_data
+    from srbjson import create_file, dump_data, extract_data
     from global_config import get_contest_name, get_problem_name
 
 
@@ -72,14 +73,14 @@ def set_local_config(args={},debug=False):
 
     dump_data(args,config_loc+'/.coolkit/config')
 
-def set_global_config(args={},debug=False):
+def set_global_config(args={}):
     '''
     set config to global config file.
     '''
     dump_data(args,abs_path('~/.config/coolkit/config'))
 
 
-def check_init(args={},debug=False):
+def check_init(args={}):
     '''
     set config to global config file.
     '''
@@ -98,7 +99,6 @@ def fetch_contest_name_from_config():
     now = cwd
     while(now != home_loc):
         if('.coolkit' in os.listdir(now) and os.path.isdir(os.path.join(now,'.coolkit'))):
-            if(debug): print('got .coolkit at ',now)
             break
         now = abs_path(os.path.join(now,os.pardir))
     if(now == home_loc):
@@ -107,8 +107,14 @@ def fetch_contest_name_from_config():
     data = extract_data(now+'/.coolkit/config')
     return data.get('contest')
 
-def fetch_contest():
+def fetch_contest(args):
     '''
     check cache
     '''
+    contest = str(args['contest'])
+    if(not args['force'] and os.path.exists(Const.cache_dir+'/contest/'+contest)):
+        print('cache exists')
+        return
+    temp_contest = Contest(contest)
+    temp_contest.fetch_contest()
     pass
