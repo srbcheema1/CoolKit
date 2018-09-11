@@ -10,7 +10,6 @@ try:
 except:
     err = """
     You haven't installed the required dependencies.
-    Run 'python setup.py install' to install the dependencies.
     """
     print(err)
     sys.exit(0)
