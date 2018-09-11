@@ -1,9 +1,12 @@
 #! /usr/bin/env python3
+# PYTHON_ARGCOMPLETE_OK
+
 import os
 import sys
 
 try:
     from argparse import ArgumentParser
+    from argcomplete import autocomplete
 except:
     err = """
     You haven't installed the required dependencies.
@@ -16,7 +19,6 @@ from lib import Args
 from lib.Constants import Const
 from lib.global_config import get_problem_name
 
-
 coolkit_help="""usage coolkit [option] [--suboptions [args]]
 
 options:
@@ -28,43 +30,141 @@ submit      to submit a problem
 config      to configure username and password"""
 
 
-def extract_args(args):
-    args.extend(['list_args','--help','-h','help'])
-    first_arg = None
-    if(len(sys.argv) > 1):
-        argv_new = [sys.argv[0]]
-        first_arg = sys.argv[1]
-        if(len(sys.argv) > 2):
-            argv_new.extend(sys.argv[2:])
-        sys.argv = argv_new
+def is_valid_file(parser, arg):
+    if not os.path.exists(arg):
+        parser.error("The file %s does not exist!" % arg)
     else:
-        print(coolkit_help)
-        sys.exit(0)
+        # return open(arg, 'r')  # return an open file handle
+        return arg
 
-    if(first_arg not in args):
-        print(coolkit_help)
-        sys.exit(0)
+def get_default(key,create_repo=True):
+    if(not create_repo and not Args.check_init()):
+        mapp = {'type':'contest','site':'codeforces'}
+        return mapp.get(key,None)
 
-    return first_arg
+    if(not Args.check_init()):
+        Args.init_repo()
 
-def check_file_name():
-    if(len(sys.argv) > 1):
-        argv_new = [sys.argv[0]]
-        first_arg = sys.argv[1]
-        if(os.path.isfile(first_arg)):
-            if(len(sys.argv) > 2):
-                argv_new.extend(sys.argv[2:])
-            sys.argv = argv_new
-            return first_arg
-    return None
+    data = Args.fetch_data_from_local_config()
+    return data.get(key,None)
+
+def create_parser():
+    parser = ArgumentParser()
+    subparsers = parser.add_subparsers(dest='first_arg')
+
+    # init
+    '''
+    init can have default values
+    '''
+    ini_parser = subparsers.add_parser('init')
+    ini_parser.add_argument('-c',"--contest",
+                            default = None,
+                            help="contest num ex: 1080, 987, 840")
+    ini_parser.add_argument('-t',"--type",
+                            default = 'contest',
+                            choices = ['contest','gym'],
+                            help="contest type")
+    ini_parser.add_argument('-p',"--prob",
+                            default = 'A',
+                            help="problem seq ex: A, B, C")
+    ini_parser.add_argument('-s',"--site",
+                            default='codeforces',
+                            choices = ['codeforces'],
+                            help="contest_site full link ex: codeforces")
+
+    # set
+    '''
+    set should not have default values,
+    its meaning less to have defaults in set
+    '''
+    set_parser = subparsers.add_parser('set')
+    set_parser.add_argument('-c',"--contest",
+                            help="contest num ex: 1080, 987, 840")
+    set_parser.add_argument('-t',"--type",
+                            choices = ['contest','gym'],
+                            help="contest type")
+    set_parser.add_argument('-p',"--prob",
+                            help="problem seq ex: A, B, C")
+    set_parser.add_argument('-s',"--site",
+                            choices = ['codeforces'],
+                            help="contest_site ex: codeforces")
+
+    # run
+    run_parser = subparsers.add_parser('run')
+    run_parser.add_argument("inp",nargs='?',
+                            type=lambda x: is_valid_file(run_parser,x),
+                            default = get_default('inp'),
+                            help="input file ex: one.cpp")
+    run_parser.add_argument('-t',"--test",
+                            type=int,
+                            default = 0,
+                            help="test case num")
+    run_parser.add_argument('-p',"--prob",
+                            # default = get_default('prob') # pick it from input_file name
+                            default = None,
+                            help="problem seq ex: A, B, C")
+
+    # submit
+    smt_parser = subparsers.add_parser('submit')
+    smt_parser.add_argument("inp",nargs=1, # required
+                            type=lambda x: is_valid_file(run_parser,x),
+                            help="input file ex: one.cpp")
+    smt_parser.add_argument('-p',"--prob",
+                            # default = get_default('prob') # pick it from input_file name
+                            default = None,
+                            help="problem seq ex: A, B, C")
+
+    # fetch
+    '''
+    this options should be availabe to be callable from anywhere
+    no matter it is coolkit repo or not
+    and it also doesn't create a new repo
+    neither it sets values
+    '''
+    fch_parser = subparsers.add_parser('fetch')
+    fch_parser.add_argument('-f',"--force",
+                            action='store_true',
+                            default=False,
+                            help="forcefully fch contest")
+    fch_parser.add_argument('-c',"--contest",
+                            default = get_default('contest',create_repo=False),
+                            help="contest num ex: 1080, 987, 840")
+    fch_parser.add_argument('-t',"--type",
+                            default = get_default('type',create_repo=False),
+                            choices = ['contest','gym'],
+                            help="contest type")
+    fch_parser.add_argument('-s',"--site",
+                            default = get_default('site',create_repo=False),
+                            choices = ['codeforces'],
+                            help="contest_site ex: codeforces")
+
+    # config
+    '''
+    this is also same as fetch
+    it wont create a new repo
+    it will also not set values
+    '''
+    cfg_parser = subparsers.add_parser('config')
+    cfg_parser.add_argument('-u',"--user",
+                                help="username/handle")
+    cfg_parser.add_argument('-p',"--pswd",
+                                help="password")
+
+    return parser
+
+def validate_args(args):
+    return
 
 def parse_args():
-    args_avail = ['init','set','run','fetch','submit','config','list_args']
-    first_arg = extract_args(args_avail[:])
+    parser = create_parser()
+    autocomplete(parser)
 
-    parser = ArgumentParser()
+    pars_args = parser.parse_args()
+    validate_args(pars_args)
 
     args = {}
+    first_arg = pars_args.first_arg
+
     if(first_arg == "init"):
         '''
         initilize a repo as coolkit repo
@@ -74,25 +174,7 @@ def parse_args():
             parameters override
             contest name(overrides only if detected)
         '''
-        parser.add_argument('-c',"--contest",
-                            help="contest num ex: 1080, 987, 840")
-        parser.add_argument('-t',"--type",
-                            default = 'contest',
-                            help="contest type")
-        parser.add_argument('-p',"--prob",
-                            default = 'A',
-                            help="problem seq ex: A, B, C")
-        parser.add_argument('-s',"--site",
-                            default='codeforces',
-                            help="contest_site full link ex: codeforces")
-        parser.add_argument('-l',"--list_args",
-                            action='store_true',
-                            help="contest_site full link ex: codeforces")
-        pars_args = parser.parse_args()
-        if(pars_args.list_args):
-            print('--contest --type --prob --site')
-            sys.exit(0)
-        if(pars_args.contest): args['contest'] = pars_args.contest
+        args['contest'] = pars_args.contest
         args['type'] = pars_args.type
         args['prob'] = pars_args.prob
         args['site'] = pars_args.site
@@ -103,15 +185,9 @@ def parse_args():
         just set values to config file in nearest ancestor coolkit directory
         doesn't initilize a repo as coolkit repo if any parent repo is already initilized.
         '''
-        parser.add_argument('-c',"--contest",
-                            help="contest num ex: 1080, 987, 840")
-        parser.add_argument('-t',"--type",
-                            help="contest type")
-        parser.add_argument('-p',"--prob",
-                            help="problem seq ex: A, B, C")
-        parser.add_argument('-s',"--site",
-                            help="contest_site ex: codeforces")
-        pars_args = parser.parse_args()
+        '''
+        if condition required as it may or may not be given a value
+        '''
         if(pars_args.contest): args['contest'] = pars_args.contest
         if(pars_args.type): args['type'] = pars_args.type
         if(pars_args.prob): args['prob'] = pars_args.prob
@@ -119,121 +195,88 @@ def parse_args():
         Args.set_local_config(args)
 
     elif(first_arg == "run"):
+        '''
+        runs the given problem.
+        if no prob given it will check in cache.
+        if no prob in cache then it will stop
+        sets up cache for next time
+        '''
         if(not Args.check_init()):
-            print('`run` is only available for coolkit repo. initilize it as coolkit repo with `coolkit init`')
-            sys.exit(0)
-        # implement coolkit run A.cpp
-        file_name = check_file_name()
-        if(not file_name):
-            parser.add_argument('-i',"--inp",
-                                help="input file")
-        parser.add_argument('-t',"--test",
-                            type=int,
-                            default = 0,
-                            help="test case num")
-        parser.add_argument('-p',"--prob",
-                            help="problem seq ex: A, B, C")
+            print('repo not found')
+            Args.init_repo()
 
-        pars_args = parser.parse_args()
-        data = Args.fetch_data_from_local_config()
+        args['inp'] = pars_args.inp # can be none
+        args['test'] = pars_args.test
+        args['prob'] = pars_args.prob # can be None
 
-        if(pars_args.test): args['test'] = pars_args.test
-
-        # verify contest
-        args['contest'] = data['contest']
+        args['contest'] = get_default('contest') # can be None
         if(not args['contest']):
             print('contest not set, please set contest using `coolkit set -c <contest_num>`')
             sys.exit(0)
 
-        # verify file
-        if(file_name): args['inp'] = file_name
-        elif(pars_args.inp): args['inp'] = pars_args.inp
-        else: args['inp'] = data['inp']
         if(not args['inp']):
-            print('unable to detect input file, provide name of input file using -i <file.cpp>')
-            sys.exit(0)
-        if(not os.path.isfile(args['inp'])):
-            print(args['inp'],'is not a valid file location, please provide a valid file path')
+            print('no input file provided or found in cache')
             sys.exit(0)
 
-        # verify prob
-        if(pars_args.prob): args['prob'] = pars_args.prob
-        else:
+        if(not args['prob']):
             p = get_problem_name(args['inp'].split('/')[-1])
-            if(p == None): p = data['prob']
+            if(p == None): p = get_default('prob')
             args['prob'] = p
 
         Args.set_local_config(args) #cache up the args for next turn
         Args.run(args)
 
+    elif(first_arg == "submit"):
+        if(not Args.check_init()):
+            Args.init_repo()
+
+        args['inp'] = pars_args.inp # can be None
+        args['prob'] = pars_args.prob # can be None
+
+        args['contest'] = get_default('contest') # can be None
+        args['type'] = get_default('type')
+        args['site'] = get_default('site')
+
+        args['contest'] = get_default('contest') # can be None
+        if(not args['contest']):
+            print('contest not set, please set contest using `coolkit set -c <contest_num>`')
+            sys.exit(0)
+
+        if(not args['inp']):
+            print('no input file provided or found in cache')
+            sys.exit(0)
+
+        if(not args['prob']):
+            p = get_problem_name(args['inp'].split('/')[-1])
+            if(p == None):
+                print('please provide the problem using flag -p')
+                sys.exit(0)
+            args['prob'] = p
+
+        Args.submit_it(args)
+
+
     elif(first_arg == "fetch"):
-        parser.add_argument('-f',"--force",
-                            action='store_true',
-                            default=False,
-                            help="forcefully fetch contest")
-        parser.add_argument('-c',"--contest",
-                            help="contest num ex: 1080, 987, 840")
-        parser.add_argument('-t',"--type",
-                            default = 'contest',
-                            help="contest type")
-        parser.add_argument('-s',"--site",
-                            default='codeforces',
-                            help="contest_site ex: codeforces")
         # Args.check_init() # fetching can be done even without this if contest name given
-        pars_args = parser.parse_args()
-        if(pars_args.contest): args['contest'] = pars_args.contest
-        if(pars_args.type): args['type'] = pars_args.type
-        if(pars_args.site): args['site'] = pars_args.site
+        args['contest'] = pars_args.contest # can be None
+        args['type'] = pars_args.type
+        args['site'] = pars_args.site
         args['force'] = pars_args.force
-        if(not pars_args.contest):
+
+        if(not args['contest']):
             if(not Args.check_init()):
                 print('no contest provided, either provide contest using -c or run command from a coolkit repo')
                 sys.exit(0)
-            args['contest'] = Args.fetch_data_from_local_config()['contest']
-            if(not args['contest']):
+            else:
                 print('contest not set, use `coolkit set -c <contest num>`, or provide contest name using -c parameter')
                 sys.exit(0)
-            print('detected contest num : ' + args['contest'])
         Args.fetch_contest(args)
 
-
-
-    elif(first_arg == "submit"):
-        parser.add_argument('-c',"--contest",
-                            help="contest num ex: 1080, 987, 840")
-        parser.add_argument('-t',"--type",
-                            help="contest type")
-        parser.add_argument('-p',"--prob",
-                            help="problem seq ex: A, B, C")
-        parser.add_argument('-s',"--site",
-                            help="contest_site ex: codeforces")
-        if(not Args.check_init()):
-            print('`submit` is only available for coolkit repo. initilize it as coolkit repo with `coolkit init`')
-            sys.exit(0)
-        pars_args = parser.parse_args()
-        if(pars_args.contest): args['contest'] = pars_args.contest
-        if(pars_args.type): args['type'] = pars_args.type
-        if(pars_args.prob): args['prob'] = pars_args.prob
-        if(pars_args.site): args['site'] = pars_args.site
-
     elif(first_arg == "config"):
-        parser.add_argument('-u',"--user",
-                            help="username/handle")
-        parser.add_argument('-p',"--pswd",
-                            help="password")
-        pars_args = parser.parse_args()
         if(pars_args.user): args['user'] = pars_args.user
         if(pars_args.pswd): args['pswd'] = pars_args.pswd
         Args.set_global_config(args)
 
-
-    elif(first_arg in ['--help','-h','help']):
-        print(coolkit_help)
-        return
-
-    elif(first_arg == "list_args"):
-        print(' '.join(sorted(args_avail[:-1])))
-        return
 
 if __name__ == '__main__':
     parse_args()

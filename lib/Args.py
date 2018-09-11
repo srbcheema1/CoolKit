@@ -40,9 +40,11 @@ def init_repo(args={},debug=False):
     else:
         print('Already a coolkit repo')
 
-    if('contest' not in args):
+    if(not 'contest' in args or not args['contest']):
         contest_name = get_contest_name(cwd.split('/')[-1])
-        if(contest_name != 'None'):
+        if(not contest_name):
+            args['contest'] = None
+        else:
             args['contest'] = contest_name
     dump_data(args,cwd+'/.coolkit/config')
 
@@ -51,8 +53,11 @@ def set_local_config(args={},debug=False):
     '''
     set config to config file.
         parent config if found
-        else it will create new one int this folder
+        creates init if not
     '''
+    if(not check_init()):
+        init_repo()
+
     cwd = abs_path(os.getcwd())
     home_loc = abs_path('~')
     now = cwd
@@ -61,17 +66,8 @@ def set_local_config(args={},debug=False):
             if(debug): print('got .coolkit at ',now)
             break
         now = abs_path(os.path.join(now,os.pardir))
-    if(now == home_loc):
-        verify_folder(cwd+'/.coolkit/')
-        create_file(cwd+'/.coolkit/config')
-        config_loc = cwd
-        print('initialized empty CoolKit repository in '+config_loc+'/.coolkit/')
-    elif(now != cwd):
-        config_loc = now
-    else:
-        config_loc = cwd
 
-    dump_data(args,config_loc+'/.coolkit/config')
+    dump_data(args,now+'/.coolkit/config')
 
 def set_global_config(args={}):
     '''
@@ -93,7 +89,13 @@ def check_init():
         now = abs_path(os.path.join(now,os.pardir))
     return False
 
+def verify_init():
+    if(not check_init()):
+        print('not a coolkit repo')
+        sys.exit(0)
+
 def fetch_data_from_local_config():
+    verify_init()
     cwd = abs_path(os.getcwd())
     home_loc = abs_path('~')
     now = cwd
@@ -101,8 +103,6 @@ def fetch_data_from_local_config():
         if('.coolkit' in os.listdir(now) and os.path.isdir(os.path.join(now,'.coolkit'))):
             break
         now = abs_path(os.path.join(now,os.pardir))
-    if(now == home_loc):
-        return "None"
 
     data = extract_data(now+'/.coolkit/config')
     return data
@@ -120,3 +120,6 @@ def fetch_contest(args):
 
 def run(args):
     print('running %s file for %s problem on %s contest' % (args['inp'],args['prob'],args['contest']) )
+
+def submit_it(args):
+    print('submitting %s file for %s problem on %s contest' % (args['inp'],args['prob'],args['contest']) )
