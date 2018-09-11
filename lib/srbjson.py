@@ -13,6 +13,7 @@ config_template = {
         "type":"contest",
         "site":"codeforces",
         "prob":"A",
+        "inp":None,
         "num_prob":0,
         "is_good":False,
         "mult_soln":False,
@@ -71,5 +72,6 @@ def dump_data(data,file_name):
     fille = abs_path(file_name)
     dictt = extract_data(fille)
     for key in data:
-        dictt[key] = data[key]
+        if(key in dictt):
+            dictt[key] = data[key]
     _write_data(dictt,file_name)

@@ -11,7 +11,7 @@ try:
 except:
     from abs_path import abs_path
     from Constants import Const
-    from files import verify_folder, verify_file, dump_data
+    from files import verify_folder, verify_file
     from srbjson import create_file, dump_data, extract_data
     from global_config import get_contest_name, get_problem_name
 
@@ -80,7 +80,7 @@ def set_global_config(args={}):
     dump_data(args,abs_path('~/.config/coolkit/config'))
 
 
-def check_init(args={}):
+def check_init():
     '''
     set config to global config file.
     '''
@@ -93,7 +93,7 @@ def check_init(args={}):
         now = abs_path(os.path.join(now,os.pardir))
     return False
 
-def fetch_contest_name_from_config():
+def fetch_data_from_local_config():
     cwd = abs_path(os.getcwd())
     home_loc = abs_path('~')
     now = cwd
@@ -105,7 +105,7 @@ def fetch_contest_name_from_config():
         return "None"
 
     data = extract_data(now+'/.coolkit/config')
-    return data.get('contest')
+    return data
 
 def fetch_contest(args):
     '''
@@ -117,4 +117,6 @@ def fetch_contest(args):
         return
     temp_contest = Contest(contest)
     temp_contest.fetch_contest()
-    pass
+
+def run(args):
+    print('running %s file for %s problem on %s contest' % (args['inp'],args['prob'],args['contest']) )

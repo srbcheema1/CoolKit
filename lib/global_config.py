@@ -4,7 +4,7 @@ def get_contest_name(folder):
     '''
     takes parameter folder which is name of folder you are in
     returns contest number if possible to detect
-    if can't determine then return "None"
+    if can't determine then return None
     '''
     user = getpass.getuser()
     if(user == 'srb'):
@@ -16,7 +16,7 @@ def get_problem_name(file_name):
     '''
     takes parameter file_name which is name of file you are working with
     returns problem name if possible to detect
-    if can't determine then return "None"
+    if can't determine then return None
     '''
     user = getpass.getuser()
     if(user == 'srb'):
