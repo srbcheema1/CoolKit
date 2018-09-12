@@ -121,7 +121,7 @@ class Contest:
 
 
     def display(self):
-        self.display_prob_mapp()
+        self._display_prob_mapp()
 
 
     def _display_prob_mapp(self):

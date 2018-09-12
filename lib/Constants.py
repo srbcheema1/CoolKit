@@ -1,5 +1,5 @@
 try:
-    from util.abs_path import abs_path
+    from lib.abs_path import abs_path
 except:
     from abs_path import abs_path
 

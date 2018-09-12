@@ -115,4 +115,4 @@ if __name__ == "__main__":
     prob = Problem(1008,'C')
     prob._fetch_io()
     prob.print_io()
-    print(prob.input)
+    print(prob.link)
