@@ -32,21 +32,21 @@ except:
 
 
 class Contest:
-    def __init__(self,c_num,name=None):
-        if(name == None):
-            name = ""
-        self._init(c_num,name)
-
-    def _init(self,c_num,name):
-        # check for cached
-        self.is_good = False
-        self.name = name
-        self.contest = str(c_num)
-        self.link = "https://codeforces.com/contest/"+self.contest
+    def __init__(self,c_name,c_type='contest',title=''):
+        self.is_good = False # loaded fully or not
+        self.title = title
+        self.contest = str(c_name)
+        self.c_type = c_type
+        self.link = "https://codeforces.com/"+self.c_type+"/"+self.contest
         self.prob_mapp = {}
         self.prob_num = len(self.prob_mapp)
-        if(os.path.exists(Const.cache_dir+'/contest'+self.contest)):
-            self.load_contest()
+        self.dir = Const.cache_dir + '/' + self.c_type + '/' + self.contest
+
+        dump_data({"contest":self.contest,"type":self.c_type}, self.dir+ "/config")
+        self._load_contest()            # pick cached data
+        # haven't called fetch_contest from constructor as it may be slow
+        # call it seperately, its safe as it wont refetch things if loaded
+
 
     def fetch_contest(self,force=False):
         '''
@@ -54,84 +54,107 @@ class Contest:
         '''
         if(not force and self.is_good):
             return
-        self._fetch_problems()
+
+        self._fetch_problems_list()
+
+        if (len(self.prob_mapp) == 0):
+            print(Colour.RED+'unable to fetch problem list'+Colour.END)
+            return
+
         prob_links = []
+        p_names = []
         for key in self.prob_mapp.keys():
-            prob_links.append(self.prob_mapp[key].link)
+            if(force or not self.prob_mapp[key].is_good):
+                prob_links.append(self.prob_mapp[key].link)
+                p_names.append(key)
 
         # try to fetch
-        failed = self._fetch_prob_test_cases(prob_links)
+        failed_links,failed_p_names = self._fetch_prob_test_cases(prob_links,p_names)
         tries = 1
-        if(len(failed) > 0 and tries > 0):
-            failed = self._fetch_prob_test_cases(links)
-            print(Colour.YELLOW + tries+'th try to fetch problems' + Colour.END)
+        while(len(failed_links) > 0 and tries > 0):
+            failed_links,failed_p_names = self._fetch_prob_test_cases(failed_links,failed_p_names)
+            print(Colour.YELLOW + tries+' try to fetch problems' + Colour.END)
             tries -= 1
-        if(len(failed) > 0):
-            for a in failed:
+        if(len(failed_links) > 0):
+            for a in failed_p_names:
                 print(Colour.RED + 'failed to fetch' + a + Colour.END)
             self.is_good = False
         else:
             self.is_good = True
-        dump_data({"is_good":self.is_good,"contest":self.contest,"num_prob":self.prob_num},
-                Const.cache_dir + "/contest/" + self.contest + "/config")
+        dump_data({"is_good":self.is_good,"contest":self.contest,"num_prob":self.prob_num}, self.dir+ "/config")
 
-    def _fetch_prob_test_cases(self,links):
+
+    def _fetch_prob_test_cases(self,links,p_names):
         """
         Method to download prob_test_cases for all problems
         """
-        print('fetching problems ... ')
+        print(Colour.YELLOW + 'fetching problems ... ' + Colour.CYAN, p_names, Colour.END)
+
         rs = (grq.get(link) for link in links)
         responses = grq.map(rs)
 
+        failed_probs = []
         failed_requests = []
         for response in responses:
             if response is not None and response.status_code == 200:
                 soup = BeautifulSoup(response.text, 'html.parser')
-                seq = response.url.split('/')[-1]
-                if(seq == ''):
-                    print(response.url)
-                inputs, outputs, mult_soln = Problem.get_test_cases(soup,seq)
+                prob = response.url.split('/')[-1]
+                inputs, outputs, mult_soln = Problem.get_test_cases(soup,prob)
 
-                self.prob_mapp[seq].inputs = inputs
-                self.prob_mapp[seq].outputs = outputs
-                self.prob_mapp[seq].mult_soln = mult_soln
-                self.prob_mapp[seq].is_good = True
-                self.prob_mapp[seq].dump_io()
+                if(len(inputs) == 0 or len(outputs) == 0 or len(inputs) != len(outputs)):
+                    failed_requests += [response.url]
+                    failed_probs += [prob]
+                    continue
+
+                self.prob_mapp[prob].inputs = inputs
+                self.prob_mapp[prob].outputs = outputs
+                self.prob_mapp[prob].mult_soln = mult_soln
+                self.prob_mapp[prob].is_good = True
+                self.prob_mapp[prob].num_test = len(inputs)
+                self.prob_mapp[prob].dump_data()
             else:
                 failed_requests += [response.url]
-        return failed_requests
+        return failed_requests,failed_probs
 
 
-    def load_contest(self):
-        path = Const.cache_dir+'/contest/'
-        data = extract_data(path+'config')
+    def _load_contest(self):
+        data = extract_data(self.dir+'/config')
         self.is_good = data['is_good']
         self.prob_num = data['num_prob']
 
         # problems
-        path = path + self.contest + '/'
+        path = self.dir + '/prob/'
+        verify_folder(path)
+        good_probs = 0
         prob_dirs = [ (a if os.path.isdir(path+a) else None) for a in os.listdir(path)]
         for a in prob_dirs:
             if(a):
-                self.prob_mapp[a] = Problem(self.contest,a)
-                self.prob_mapp[a].load_problem()
-                # TODO: inputs and outputs are yet to be fetched load_prob to be implemented
+                self.prob_mapp[a] = Problem(self.contest,a,self.c_type)
+                if(self.prob_mapp[a].is_good):
+                    good_probs += 1
+                else:
+                    self.is_good = False
 
-        self.prob_num = len(self.prob_mapp)
+        if(good_probs != self.prob_num):
+            print(Colour.YELLOW+'expected',self.prob_num,'probs got',good_probs,'good probs',Colour.END)
+            self.is_good = False
+        if(self.prob_num == 0):
+            print(Colour.YELLOW+'num_prob is 0 in config'+Colour.END)
+
 
 
     def display(self):
         self._display_prob_mapp()
 
-
     def _display_prob_mapp(self):
         table_data = [['#','Name','submissions','Link']]
         for prob in self.prob_mapp.values():
-            table_data.append([prob.seq,prob.name,prob.subm,prob.link])
+            table_data.append([prob.prob,prob.title,prob.subm,prob.link])
         print(AsciiTable(table_data).table)
 
-    def _fetch_problems(self):
-        soup = Soup.get_soup("https://codeforces.com/contest/"+self.contest)
+
+    def _fetch_problems_list(self):
+        soup = Soup.get_soup("https://codeforces.com/"+self.c_type+"/"+self.contest)
 
         if(soup is None):
             return
@@ -139,16 +162,15 @@ class Contest:
         prob_table = soup.findAll('table',{'class':'problems'})[0]
         prob_list = prob_table.findAll('tr')[1:]
 
-        prob_mapp = {}
-        for prob in prob_list:
-            seq = prob.findAll('td')[0].get_text().strip()
-            name = prob.findAll('td')[1].findAll('a')[0].get_text().strip()
-            subm = prob.findAll('td')[3].get_text().strip().split('x')[-1]
-            temp_prob = Problem(self.contest,seq,name)
-            temp_prob.subm = subm
-            prob_mapp[seq] = temp_prob
-        self.prob_mapp = prob_mapp
-        self.prob_num = len(prob_mapp)
+        for problem in prob_list:
+            prob = problem.findAll('td')[0].get_text().strip()
+            title = problem.findAll('td')[1].findAll('a')[0].get_text().strip()
+            subm = problem.findAll('td')[3].get_text().strip().split('x')[-1]
+            if(not prob in self.prob_mapp.keys()):
+                self.prob_mapp[prob] = Problem(self.contest,prob,self.c_type,title)
+            self.prob_mapp[prob].subm = subm
+        self.prob_num = len(self.prob_mapp)
+        dump_data({"num_prob":self.prob_num}, self.dir+ "/config")
 
 
     @staticmethod
@@ -156,8 +178,9 @@ class Contest:
         url = "http://codeforces.com/contests"
         soup = Soup.get_soup(url)
 
-        contests = [['id','name','','time','dur.','link']]
+        contests = [['id','title','','time','dur.','link']]
         if(soup is None):
+            print(Colour.RED+'unable to fetch upcoming contests list'+Colour.END)
             return contests
 
         datatable = soup.find_all('div',{'class':'datatable'})[0].find_all('table')[0]
@@ -165,14 +188,14 @@ class Contest:
         for row in contest_rows:
             c_id = row['data-contestid']
             data = row.find_all('td')
-            name = data[0].get_text().strip()
-            name = Contest.get_short_contest_name(name)
+            title = data[0].get_text().strip()
+            title = Contest.get_short_contest_title(title)
             writer = data[1].get_text().strip()
             time = data[2].get_text().strip()
             time = Contest.get_formatted_time(time)
             duration = data[3].get_text().strip()
             link = "www.codeforces.com/contest/"+c_id
-            contests.append([c_id,name,writer,time,duration,link])
+            contests.append([c_id,title,writer,time,duration,link])
 
         if(display is True): print(AsciiTable(contests).table)
         return contests
@@ -193,7 +216,7 @@ class Contest:
 
 
     @staticmethod
-    def get_short_contest_name(contest):
+    def get_short_contest_title(contest):
         contest = contest.replace("Codeforces","CF")
         contest = contest.replace("Educational","EDU")
         contest = contest.replace("Elimination","ELM")
@@ -234,12 +257,12 @@ class Contest:
         return str(date).zfill(2) + '-' + month + ' ' + str(hour).zfill(2) + ':' + str(mins).zfill(2)
 
 if(__name__=="__main__"):
-    contest_num=920
+    c_name="920"
     if(len(sys.argv)==2):
-        contest_num = sys.argv[1]
+        c_name = sys.argv[1]
 
-    temp_contest = Contest(contest_num)
-    temp_contest._fetch_problems()
+    temp_contest = Contest(c_name)
+    temp_contest._fetch_problems_list()
     temp_contest.display()
 
     Contest.upcoming_contest(display=True)

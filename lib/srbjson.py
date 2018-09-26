@@ -5,6 +5,7 @@ try:
     from lib.files import verify_file
 except:
     from abs_path import abs_path
+    from files import verify_file
 
 
 config_template = {
@@ -18,7 +19,8 @@ config_template = {
         "is_good":False,
         "mult_soln":False,
         "user":None,
-        "pswd":None
+        "pswd":None,
+        "hash":""
     }
 }
 

@@ -1,0 +1,14 @@
+{
+    "coolkit": {
+        "type": "contest",
+        "user": null,
+        "num_prob": 0,
+        "pswd": null,
+        "prob": "A",
+        "inp": null,
+        "contest": null,
+        "is_good": false,
+        "site": "codeforces",
+        "mult_soln": false
+    }
+}
