@@ -168,6 +168,7 @@ class Contest:
             subm = problem.findAll('td')[3].get_text().strip().split('x')[-1]
             if(not prob in self.prob_mapp.keys()):
                 self.prob_mapp[prob] = Problem(self.contest,prob,self.c_type,title)
+            self.prob_mapp[prob].title = title
             self.prob_mapp[prob].subm = subm
         self.prob_num = len(self.prob_mapp)
         dump_data({"num_prob":self.prob_num}, self.dir+ "/config")
@@ -262,7 +263,7 @@ if(__name__=="__main__"):
         c_name = sys.argv[1]
 
     temp_contest = Contest(c_name)
-    temp_contest._fetch_problems_list()
+    temp_contest.fetch_contest()
     temp_contest.display()
 
     Contest.upcoming_contest(display=True)

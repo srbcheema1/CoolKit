@@ -59,6 +59,7 @@ class Problem:
         self.num_test = data['num_prob']
         self.mult_soln = data['mult_soln']
         self.hash = data['hash']
+        self.title = data['title']
         verify_folder(self.dir + '/io')
         now_hash = get_hash(self.dir +'/io')
         if(self.hash != now_hash):
@@ -78,7 +79,7 @@ class Problem:
         now_hash = get_hash(self.dir +'/io')
         io = os.listdir(self.dir+'/io')
         dump_data({"is_good":self.is_good,"num_prob":self.num_test,"mul_soln":self.mult_soln}, self.dir + "/config")
-        dump_data({"hash":self.hash}, self.dir + "/config")
+        dump_data({"hash":self.hash,'title':self.title}, self.dir + "/config")
 
 
     def _dump_io(self):
@@ -86,13 +87,13 @@ class Problem:
         Dump the input output files
         '''
         for i, inp in enumerate(self.inputs):
-            filename = os.path.join(self.dir, 'io', 'Input' + str(i))
+            filename = os.path.join(self.dir, 'io', 'Input' + str(i+1))
             verify_file(filename)
             with open(filename, 'w') as handler:
                 handler.write(inp)
 
         for i, out in enumerate(self.outputs):
-            filename = os.path.join(self.dir, 'io', 'Output' + str(i))
+            filename = os.path.join(self.dir, 'io', 'Output' + str(i+1))
             verify_file(filename)
             with open(filename, 'w') as handler:
                 handler.write(out)

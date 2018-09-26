@@ -203,8 +203,10 @@ def parse_args():
         args['test'] = pars_args.test # 0 means all
         args['prob'] = pars_args.prob # can be None
 
-        args['type'] = get_default('type') # contest/gym
-        args['contest'] = get_default('contest') # can be None
+        config_data = Args.fetch_data_from_local_config()
+        args['type'] = config_data['type'] # contest/gym
+        args['contest'] = config_data['contest'] # can be None
+
         if(not args['contest']):
             print('contest not set, please set contest using `coolkit set -c <contest_num>`')
             sys.exit(0)

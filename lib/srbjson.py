@@ -20,7 +20,8 @@ config_template = {
         "mult_soln":False,
         "user":None,
         "pswd":None,
-        "hash":""
+        "hash":"",
+        "title":""
     }
 }
 
