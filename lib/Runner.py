@@ -45,12 +45,16 @@ class Runner:
         }[self.extension]
 
     def run(self):
-        print(Colour.GREEN+'running %s file for %s prob on %s'%
-                (self.args['inp'],self.args['prob'],self.args['contest'])+Colour.END)
-
         if not self.extension in ['c', 'cpp', 'java', 'py', 'rb']:
             print('Supports only C, C++, Python, Java, and Ruby as of now.')
             sys.exit(0)
+
+        if(self.args['test'] != 0):
+            self.run_single_test(self.args['test'])
+            return
+
+        print(Colour.GREEN+'running %s file for %s prob on %s'%
+                (self.args['inp'],self.args['prob'],self.args['contest'])+Colour.END)
 
         # COMPILE
         if not self.compiler is None:
@@ -60,11 +64,8 @@ class Runner:
                 sys.exit(0)
 
         # RUN
-        if(self.args['test'] != 0):
-            self.run_single_test(self.args['test'])
-        else:
-            self.run_on_tests([test+1 for test in range(self.prob.num_test)])
-            self.print_table()
+        self.run_on_tests([test+1 for test in range(self.prob.num_test)])
+        self.print_table()
 
 
     def print_table(self):
@@ -133,6 +134,14 @@ class Runner:
 
 
     def run_single_test(self,test):
+        # COMPILE
+        if not self.compiler is None:
+            compile_status = os.system(self.compiler + ' \'' + self.input_file + '\' > /dev/null 2>&1') #spaces in path
+            if compile_status != 0:
+                print(Colour.RED + 'Compilation error.' + Colour.END)
+                os.system(self.compiler + ' \'' + self.input_file + '\'') #spaces in path
+                sys.exit(0)
+
         status = os.system(self.execute_command + ' < ' + os.path.join(self.test_loc, 'Input' + str(test)) )
 
     @staticmethod
