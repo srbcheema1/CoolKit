@@ -1,0 +1,6 @@
+- profile
+- submit
+- multiple soln handling
+- print
+- friends standings
+- hashing of io
