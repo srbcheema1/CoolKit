@@ -3,6 +3,7 @@ import os
 import sys
 
 try:
+    import shutil
     import grequests as grq
     from terminaltables import AsciiTable
     from bs4 import BeautifulSoup
@@ -21,28 +22,34 @@ try:
     from lib.files import verify_folder, verify_file
     from lib.Problem import Problem
     from lib.Soup import Soup
-    from lib.srbjson import dump_data, extract_data
+    from lib.srbjson import srbjson
+    from lib.utils import utils
 except:
     from Colour import Colour
     from Constants import Const
     from files import verify_folder, verify_file
     from Problem import Problem
     from Soup import Soup
-    from srbjson import dump_data, extract_data
+    from srbjson import srbjson
+    from utils import utils
 
 
 class Contest:
-    def __init__(self,c_name,c_type='contest',title=''):
+    def __init__(self,c_name,c_type='contest',c_title=''):
         self.is_good = False # loaded fully or not
-        self.title = title
-        self.contest = str(c_name)
+        self.c_title = c_title
+        self.c_name = str(c_name)
         self.c_type = c_type
-        self.link = "https://codeforces.com/"+self.c_type+"/"+self.contest
+        self.link = "https://codeforces.com/"+self.c_type+"/"+self.c_name
         self.prob_mapp = {}
+        self.p_name_list = []
         self.prob_num = len(self.prob_mapp)
-        self.dir = Const.cache_dir + '/' + self.c_type + '/' + self.contest
+        self.dir = Const.cache_dir + '/' + self.c_type + '/' + self.c_name
+        self.announce_arr = []
 
-        dump_data({"contest":self.contest,"type":self.c_type}, self.dir+ "/config")
+        srbjson.dump_data({"c_name":self.c_name,"c_type":self.c_type},
+                self.dir+ "/config",
+                srbjson.contest_template)
         self._load_contest()            # pick cached data
         # haven't called fetch_contest from constructor as it may be slow
         # call it seperately, its safe as it wont refetch things if loaded
@@ -52,19 +59,24 @@ class Contest:
         '''
         do fetching and dumping both
         '''
-        if(not force and self.is_good):
+        if(force):
+            # remove every detail regarding that contest
+            shutil.rmtree(self.dir)
+            self._load_contest()
+
+        if(self.is_good):
+            # return if cached
             return
 
-        self._fetch_problems_list()
-
-        if (len(self.prob_mapp) == 0):
-            print(Colour.RED+'unable to fetch problem list'+Colour.END)
+        self._fetch_contest_home()
+        if (len(self.prob_mapp) == 0 or len(self.prob_mapp) < self.prob_num):
+            print(Colour.RED+'failed to fetch contest home'+Colour.END)
             return
 
         prob_links = []
         p_names = []
-        for key in self.prob_mapp.keys():
-            if(force or not self.prob_mapp[key].is_good):
+        for key in self.p_name_list:
+            if(not self.prob_mapp[key].is_good):
                 prob_links.append(self.prob_mapp[key].link)
                 p_names.append(key)
 
@@ -73,7 +85,7 @@ class Contest:
         tries = 1
         while(len(failed_links) > 0 and tries > 0):
             failed_links,failed_p_names = self._fetch_prob_test_cases(failed_links,failed_p_names)
-            print(Colour.YELLOW + tries+' try to fetch problems' + Colour.END)
+            print(Colour.YELLOW + str(tries)+': try to fetch problems' + Colour.END)
             tries -= 1
         if(len(failed_links) > 0):
             for a in failed_p_names:
@@ -81,7 +93,8 @@ class Contest:
             self.is_good = False
         else:
             self.is_good = True
-        dump_data({"is_good":self.is_good,"contest":self.contest,"num_prob":self.prob_num}, self.dir+ "/config")
+        srbjson.dump_data({"is_good":self.is_good,"c_name":self.c_name,"num_prob":self.prob_num,"p_name_list":self.p_name_list},
+                self.dir+ "/config",srbjson.contest_template)
 
 
     def _fetch_prob_test_cases(self,links,p_names):
@@ -118,60 +131,111 @@ class Contest:
 
 
     def _load_contest(self):
-        data = extract_data(self.dir+'/config')
+        '''
+        loads contest from cache if exists else create an empty contest and loads it up
+        also cleans useless folders in prob folder if they aren't in config of p_name_list
+        '''
+        data = srbjson.extract_data(self.dir+'/config',srbjson.contest_template)
         self.is_good = data['is_good']
         self.prob_num = data['num_prob']
+        self.c_title = data['c_title']
+        self.announce_arr = data['ann_arr']
+        self.p_name_list = data['p_name_list']
 
         # problems
         path = self.dir + '/prob/'
         verify_folder(path)
         good_probs = 0
-        prob_dirs = [ (a if os.path.isdir(path+a) else None) for a in os.listdir(path)]
+        prob_dir_list = [ (a if os.path.isdir(path+a) else None) for a in os.listdir(path)]
+        prob_dirs = []
+        for prob in prob_dir_list: # keep only folders
+            if(prob): prob_dirs += [prob]
+
         for a in prob_dirs:
-            if(a):
-                self.prob_mapp[a] = Problem(self.contest,a,self.c_type)
-                if(self.prob_mapp[a].is_good):
-                    good_probs += 1
-                else:
-                    self.is_good = False
+            self.prob_mapp[a] = Problem(a,self.c_name,self.c_type)
+            if(self.prob_mapp[a].is_good and a in self.p_name_list): # remove waste folders
+                good_probs += 1
+            else:
+                print(Colour.RED+'Removed Bad Problem : '+a+Colour.END)
+                shutil.rmtree(self.prob_mapp[a].dir)
+                del self.prob_mapp[a]
 
         if(good_probs != self.prob_num):
             print(Colour.YELLOW+'expected',self.prob_num,'probs got',good_probs,'good probs',Colour.END)
             self.is_good = False
+
         if(self.prob_num == 0):
-            print(Colour.YELLOW+'num_prob is 0 in config'+Colour.END)
+            print(Colour.YELLOW+'Contest not configured yet'+Colour.END)
+            self.is_good = False
 
 
-
-    def display(self):
-        self._display_prob_mapp()
-
-    def _display_prob_mapp(self):
+    def display_home(self):
+        table_data = [[Colour.BOLD+Colour.GREEN+self.c_title+Colour.END]]
+        print(AsciiTable(table_data).table)
         table_data = [['#','Name','submissions','Link']]
         for prob in self.prob_mapp.values():
-            table_data.append([prob.prob,prob.title,prob.subm,prob.link])
+            table_data.append([prob.p_name,prob.p_title,prob.subm,prob.link])
+        print(AsciiTable(table_data).table)
+        table_data = [['S no','Announcements']]
+        for a,ann in enumerate(self.announce_arr):
+            table_data.append([a+1,utils.shrink(ann,max_len=80)])
         print(AsciiTable(table_data).table)
 
 
-    def _fetch_problems_list(self):
-        soup = Soup.get_soup("https://codeforces.com/"+self.c_type+"/"+self.contest)
+
+    def _fetch_contest_home(self):
+        '''
+        tries to fetch these things and also dump them if fetched
+            contest:
+                c_title
+                prob_mapp
+                p_name_list
+                prob_num
+                ann_arr
+
+            problem:
+                subm
+                p_title
+
+        CAN BE CALLED TO FORCEFULLY UPDATE DATA, say subm during the contest
+        '''
+        soup = Soup.get_soup("https://codeforces.com/"+self.c_type+"/"+self.c_name)
 
         if(soup is None):
             return
 
+        # title
+        rtable = soup.findAll('table',{'class':'rtable'})[0]
+        self.c_title = rtable.findAll('a')[0].get_text().strip()
+
+        # prob table
         prob_table = soup.findAll('table',{'class':'problems'})[0]
         prob_list = prob_table.findAll('tr')[1:]
+        p_name_list = []
 
         for problem in prob_list:
-            prob = problem.findAll('td')[0].get_text().strip()
-            title = problem.findAll('td')[1].findAll('a')[0].get_text().strip()
+            p_name = problem.findAll('td')[0].get_text().strip()
+            p_name_list.append(p_name)
+            p_title = problem.findAll('td')[1].findAll('a')[0].get_text().strip()
             subm = problem.findAll('td')[3].get_text().strip().split('x')[-1]
-            if(not prob in self.prob_mapp.keys()):
-                self.prob_mapp[prob] = Problem(self.contest,prob,self.c_type,title)
-            self.prob_mapp[prob].title = title
-            self.prob_mapp[prob].subm = subm
+            if(not p_name in self.prob_mapp.keys()):
+                self.prob_mapp[p_name] = Problem(p_name,self.c_name,self.c_type,p_title)
+            self.prob_mapp[p_name].p_title = p_title
+            self.prob_mapp[p_name].subm = subm
         self.prob_num = len(self.prob_mapp)
-        dump_data({"num_prob":self.prob_num}, self.dir+ "/config")
+        self.p_name_list = p_name_list
+
+        # announcements
+        atable = soup.findAll('table',{'class':'problem-questions-table'})[0]
+        announce_arr = atable.findAll('tr')[1:]
+        for ann in announce_arr:
+            ann = ann.findAll('td')[-1].get_text().strip()
+            self.announce_arr += [ann]
+
+        srbjson.dump_data({"num_prob":self.prob_num,"c_title":self.c_title,
+        "ann_arr":self.announce_arr,"p_name_list":self.p_name_list},
+        self.dir+ "/config",srbjson.contest_template)
+
 
 
     @staticmethod
@@ -187,49 +251,58 @@ class Contest:
         datatable = soup.find_all('div',{'class':'datatable'})[0].find_all('table')[0]
         contest_rows = datatable.find_all('tr')[1:]
         for row in contest_rows:
-            c_id = row['data-contestid']
+            c_name = row['data-contestid']
+            c_type = 'contests'
             data = row.find_all('td')
             title = data[0].get_text().strip()
             title = Contest.get_short_contest_title(title)
+            title = utils.shrink(title)
             writer = data[1].get_text().strip()
             time = data[2].get_text().strip()
             time = Contest.get_formatted_time(time)
             duration = data[3].get_text().strip()
-            link = "www.codeforces.com/contest/"+c_id
-            contests.append([c_id,title,writer,time,duration,link])
+            link = "www.codeforces.com/"+c_type+"/"+c_name
+            contests.append([c_name,title,writer,time,duration,link])
 
         if(display is True): print(AsciiTable(contests).table)
         return contests
 
 
     @staticmethod
-    def get_number_of_problems(contest_num):
-        return "-"
+    def get_number_of_problems(c_name,c_type='contest',cacheing=False):
         # implementing caching else it is slow
-        url = "https://codeforces.com/contest/"+contest_num
+        url = "https://codeforces.com/"+c_type+"/"+c_name
         soup = Soup.get_soup(url)
         if(soup is None):
-            return
+            return "-",[]
 
         prob_table = soup.findAll('table',{'class':'problems'})[0]
         prob_list = prob_table.findAll('tr')[1:]
-        return str(len(prob_list))
+
+        p_name_list = []
+        for problem in prob_list:
+            p_name = problem.findAll('td')[0].get_text().strip()
+            p_name_list += [p_name]
+
+        return str(len(prob_list)) , p_name_list
 
 
     @staticmethod
-    def get_short_contest_title(contest):
-        contest = contest.replace("Codeforces","CF")
-        contest = contest.replace("Educational","EDU")
-        contest = contest.replace("Elimination","ELM")
-        contest = contest.replace("Rated","R")
-        contest = contest.replace("rated","R")
-        contest = contest.replace("Round","RD")
-        contest = contest.replace("Div. 2","D2")
-        contest = contest.replace("Div. 1","D1")
-        contest = contest.replace("[TBD]","D-")
-        if(len(contest) > 30):
-            contest = contest[0:30]
-        return contest
+    def get_short_contest_title(title):
+        title = title.replace("Codeforces","CF")
+        title = title.replace("Educational","EDU")
+        title = title.replace("Elimination","ELM")
+        title = title.replace("Rated","R")
+        title = title.replace("rated","R")
+        title = title.replace("Round","RnD")
+        title = title.replace("round","RnD")
+        title = title.replace("Div. 3","D3")
+        title = title.replace("Div. 2","D2")
+        title = title.replace("Div. 1","D1")
+        title = title.replace("div. 3","D3")
+        title = title.replace("div. 2","D2")
+        title = title.replace("div. 1","D1")
+        return title
 
     @staticmethod
     def get_formatted_time(time,offset = '03:00'):
@@ -264,6 +337,6 @@ if(__name__=="__main__"):
 
     temp_contest = Contest(c_name)
     temp_contest.fetch_contest()
-    temp_contest.display()
+    temp_contest.display_home()
 
     Contest.upcoming_contest(display=True)

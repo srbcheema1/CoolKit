@@ -9,7 +9,7 @@ try:
     from lib.files import verify_folder, verify_file
     from lib.Problem import Problem
     from lib.Runner import Runner
-    from lib.srbjson import create_file, dump_data, extract_data
+    from lib.srbjson import srbjson
     from lib.global_config import get_contest_name, get_problem_name
 except:
     from abs_path import abs_path
@@ -19,7 +19,7 @@ except:
     from files import verify_folder, verify_file
     from Problem import Problem
     from Runner import Runner
-    from srbjson import create_file, dump_data, extract_data
+    from srbjson import srbjson
     from global_config import get_contest_name, get_problem_name
 
 
@@ -38,8 +38,8 @@ def init_repo(args={},debug=False,init=False):
         now = abs_path(os.path.join(now,os.pardir))
     if(now == home_loc):
         verify_folder(cwd+'/.coolkit/')
-        create_file(cwd+'/.coolkit/config')
-        print('initialized empty CoolKit repository in '+cwd+'/.coolkit/')
+        srbjson.create_file(cwd+'/.coolkit/config',srbjson.local_template)
+        print(Colour.GREEN+'initialized empty CoolKit repository in '+cwd+'/.coolkit/'+Colour.END)
     elif(now != cwd):
         verify_folder(cwd+'/.coolkit/')
         shutil.copy(now+'/.coolkit/config',cwd+'/.coolkit/config')
@@ -47,13 +47,13 @@ def init_repo(args={},debug=False,init=False):
     else:
         if(init): print(Colour.YELLOW+'Already a coolkit repo'+Colour.END)
 
-    if(not 'contest' in args or not args['contest']):
+    if(not 'c_name' in args or not args['c_name']):
         contest_name = get_contest_name(cwd.split('/')[-1])
         if(not contest_name):
-            args['contest'] = None
+            args['c_name'] = None
         else:
-            args['contest'] = contest_name
-    dump_data(args,cwd+'/.coolkit/config')
+            args['c_name'] = contest_name
+    srbjson.dump_data(args,cwd+'/.coolkit/config',srbjson.local_template)
 
 
 def set_local_config(args={},debug=False):
@@ -74,13 +74,13 @@ def set_local_config(args={},debug=False):
             break
         now = abs_path(os.path.join(now,os.pardir))
 
-    dump_data(args,now+'/.coolkit/config')
+    srbjson.dump_data(args,now+'/.coolkit/config',srbjson.local_template)
 
 def set_global_config(args={}):
     '''
     set config to global config file.
     '''
-    dump_data(args,abs_path(Const.cache_dir + '/config'))
+    srbjson.dump_data(args,abs_path(Const.cache_dir + '/config'),srbjson.global_template)
 
 
 def check_init():
@@ -98,7 +98,7 @@ def check_init():
 
 def verify_init():
     if(not check_init()):
-        print('not a coolkit repo')
+        print(Colour.RED+'not a coolkit repo'+Colour.END)
         sys.exit(0)
 
 def fetch_data_from_local_config():
@@ -111,14 +111,14 @@ def fetch_data_from_local_config():
             break
         now = abs_path(os.path.join(now,os.pardir))
 
-    data = extract_data(now+'/.coolkit/config')
+    data = srbjson.extract_data(now+'/.coolkit/config',srbjson.local_template)
     return data
 
 def fetch_contest(args):
     '''
     check cache
     '''
-    c_name = str(args['contest'])
+    c_name = str(args['c_name'])
     temp_contest = Contest(c_name)
     if(not args['force'] and temp_contest.is_good):
         print(Colour.GREEN+'cache exists'+Colour.END)
@@ -126,23 +126,27 @@ def fetch_contest(args):
     temp_contest.fetch_contest()
 
 def run(args):
-    contest = Contest(args['contest'],args['type'])
+    contest = Contest(args['c_name'],args['c_type'])
     if(not contest.is_good):
         contest.fetch_contest()
 
-    prob = Problem(args['contest'],args['prob'])
+    prob = Problem(args['p_name'],args['c_name'],args['c_type'])
     if(not prob.is_good):
         print(Colour.YELLOW+'Test cases not found locally...'+Colour.END)
         # choice to fetch whole contest or problem
         prob.fetch_io()
         prob.dump_data()
 
+    if(not prob.is_good):
+        print(Colour.FULLRED+'Sorry! Due to Connection problem. Unable to test your file'+Colour.END)
+        return
+
     runner = Runner(args,prob)
     runner.run()
 
 
 def submit_it(args):
-    data = extract_data(Const.cache_dir+'/config')
+    data = srbjson.extract_data(Const.cache_dir+'/config',srbjson.global_template)
     u_name = data['user']
     pswd = data['pswd']
-    print(Colour.GREEN+'submitting %s file for %s prob on %s' % (args['inp'],args['prob'],args['contest']) +Colour.END)
+    print(Colour.GREEN+'submitting %s file for %s prob on %s' % (args['inp'],args['p_name'],args['c_name']) +Colour.END)

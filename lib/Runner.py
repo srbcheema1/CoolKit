@@ -46,7 +46,7 @@ class Runner:
 
     def run(self):
         if not self.extension in ['c', 'cpp', 'java', 'py', 'rb']:
-            print('Supports only C, C++, Python, Java, and Ruby as of now.')
+            print(Colour.CYAN+'Supports only C, C++, Python, Java, and Ruby as of now.'+Colour.END)
             sys.exit(0)
 
         if(self.args['test'] != 0):
@@ -54,7 +54,7 @@ class Runner:
             return
 
         print(Colour.GREEN+'running %s file for %s prob on %s'%
-                (self.args['inp'],self.args['prob'],self.args['contest'])+Colour.END)
+                (self.args['inp'],self.args['p_name'],self.args['c_name'])+Colour.END)
 
         # COMPILE
         if not self.compiler is None:
@@ -94,7 +94,7 @@ class Runner:
     def run_on_tests(self,tests):
         for i in tests:
             status = os.system('timeout 2s ' + self.execute_command + ' < ' + os.path.join(
-                self.test_loc, 'Input' + str(i)) + ' > .coolkit/out_' + self.prob.prob + str(i))
+                self.test_loc, 'Input' + str(i)) + ' > .coolkit/out_' + self.prob.p_name + str(i))
 
             with open(os.path.join(self.test_loc, 'Output' + str(i)), 'r') as out_handler:
                 orig_output = out_handler.read().strip().split('\n')
@@ -110,7 +110,7 @@ class Runner:
 
             if status == 0:
                 # Ran successfully
-                with open('.coolkit/out_'+ self.prob.prob + str(i), 'r') as user_out_handler:
+                with open('.coolkit/out_'+ self.prob.p_name + str(i), 'r') as user_out_handler:
                     user_output = user_out_handler.read().strip().split('\n')
                     user_output = '\n'.join(
                         [line.strip() for line in user_output])

@@ -91,17 +91,17 @@ class Dummy_user:
         contest_table = []
         for row in table_rows:
             num = row.findAll('td')[0].get_text().strip()
-            contest = row.findAll('td')[1].get_text().strip()
-            contest = Contest.get_short_contest_name(contest)
-            link_num = row.findAll('td')[1].findAll('a')[0]['href'].strip().split('/')[-1]
+            c_title = row.findAll('td')[1].get_text().strip()
+            c_title = Contest.get_short_contest_name(c_title)
+            c_name = row.findAll('td')[1].findAll('a')[0]['href'].strip().split('/')[-1]
             rank = row.findAll('td')[2].get_text().strip()
             solved = row.findAll('td')[3].get_text().strip()
-            outof = Contest.get_number_of_problems(link_num)
+            outof , _p_name_list = Contest.get_number_of_problems(c_name)
             rating_change = row.findAll('td')[4].get_text().strip()
             rating = row.findAll('td')[5].get_text().strip()
             change = row.findAll('td')[6].findAll('div')
             change = '' if len(change) == 0 else change[0].get_text().strip()
-            contest_table.append([num,contest,rank,solved+"/"+outof,rating_change,rating,change,link_num])
+            contest_table.append([num,c_title,rank,solved+"/"+outof,rating_change,rating,change,c_name])
 
         self.contest_table.extend(contest_table)
 

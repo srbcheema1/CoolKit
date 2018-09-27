@@ -2,6 +2,11 @@
 import os,time
 import hashlib
 
+try:
+    from lib.Colour import Colour
+except:
+    from Colour import Colour
+
 def _dfs_dir(path):
     content = os.listdir(path)
     dir_hash = "+"
@@ -23,7 +28,7 @@ def get_hash(path):
     '''
     return ""
     if(not os.path.exists(path)):
-        print('path not exist ' + path)
+        print(Colour.RED+'path not exist ' + path+Colour.END)
         return ""
     dir_hash = _dfs_dir(path)
     return str(hashlib.sha1(dir_hash.encode('utf-8')).hexdigest())
@@ -35,4 +40,4 @@ if __name__ == "__main__":
     if(len(sys.argv)==2):
         path = sys.argv[1]
     dir_hash = get_hash(path)
-    print(dir_hash)
+    print(Colour.CYAN+dir_hash+Colour.END)

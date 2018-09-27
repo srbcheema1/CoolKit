@@ -44,7 +44,7 @@ def srb_problem_name(file_name):
     file_name = file_name.split('.')[0] #chopp off extension
     file_name = file_name.lower()
 
-    file_name = file_name.replace('_','')
+    # file_name = file_name.replace('_','')
     file_name = file_name.replace('-','')
     file_name = file_name.replace('good','')
     file_name = file_name.replace('test','')
@@ -63,25 +63,29 @@ def srb_problem_name(file_name):
         'eight':'H',
         'nine':'I',
 
-        '1':'A',
-        '2':'B',
-        '3':'C',
-        '4':'D',
-        '5':'E',
-        '6':'F',
-        '7':'G',
-        '8':'H',
-        '9':'I',
     }
+
 
     for key in mapp.keys():
         if(key in file_name):
             return mapp[key]
 
-    if(len(file_name) == 1):
+    if(len(file_name) == 1 and file_name.isalpha()):
         return file_name.upper()
 
-    return "None"
+    name_arr = file_name.split('_')
+    for part in name_arr:
+        if(len(part) == 1 and part.isalpha()):
+            return part.upper()
+
+    newstr = ''.join((ch if ch in '0123456789' else ' ') for ch in file_name)
+    num_arr = newstr.split(' ')
+    if(len(num_arr) == 1):
+        numm = int(num_arr[0])
+        if(numm < 26):
+            return chr(ord('A') + numm - 1)
+
+    return None
 
 if __name__ == "__main__":
     folder = input('enter folder name : ')

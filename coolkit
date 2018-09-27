@@ -18,7 +18,7 @@ from lib import Args
 from lib.Colour import Colour
 from lib.Constants import Const
 from lib.global_config import get_problem_name
-from lib.srbjson import config_template
+from lib.srbjson import srbjson
 
 coolkit_help="""usage coolkit [option] [--suboptions [args]]
 
@@ -121,14 +121,14 @@ def create_parser():
                             default=False,
                             help="forcefully fch contest")
     fch_parser.add_argument('-c',"--contest",
-                            default = get_default('contest'),
+                            default = get_default('c_name'),
                             help="contest num ex: 1080, 987, 840")
     fch_parser.add_argument('-t',"--type",
-                            default = get_default('type'),
+                            default = get_default('c_type'),
                             choices = ['contest','gym'],
                             help="contest type")
     fch_parser.add_argument('-s',"--site",
-                            default = get_default('site'),
+                            default = get_default('c_site'),
                             choices = ['codeforces'],
                             help="contest_site ex: codeforces")
 
@@ -168,10 +168,10 @@ def parse_args():
             parameters override
             contest name(overrides only if detected)
         '''
-        args['contest'] = pars_args.contest
-        args['type'] = pars_args.type
-        args['prob'] = pars_args.prob
-        args['site'] = pars_args.site
+        args['c_name'] = pars_args.contest
+        args['c_type'] = pars_args.type
+        args['p_name'] = pars_args.prob
+        args['c_site'] = pars_args.site
         Args.init_repo(args,init=True)
 
     elif(first_arg == "set"):
@@ -182,10 +182,10 @@ def parse_args():
         '''
         if condition required as it may or may not be given a value
         '''
-        if(pars_args.contest): args['contest'] = pars_args.contest
-        if(pars_args.type): args['type'] = pars_args.type
-        if(pars_args.prob): args['prob'] = pars_args.prob
-        if(pars_args.site): args['site'] = pars_args.site
+        if(pars_args.contest): args['c_name'] = pars_args.contest
+        if(pars_args.type): args['c_type'] = pars_args.type
+        if(pars_args.prob): args['p_name'] = pars_args.prob
+        if(pars_args.site): args['c_site'] = pars_args.site
         Args.set_local_config(args)
 
     elif(first_arg == "run"):
@@ -201,24 +201,32 @@ def parse_args():
 
         args['inp'] = pars_args.inp # can be none
         args['test'] = pars_args.test # 0 means all
-        args['prob'] = pars_args.prob # can be None
+        args['p_name'] = pars_args.prob # can be None
 
         config_data = Args.fetch_data_from_local_config()
-        args['type'] = config_data['type'] # contest/gym
-        args['contest'] = config_data['contest'] # can be None
+        args['c_type'] = config_data['c_type'] # contest/gym
+        args['c_name'] = config_data['c_name'] # can be None
 
-        if(not args['contest']):
-            print('contest not set, please set contest using `coolkit set -c <contest_num>`')
+        if(not args['c_name']):
+            print(Colour.RED+'contest not set, please set contest using `coolkit set -c <contest_num>`'+Colour.END)
             sys.exit(0)
 
         if(not args['inp']):
-            print('no input file provided or found in cache')
+            print(Colour.RED+'no input file provided or found in cache'+Colour.END)
             sys.exit(0)
 
-        if(not args['prob']):
+        if(not args['p_name']):
+            print(Colour.YELLOW+"Prob name not provided, trying to detect from filename"+Colour.END)
             p = get_problem_name(args['inp'].split('/')[-1])
-            if(p == None): p = get_default('prob')
-            args['prob'] = p
+            if(p == None):
+                print(Colour.YELLOW+"Unable to detect prob name from file name"+Colour.END)
+                p = get_default('p_name')
+            if(p == None):
+                print(Colour.YELLOW+'No cached problem name found'+Colour.END)
+                print(Colour.RED+'Please provide the problem name using -p option'+Colour.END)
+                Args.set_local_config({'inp':args['inp']}) #cache up the input file for next turn
+                sys.exit(0)
+            args['p_name'] = p
 
         Args.set_local_config(args) #cache up the args for next turn
         Args.run(args)
@@ -228,44 +236,48 @@ def parse_args():
             Args.init_repo()
 
         args['inp'] = pars_args.inp # can be None
-        args['prob'] = pars_args.prob # can be None
+        args['p_name'] = pars_args.prob # can be None
 
-        args['contest'] = get_default('contest') # can be None
-        args['type'] = get_default('type')
-        args['site'] = get_default('site')
+        args['c_name'] = get_default('c_name') # can be None
+        args['c_type'] = get_default('c_type')
+        args['c_site'] = get_default('c_site')
 
-        args['contest'] = get_default('contest') # can be None
-        if(not args['contest']):
-            print('contest not set, please set contest using `coolkit set -c <contest_num>`')
+        args['c_name'] = get_default('c_name') # can be None
+        if(not args['c_name']):
+            print(Colour.RED+'contest not set, please set contest using `coolkit set -c <contest_num>`'+Colour.END)
             sys.exit(0)
 
         if(not args['inp']):
-            print('no input file provided or found in cache')
+            print(Colour.RED+'no input file provided or found in cache'+Colour.END)
             sys.exit(0)
 
-        if(not args['prob']):
+        if(not args['p_name']):
+            print(Colour.YELLOW+"Prob name not provided, trying to detect from filename"+Colour.END)
             p = get_problem_name(args['inp'].split('/')[-1])
             if(p == None):
-                print('please provide the problem using flag -p')
+                print(Colour.YELLOW+"Unable to detect prob name from file name"+Colour.END)
+                print(Colour.RED+'Please provide the problem name using -p option'+Colour.END)
                 sys.exit(0)
-            args['prob'] = p
+            args['p_name'] = p
 
         Args.submit_it(args)
 
 
     elif(first_arg == "fetch"):
         # Args.check_init() # fetching can be done even without this if contest name given
-        args['contest'] = pars_args.contest # can be None
-        args['type'] = pars_args.type
-        args['site'] = pars_args.site
+        args['c_name'] = pars_args.contest # can be None
+        args['c_type'] = pars_args.type
+        args['c_site'] = pars_args.site
         args['force'] = pars_args.force
 
-        if(not args['contest']):
+        if(not args['c_name']):
             if(not Args.check_init()):
-                print('no contest provided, either provide contest using -c or run command from a coolkit repo')
+                print(Colour.RED+'no contest provided, either provide contest using -c or run command from a coolkit repo'+Colour.END)
                 sys.exit(0)
             else:
-                print('contest not set, use `coolkit set -c <contest num>`, or provide contest name using -c parameter')
+                # config_data = Args.fetch_data_from_local_config()
+                # args['c_name'] = config_data['c_name'] # can be None
+                print(Colour.RED+'contest not set, use `coolkit set -c <contest num>`, or provide contest name using -c parameter'+Colour.END)
                 sys.exit(0)
         Args.fetch_contest(args)
 
@@ -276,7 +288,7 @@ def parse_args():
 
 
 if __name__ == '__main__':
-    default_config = config_template['coolkit']
+    default_config = srbjson.local_template['coolkit']
     if(Args.check_init()):
         default_config = Args.fetch_data_from_local_config()
     parse_args()
