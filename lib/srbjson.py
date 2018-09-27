@@ -73,6 +73,7 @@ class srbjson:
         "coolkit":{
             "user":None,
             "pswd":None,
+
             "site":"codeforces"
         }
     }
@@ -83,12 +84,19 @@ class srbjson:
             "c_type":"contest",
             "c_site":"codeforces",
             "p_name":None,
-            "p_title":"",
-            "num_test":0,
+
+            "hash":"",
             "is_good":False,
             "mult_soln":False,
-            "hash":"",
-            "subm":-1
+            "num_test":-1,
+            "p_title":"",
+            "subm":-1,
+            "time_limit":"",
+
+            "h_desc":"",
+            "i_desc":"",
+            "o_desc":"",
+            "p_desc":""
         }
     }
 
@@ -98,6 +106,7 @@ class srbjson:
             "c_type":"contest",
             "c_site":"codeforces",
             "p_name":None,
+
             "inp":None,
             "init_date":""
         }
@@ -106,14 +115,16 @@ class srbjson:
 
     contest_template = {
         "coolkit":{
+            "c_site":"codeforces",
+
             "c_name":None,
             "c_type":"contest",
-            "c_site":"codeforces",
-            "c_title":"",
-            "num_prob":0,
-            "is_good":False,
-            "hash":"",
+
             "ann_arr":[],
+            "c_title":"",
+            "hash":"",
+            "is_good":False,
+            "num_prob":-1,
             "p_name_list":[]
         }
     }

@@ -40,7 +40,7 @@ class Dummy_user:
 
     def fetch_data(self):
         '''
-        TODO: implementing caching
+        TODO: implementing caching, only for offline
         '''
         self.fetch_profile_data()
         self.fetch_contests_data()

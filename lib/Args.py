@@ -123,25 +123,26 @@ def fetch_contest(args):
     if(not args['force'] and temp_contest.is_good):
         print(Colour.GREEN+'cache exists'+Colour.END)
         return
-    temp_contest.fetch_contest()
+    temp_contest.pull_contest(args['force'])
+
 
 def run(args):
-    contest = Contest(args['c_name'],args['c_type'])
-    if(not contest.is_good):
-        contest.fetch_contest()
+    temp_contest = Contest(args['c_name'],args['c_type'])
+    if(not temp_contest.is_good):
+        temp_contest.pull_contest()
 
-    prob = Problem(args['p_name'],args['c_name'],args['c_type'])
-    if(not prob.is_good):
+
+    temp_prob = Problem(args['p_name'],args['c_name'],args['c_type'])
+    if(not temp_prob.is_good):
         print(Colour.YELLOW+'Test cases not found locally...'+Colour.END)
         # choice to fetch whole contest or problem
-        prob.fetch_io()
-        prob.dump_data()
+        temp_prob.pull_problem()
 
-    if(not prob.is_good):
+    if(not temp_prob.is_good):
         print(Colour.FULLRED+'Sorry! Due to Connection problem. Unable to test your file'+Colour.END)
         return
 
-    runner = Runner(args,prob)
+    runner = Runner(args,temp_prob)
     runner.run()
 
 

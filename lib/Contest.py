@@ -36,98 +36,121 @@ except:
 
 class Contest:
     def __init__(self,c_name,c_type='contest',c_title=''):
-        self.is_good = False # loaded fully or not
-        self.c_title = c_title
+        # trivially cached
         self.c_name = str(c_name)
         self.c_type = c_type
+
+        # fetchable variables
+        self.announce_arr = []
+        self.c_title = c_title
+        self.hash = ""
+        self.is_good = False # loaded fully or not
+        self.num_prob = -1
+        self.p_name_list = []
+
+        # non cached
+        self.dir = Const.cache_dir + '/' + self.c_type + '/' + self.c_name
         self.link = "https://codeforces.com/"+self.c_type+"/"+self.c_name
         self.prob_mapp = {}
-        self.p_name_list = []
-        self.prob_num = len(self.prob_mapp)
-        self.dir = Const.cache_dir + '/' + self.c_type + '/' + self.c_name
-        self.announce_arr = []
 
-        srbjson.dump_data({"c_name":self.c_name,"c_type":self.c_type},
-                self.dir+ "/config",
-                srbjson.contest_template)
+        srbjson.dump_data({
+                "c_name":self.c_name,
+                "c_type":self.c_type
+            },
+            self.dir+ "/config",
+            srbjson.contest_template)
+
         self._load_contest()            # pick cached data
         # haven't called fetch_contest from constructor as it may be slow
         # call it seperately, its safe as it wont refetch things if loaded
 
+    def pull_contest(self,force=False):
+        self.fetch_contest(force)
+        self.dump_contest()
 
     def fetch_contest(self,force=False):
         '''
         do fetching and dumping both
         '''
-        if(force):
-            # remove every detail regarding that contest
+        if(force): # remove every detail regarding that contest
             shutil.rmtree(self.dir)
             self._load_contest()
+            self.prob_mapp = {}
 
-        if(self.is_good):
-            # return if cached
+        if(self.is_good): # return if cached
             return
 
+        '''
+        by now there is no useless folder and map entry
+        '''
         self._fetch_contest_home()
-        if (len(self.prob_mapp) == 0 or len(self.prob_mapp) < self.prob_num):
+        if (len(self.prob_mapp) == 0):
             print(Colour.RED+'failed to fetch contest home'+Colour.END)
             return
 
-        prob_links = []
-        p_names = []
+        '''
+        by now there are only and all folders on all problems in contest
+        and those folders are only and all mapped into prob_mapp
+
+        missing entries are added by _fetch_contest_home()
+        they might be bad or good depending on they are newly created or old ones respectively
+        '''
+        failed_links = []
         for key in self.p_name_list:
             if(not self.prob_mapp[key].is_good):
-                prob_links.append(self.prob_mapp[key].link)
-                p_names.append(key)
+                failed_links.append(self.prob_mapp[key].link)
 
-        # try to fetch
-        failed_links,failed_p_names = self._fetch_prob_test_cases(prob_links,p_names)
+        '''
+        only and only links to bad problems, empty folders exists for all
+        '''
         tries = 1
-        while(len(failed_links) > 0 and tries > 0):
-            failed_links,failed_p_names = self._fetch_prob_test_cases(failed_links,failed_p_names)
+        while(len(failed_links) > 0 and tries <= 2):
             print(Colour.YELLOW + str(tries)+': try to fetch problems' + Colour.END)
-            tries -= 1
+            failed_links = self._fetch_prob_test_cases(failed_links)
+            tries += 1
+
         if(len(failed_links) > 0):
-            for a in failed_p_names:
-                print(Colour.RED + 'failed to fetch' + a + Colour.END)
+            for a in failed_links:
+                print(Colour.RED + 'failed to fetch ' + a + Colour.END)
             self.is_good = False
         else:
             self.is_good = True
-        srbjson.dump_data({"is_good":self.is_good,"c_name":self.c_name,"num_prob":self.prob_num,"p_name_list":self.p_name_list},
-                self.dir+ "/config",srbjson.contest_template)
 
 
-    def _fetch_prob_test_cases(self,links,p_names):
+    def dump_contest(self):
+        srbjson.dump_data({
+                "ann_arr":self.announce_arr,
+                "c_title":self.c_title,
+                "is_good":self.is_good,
+                "num_prob":self.num_prob,
+                "p_name_list":self.p_name_list
+            },
+            self.dir+ "/config",
+            srbjson.contest_template)
+
+    def _fetch_prob_test_cases(self,links):
         """
         Method to download prob_test_cases for all problems
         """
-        print(Colour.YELLOW + 'fetching problems ... ' + Colour.CYAN, p_names, Colour.END)
+        p_names = [ link.split('/')[-1] for link in links ]
+        print(Colour.YELLOW + 'fetching problems ... ' + Colour.PURPLE, p_names, Colour.END)
 
         rs = (grq.get(link) for link in links)
         responses = grq.map(rs)
 
-        failed_probs = []
         failed_requests = []
         for response in responses:
             if response is not None and response.status_code == 200:
                 soup = BeautifulSoup(response.text, 'html.parser')
-                prob = response.url.split('/')[-1]
-                inputs, outputs, mult_soln = Problem.get_test_cases(soup,prob)
-
-                if(len(inputs) == 0 or len(outputs) == 0 or len(inputs) != len(outputs)):
-                    failed_requests += [response.url]
-                    failed_probs += [prob]
+                p_name = response.url.split('/')[-1]
+                self.prob_mapp[p_name].load_from_soup(soup)
+                if(not self.prob_mapp[p_name].is_good):
+                    failed_requests += [resopnse.url]
                     continue
-
-                self.prob_mapp[prob].inputs = inputs
-                self.prob_mapp[prob].outputs = outputs
-                self.prob_mapp[prob].mult_soln = mult_soln
-                self.prob_mapp[prob].is_good = True
-                self.prob_mapp[prob].num_test = len(inputs)
-                self.prob_mapp[prob].dump_data()
+                self.prob_mapp[p_name].dump_problem()
             else:
                 failed_requests += [response.url]
-        return failed_requests,failed_probs
+        return failed_requests
 
 
     def _load_contest(self):
@@ -136,10 +159,12 @@ class Contest:
         also cleans useless folders in prob folder if they aren't in config of p_name_list
         '''
         data = srbjson.extract_data(self.dir+'/config',srbjson.contest_template)
-        self.is_good = data['is_good']
-        self.prob_num = data['num_prob']
-        self.c_title = data['c_title']
+
         self.announce_arr = data['ann_arr']
+        self.c_title = data['c_title']
+        self.hash = data['hash']
+        self.is_good = data['is_good']
+        self.num_prob = data['num_prob']
         self.p_name_list = data['p_name_list']
 
         # problems
@@ -160,16 +185,16 @@ class Contest:
                 shutil.rmtree(self.prob_mapp[a].dir)
                 del self.prob_mapp[a]
 
-        if(good_probs != self.prob_num):
-            print(Colour.YELLOW+'expected',self.prob_num,'probs got',good_probs,'good probs',Colour.END)
-            self.is_good = False
-
-        if(self.prob_num == 0):
+        if(self.num_prob == -1):
             print(Colour.YELLOW+'Contest not configured yet'+Colour.END)
             self.is_good = False
+        elif(good_probs != self.num_prob):
+            print(Colour.YELLOW+'expected',self.num_prob,'probs got',good_probs,'good probs',Colour.END)
+            self.is_good = False
 
 
-    def display_home(self):
+
+    def display_contest(self):
         table_data = [[Colour.BOLD+Colour.GREEN+self.c_title+Colour.END]]
         print(AsciiTable(table_data).table)
         table_data = [['#','Name','submissions','Link']]
@@ -187,15 +212,15 @@ class Contest:
         '''
         tries to fetch these things and also dump them if fetched
             contest:
+                ann_arr
                 c_title
                 prob_mapp
+                num_prob
                 p_name_list
-                prob_num
-                ann_arr
 
             problem:
-                subm
                 p_title
+                subm
 
         CAN BE CALLED TO FORCEFULLY UPDATE DATA, say subm during the contest
         '''
@@ -222,7 +247,7 @@ class Contest:
                 self.prob_mapp[p_name] = Problem(p_name,self.c_name,self.c_type,p_title)
             self.prob_mapp[p_name].p_title = p_title
             self.prob_mapp[p_name].subm = subm
-        self.prob_num = len(self.prob_mapp)
+        self.num_prob = len(self.prob_mapp)
         self.p_name_list = p_name_list
 
         # announcements
@@ -231,11 +256,6 @@ class Contest:
         for ann in announce_arr:
             ann = ann.findAll('td')[-1].get_text().strip()
             self.announce_arr += [ann]
-
-        srbjson.dump_data({"num_prob":self.prob_num,"c_title":self.c_title,
-        "ann_arr":self.announce_arr,"p_name_list":self.p_name_list},
-        self.dir+ "/config",srbjson.contest_template)
-
 
 
     @staticmethod
@@ -270,7 +290,7 @@ class Contest:
 
     @staticmethod
     def get_number_of_problems(c_name,c_type='contest',cacheing=False):
-        # implementing caching else it is slow
+        # TODO implementing caching else it is slow
         url = "https://codeforces.com/"+c_type+"/"+c_name
         soup = Soup.get_soup(url)
         if(soup is None):
@@ -336,7 +356,7 @@ if(__name__=="__main__"):
         c_name = sys.argv[1]
 
     temp_contest = Contest(c_name)
-    temp_contest.fetch_contest()
-    temp_contest.display_home()
+    temp_contest.pull_contest()
+    temp_contest.display_contest()
 
     Contest.upcoming_contest(display=True)
