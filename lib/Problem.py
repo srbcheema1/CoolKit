@@ -133,7 +133,7 @@ class Problem:
         srbjson.dump_data({
                 "hash":self.hash,
                 "is_good":self.is_good,
-                "mul_soln":self.mult_soln,
+                "mult_soln":self.mult_soln,
                 "num_test":self.num_test,
                 "p_title":self.p_title,
                 'subm':self.subm,
@@ -217,7 +217,10 @@ class Problem:
             self.h_desc += p.get_text().strip() + '\n\n'
 
         self.mult_soln = False
-        # TODO implement mul_soln
+        for word in Const.mult_soln_words:
+            if word in self.o_desc:
+                self.mult_soln = True
+                break
 
         self.inputs, self.outputs = Problem.get_test_cases(self.soup,self.p_name)
         if(len(self.inputs) > 0 and len(self.outputs) > 0):
@@ -294,7 +297,7 @@ class Problem:
 
 if __name__ == "__main__":
     p_name = 'B'
-    c_name = 1008
+    c_name = 1025
     if(len(sys.argv) >= 2): c_name = sys.argv[1]
     if(len(sys.argv) >= 3): p_name = sys.argv[2]
 
@@ -302,3 +305,4 @@ if __name__ == "__main__":
     prob.pull_problem(force=False)
     prob.display_problem()
     print(Colour.CYAN+prob.link+Colour.END)
+    print(prob.mult_soln)

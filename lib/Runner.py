@@ -15,8 +15,10 @@ except:
 
 try:
     from lib.Colour import Colour
+    from lib.utils import utils
 except:
     from Colour import Colour
+    from utils import utils
 
 class Runner:
     def __init__(self,args,prob):
@@ -89,6 +91,12 @@ class Runner:
         print(AsciiTable(table_data).table)
         if(self.bad_flag):
             print(Colour.CYAN + self.prob.link + Colour.END)
+        if(self.prob.mult_soln):
+            table_data = [
+                    [Colour.PURPLE+'May contain multiple answers'+Colour.END],
+                    [utils.shrink(self.prob.o_desc,80,[32])]
+                ]
+            print(AsciiTable(table_data).table)
 
 
     def run_on_tests(self,tests):

@@ -1,5 +1,5 @@
-- multiple soln handling
 - submit
+  - force submit in global_config
 - view option
 - hashing of io
 - profile
