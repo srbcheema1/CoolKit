@@ -5,6 +5,7 @@ import os
 import sys
 
 try:
+    import getpass
     from argparse import ArgumentParser
     from argcomplete import autocomplete
 except:
@@ -100,13 +101,17 @@ def create_parser():
 
     # submit
     smt_parser = subparsers.add_parser('submit')
-    smt_parser.add_argument("inp",nargs=1, # required
+    smt_parser.add_argument("inp",nargs='?', # required
                             type=lambda x: is_valid_file(run_parser,x),
                             help="input file ex: one.cpp")
     smt_parser.add_argument('-p',"--prob",
                             # default = get_default('prob') # pick it from input_file name
                             default = None,
                             help="problem seq ex: A, B, C")
+    smt_parser.add_argument('-f',"--force",
+                            action='store_true',
+                            default=False,
+                            help="forcefully submit the file")
 
     # fetch
     '''
@@ -206,6 +211,7 @@ def parse_args():
         config_data = Args.fetch_data_from_local_config()
         args['c_type'] = config_data['c_type'] # contest/gym
         args['c_name'] = config_data['c_name'] # can be None
+        args['c_site'] = config_data['c_site'] # can be None
 
         if(not args['c_name']):
             print(Colour.RED+'contest not set, please set contest using `coolkit set -c <contest_num>`'+Colour.END)
@@ -253,12 +259,25 @@ def parse_args():
 
         if(not args['p_name']):
             print(Colour.YELLOW+"Prob name not provided, trying to detect from filename"+Colour.END)
+            print(args['inp'])
             p = get_problem_name(args['inp'].split('/')[-1])
             if(p == None):
                 print(Colour.YELLOW+"Unable to detect prob name from file name"+Colour.END)
                 print(Colour.RED+'Please provide the problem name using -p option'+Colour.END)
                 sys.exit(0)
             args['p_name'] = p
+
+        config_data = Args.fetch_data_from_global_config()
+        if(not config_data['user']):
+            print(Colour.RED+'Please configure your username using "coolkit config -u <username>"'+Colour.END)
+            config_data['user'] = input('Enter your username : ')
+        if(not config_data['pswd']):
+            print(Colour.YELLOW+'Please configure your password using "coolkit config -p <password>"'+Colour.END)
+            config_data['pswd'] = getpass.getpass('Enter your password:')
+        args['user'] = config_data['user']
+        args['pswd'] = config_data['pswd']
+        args['test'] = 0
+        args['force'] = pars_args.force
 
         Args.submit_it(args)
 
@@ -275,8 +294,8 @@ def parse_args():
                 print(Colour.RED+'no contest provided, either provide contest using -c or run command from a coolkit repo'+Colour.END)
                 sys.exit(0)
             else:
-                # config_data = Args.fetch_data_from_local_config()
-                # args['c_name'] = config_data['c_name'] # can be None
+                config_data = Args.fetch_data_from_local_config()
+                args['c_name'] = config_data['c_name'] # can be None
                 print(Colour.RED+'contest not set, use `coolkit set -c <contest num>`, or provide contest name using -c parameter'+Colour.END)
                 sys.exit(0)
         Args.fetch_contest(args)

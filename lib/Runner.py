@@ -30,6 +30,7 @@ class Runner:
         self.input_file = self.args['inp'].split('/')[-1]
         self.basename = self.input_file.split('.')[0]
         self.extension = self.input_file.split('.')[-1]
+        self.result = 'GOOD'
         self.compiler = {
             'py': None,
             'rb': None,
@@ -52,7 +53,7 @@ class Runner:
             sys.exit(0)
 
         if(self.args['test'] != 0):
-            self.run_single_test(self.args['test'])
+            self._run_single_test(self.args['test'])
             return
 
         print(Colour.GREEN+'running %s file for %s prob on %s'%
@@ -63,17 +64,17 @@ class Runner:
             compile_status = os.system(self.compiler + ' \'' + self.input_file + '\'') #spaces in path
             if compile_status != 0:
                 print(Colour.RED + 'Compilation error.' + Colour.END)
+                os.system(self.compiler + ' \'' + self.input_file + '\'') #spaces in path
                 sys.exit(0)
 
         # RUN
-        self.run_on_tests([test+1 for test in range(self.prob.num_test)])
-        self.print_table()
+        self._run_on_tests([test+1 for test in range(self.prob.num_test)])
 
 
     def print_table(self):
         table_data = [['S No', 'Input',
                        'Orig Output', 'Your Output', 'Result']]
-        inputs = Runner.input_file_to_string(self.test_loc, self.prob.num_test)
+        inputs = Runner._input_file_to_string(self.test_loc, self.prob.num_test)
         for i in range(self.prob.num_test):
             row = [
                 i + 1,
@@ -99,7 +100,7 @@ class Runner:
             print(AsciiTable(table_data).table)
 
 
-    def run_on_tests(self,tests):
+    def _run_on_tests(self,tests):
         for i in tests:
             status = os.system('timeout 2s ' + self.execute_command + ' < ' + os.path.join(
                 self.test_loc, 'Input' + str(i)) + ' > .coolkit/out_' + self.prob.p_name + str(i))
@@ -115,6 +116,7 @@ class Runner:
                 self.results += [Colour.BOLD+Colour.YELLOW + 'TLE' +Colour.END]
                 self.user_outputs += ['']
                 self.bad_flag = True
+                self.result = 'BAD'
 
             if status == 0:
                 # Ran successfully
@@ -126,22 +128,25 @@ class Runner:
 
                 if orig_output == user_output:
                     # All Correct
-                    self.results += [Colour.BOLD+Colour.GREEN+ 'AC' +Colour.END+' ']
+                    self.results += [Colour.BOLD+Colour.GREEN+ 'AC' +Colour.END]
                 elif self.prob.mult_soln:
                     # Multiple possible
                     self.results += [Colour.BOLD+Colour.CYAN+ 'Diff' +Colour.END]
+                    if self.result == 'GOOD': self.result = 'CANT_SAY'
                 else:
                     # Wrong ans
                     self.bad_flag = True
                     self.results += [Colour.BOLD+Colour.DARKRED+ 'WA' +Colour.END]
+                    self.result = 'BAD'
             else:
                 # Runtime Error
                 self.bad_flag = True
                 self.results += [Colour.BOLD+Colour.FULLRED+ 'RTE' +Colour.END]
+                self.result = 'BAD'
                 self.user_outputs += ['']
 
 
-    def run_single_test(self,test):
+    def _run_single_test(self,test):
         # COMPILE
         if not self.compiler is None:
             compile_status = os.system(self.compiler + ' \'' + self.input_file + '\' > /dev/null 2>&1') #spaces in path
@@ -153,7 +158,7 @@ class Runner:
         status = os.system(self.execute_command + ' < ' + os.path.join(self.test_loc, 'Input' + str(test)) )
 
     @staticmethod
-    def input_file_to_string(path, num_cases):
+    def _input_file_to_string(path, num_cases):
         """
         Method to return sample inputs as a list
         """

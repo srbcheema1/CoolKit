@@ -7,20 +7,22 @@ try:
     from lib.Constants import Const
     from lib.Contest import Contest
     from lib.files import verify_folder, verify_file
+    from lib.global_config import get_contest_name, get_problem_name
     from lib.Problem import Problem
     from lib.Runner import Runner
     from lib.srbjson import srbjson
-    from lib.global_config import get_contest_name, get_problem_name
+    from lib.Submit import Submit
 except:
     from abs_path import abs_path
     from Colour import Colour
     from Constants import Const
     from Contest import Contest
     from files import verify_folder, verify_file
+    from global_config import get_contest_name, get_problem_name
     from Problem import Problem
     from Runner import Runner
     from srbjson import srbjson
-    from global_config import get_contest_name, get_problem_name
+    from Submit import Submit
 
 
 def init_repo(args={},debug=False,init=False):
@@ -114,6 +116,10 @@ def fetch_data_from_local_config():
     data = srbjson.extract_data(now+'/.coolkit/config',srbjson.local_template)
     return data
 
+def fetch_data_from_global_config():
+    data = srbjson.extract_data(abs_path('~/.config/coolkit/config'),srbjson.global_template)
+    return data
+
 def fetch_contest(args):
     '''
     check cache
@@ -144,10 +150,35 @@ def run(args):
 
     runner = Runner(args,temp_prob)
     runner.run()
+    runner.print_table()
 
 
 def submit_it(args):
     data = srbjson.extract_data(Const.cache_dir+'/config',srbjson.global_template)
     u_name = data['user']
     pswd = data['pswd']
-    print(Colour.GREEN+'submitting %s file for %s prob on %s' % (args['inp'],args['p_name'],args['c_name']) +Colour.END)
+    temp_prob = Problem(args['p_name'],args['c_name'],args['c_type'])
+
+    if(not temp_prob.is_good):
+        print(Colour.YELLOW+'Test cases not found locally...'+Colour.END)
+        # choice to fetch whole contest or problem
+        temp_prob.pull_problem()
+
+    if(not temp_prob.is_good):
+        print(Colour.FULLRED+'Sorry! Due to Connection problem. Unable to test your file'+Colour.END)
+        return
+
+    runner = Runner(args,temp_prob)
+    runner.run()
+
+    submit = Submit(args['c_name']+args['p_name'],args['inp'],args['user'],args['pswd'])
+
+    if(runner.result == 'GOOD'):
+        submit.submit()
+    elif(runner.result == 'CANT_SAY'):
+        runner.print_table()
+        submit.submit()
+    else:
+        print(Colour.FULLRED+'ERROR locally, so wont upload faulty file'+Colour.END)
+        runner.print_table()
+        if(args['force']): submit.submit()
