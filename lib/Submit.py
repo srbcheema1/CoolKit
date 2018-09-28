@@ -92,25 +92,31 @@ class Submit:
     @daemon
     def print_verdict(last_id,username,max_time = 100):
         hasStarted = False
+        notify_installed = True
+        try:
+            sp.call(['notify-send','--help'],stdout=sp.PIPE)
+        except:
+            print(Colour.YELLOW+'notify-send seems not working, please install notify-send'+Colour.END)
+            notify_installed = False
+
         while True:
             id_, verdict_, time_, memory_, passedTestCount_ = Submit.get_latest_verdict(username)
             if id_ != last_id and verdict_ != 'TESTING' and verdict_ != None:
                 if verdict_ == 'OK':
                     message = 'OK - Passed ' + str(passedTestCount_) + ' tests'
-                    sp.call(['notify-send','Codeforces',message])
                 else:
                     message = verdict_ + ' on ' + str(passedTestCount_+1) + ' test'
-                    sp.call(['notify-send','Codeforces',message])
+                if(notify_installed): sp.call(['notify-send','Codeforces',message])
                 break
             elif verdict_ == 'TESTING' and (not hasStarted):
                 message = 'Judgement has begun'
-                sp.call(['notify-send','Codeforces',message])
+                if(notify_installed): sp.call(['notify-send','Codeforces',message])
                 hasStarted = True
             time.sleep(0.5)
             max_time -= 1
             if(max_time < 0):
                 message = 'Time out'
-                sp.call(['notify-send','Codeforces',message])
+                if(notify_installed): sp.call(['notify-send','Codeforces',message])
                 break
 
 

@@ -211,10 +211,13 @@ class Problem:
         for p in o_desc:
             self.o_desc += p.get_text().strip() + '\n\n'
 
+        # there are some problems with no description
         self.h_desc = ""
-        h_desc = prob_statement.findAll('div',{'class':'note'})[0].findAll('p')
-        for p in h_desc:
-            self.h_desc += p.get_text().strip() + '\n\n'
+        h_desc_divs = prob_statement.findAll('div',{'class':'note'})
+        if(len(h_desc_divs) > 0):
+            h_desc = h_desc_divs[0].findAll('p')
+            for p in h_desc:
+                self.h_desc += p.get_text().strip() + '\n\n'
 
         self.mult_soln = False
         for word in Const.mult_soln_words:
