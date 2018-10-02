@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 import sys
 
 try:
@@ -92,7 +93,7 @@ class Dummy_user:
         for row in table_rows:
             num = row.findAll('td')[0].get_text().strip()
             c_title = row.findAll('td')[1].get_text().strip()
-            c_title = Contest.get_short_contest_name(c_title)
+            c_title = Contest.get_short_contest_title(c_title)
             c_name = row.findAll('td')[1].findAll('a')[0]['href'].strip().split('/')[-1]
             rank = row.findAll('td')[2].get_text().strip()
             solved = row.findAll('td')[3].get_text().strip()
