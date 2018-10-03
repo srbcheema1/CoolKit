@@ -15,11 +15,11 @@ except:
     print(err)
     sys.exit(0)
 
-from lib import Args
-from lib.Colour import Colour
-from lib.Constants import Const
-from lib.global_config import get_problem_name
-from lib.srbjson import srbjson
+from .lib import Args
+from .lib.Colour import Colour
+from .lib.Constants import Const
+from .lib.global_config import get_problem_name
+from .lib.srbjson import srbjson
 
 coolkit_help="""usage coolkit [option] [--suboptions [args]]
 
@@ -36,14 +36,16 @@ def is_valid_file(parser, arg):
     if not os.path.exists(arg):
         parser.error("The file %s does not exist!" % arg)
     else:
-        # return open(arg, 'r')  # return an open file handle
         return arg
 
-def get_default(key):
-    global default_config
+def get_default(key,default_config):
     return default_config.get(key,None)
 
 def create_parser():
+    default_config = srbjson.local_template['coolkit']
+    if(Args.check_init()):
+        default_config = Args.fetch_data_from_local_config()
+
     parser = ArgumentParser()
     subparsers = parser.add_subparsers(dest='first_arg')
 
@@ -88,14 +90,14 @@ def create_parser():
     run_parser = subparsers.add_parser('run')
     run_parser.add_argument("inp",nargs='?',
                             type=lambda x: is_valid_file(run_parser,x),
-                            default = get_default('inp'),
+                            default = get_default('inp',default_config),
                             help="input file ex: one.cpp")
     run_parser.add_argument('-t',"--test",
                             type=int,
                             default = 0, # 0 means all
                             help="test case num")
     run_parser.add_argument('-p',"--prob",
-                            # default = get_default('prob') # pick it from input_file name
+                            # default = get_default('prob',default_config) # pick it from input_file name
                             default = None,
                             help="problem seq ex: A, B, C")
 
@@ -105,7 +107,7 @@ def create_parser():
                             type=lambda x: is_valid_file(run_parser,x),
                             help="input file ex: one.cpp")
     smt_parser.add_argument('-p',"--prob",
-                            # default = get_default('prob') # pick it from input_file name
+                            # default = get_default('prob',default_config) # pick it from input_file name
                             default = None,
                             help="problem seq ex: A, B, C")
     smt_parser.add_argument('-f',"--force",
@@ -126,14 +128,14 @@ def create_parser():
                             default=False,
                             help="forcefully fch contest")
     fch_parser.add_argument('-c',"--contest",
-                            default = get_default('c_name'),
+                            default = get_default('c_name',default_config),
                             help="contest num ex: 1080, 987, 840")
     fch_parser.add_argument('-t',"--type",
-                            default = get_default('c_type'),
+                            default = get_default('c_type',default_config),
                             choices = ['contest','gym'],
                             help="contest type")
     fch_parser.add_argument('-s',"--site",
-                            default = get_default('c_site'),
+                            default = get_default('c_site',default_config),
                             choices = ['codeforces'],
                             help="contest_site ex: codeforces")
 
@@ -154,7 +156,7 @@ def create_parser():
 def validate_args(args):
     return
 
-def parse_args():
+def main():
     parser = create_parser()
     autocomplete(parser)
 
@@ -307,7 +309,4 @@ def parse_args():
 
 
 if __name__ == '__main__':
-    default_config = srbjson.local_template['coolkit']
-    if(Args.check_init()):
-        default_config = Args.fetch_data_from_local_config()
-    parse_args()
+    main()

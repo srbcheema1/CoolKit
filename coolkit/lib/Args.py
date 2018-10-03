@@ -1,28 +1,16 @@
 import os
 import shutil
 
-try:
-    from lib.abs_path import abs_path
-    from lib.Colour import Colour
-    from lib.Constants import Const
-    from lib.Contest import Contest
-    from lib.files import verify_folder, verify_file
-    from lib.global_config import get_contest_name, get_problem_name
-    from lib.Problem import Problem
-    from lib.Runner import Runner
-    from lib.srbjson import srbjson
-    from lib.Submit import Submit
-except:
-    from abs_path import abs_path
-    from Colour import Colour
-    from Constants import Const
-    from Contest import Contest
-    from files import verify_folder, verify_file
-    from global_config import get_contest_name, get_problem_name
-    from Problem import Problem
-    from Runner import Runner
-    from srbjson import srbjson
-    from Submit import Submit
+from .abs_path import abs_path
+from .Colour import Colour
+from .Constants import Const
+from .Contest import Contest
+from .files import verify_folder, verify_file
+from .global_config import get_contest_name, get_problem_name
+from .Problem import Problem
+from .Runner import Runner
+from .srbjson import srbjson
+from .Submit import Submit
 
 
 def init_repo(args={},debug=False,init=False):

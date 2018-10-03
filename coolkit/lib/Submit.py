@@ -15,10 +15,7 @@ except:
     print(err)
     sys.exit(0)
 
-try:
-    from lib.Colour import Colour
-except:
-    from Colour import Colour
+from .Colour import Colour
 
 
 class Submit:

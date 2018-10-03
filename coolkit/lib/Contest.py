@@ -16,22 +16,13 @@ except:
     print(err)
     sys.exit(0)
 
-try:
-    from lib.Colour import Colour
-    from lib.Constants import Const
-    from lib.files import verify_folder, verify_file
-    from lib.Problem import Problem
-    from lib.Soup import Soup
-    from lib.srbjson import srbjson
-    from lib.utils import utils
-except:
-    from Colour import Colour
-    from Constants import Const
-    from files import verify_folder, verify_file
-    from Problem import Problem
-    from Soup import Soup
-    from srbjson import srbjson
-    from utils import utils
+from .Colour import Colour
+from .Constants import Const
+from .files import verify_folder, verify_file
+from .Problem import Problem
+from .Soup import Soup
+from .srbjson import srbjson
+from .utils import utils
 
 
 class Contest:

@@ -10,14 +10,9 @@ except:
     print(err)
     sys.exit(0)
 
-try:
-    from lib.Soup import Soup
-    from lib.Colour import Colour
-    from lib.Contest import Contest
-except:
-    from Soup import Soup
-    from Colour import Colour
-    from Contest import Contest
+from .Soup import Soup
+from .Colour import Colour
+from .Contest import Contest
 
 class Dummy_user:
     def __init__(self,uname):
