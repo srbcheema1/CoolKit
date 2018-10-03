@@ -1,0 +1,4 @@
+include coolkit/lib
+include coolkit/dependencies
+include requirements.txt
+include README.md
