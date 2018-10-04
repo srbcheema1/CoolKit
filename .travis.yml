@@ -15,10 +15,14 @@ script:
   - python3 -m pip install pytest
   - python3 -m pip install setuptools
   - python3 setup.py sdist
+  - tail -n3 ~/.bashrc
   - python3 setup.py install
+  - tail -n3 ~/.bashrc
   - coolkit --help
   - pytest
   - cd test/contests/835
   - coolkit init
+  - cat .coolkit/config
+  - coolkit set -c 835
   - coolkit fetch
   - coolkit run one.cpp
