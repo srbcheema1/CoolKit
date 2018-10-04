@@ -9,22 +9,49 @@ CoolKit is `Coding + ToolKit`, A command-line tool used to automate your program
 
 ### Installation
 
+#### Install using pip
+
+- Use pip to install, user `--user` flag
+```
+sudo python3 -m pip install medipack
+```
+- Ensure that binary path is in PATH
+
+Add line `export PATH=$PATH="~/.local/bin"` in your `.bashrc`
+
+```
+echo export PATH="$PATH":"~/.local/bin" >> ~/.bashrc
+source ~/.bashrc
+```
+- test for coolkit installation
+```
+coolkit --help
+```
+- if it displays help message you are ready to go.
+
+
+
 #### Build from Source
 
 - Clone the repository and checkout to stable commit
 ```
 git clone https://github.com/srbcheema1/CoolKit
 cd CoolKit
-git checkout v0.0.1
+git checkout v0.0.2
 ```
 
 - install requirements
 ```
 python3 -m pip install --user -r requirements.txt
 ```
-- Add CoolKit repository to PATH
+- Install CoolKit
 ```
-echo export PATH="$PATH":"`pwd`" >> ~/.bashrc
+python3 setup.py install --user
+```
+- Ensure that binary path is in PATH
+Add line `export PATH=$PATH="~/.local/bin"` in your `.bashrc`
+```
+echo export PATH="$PATH":"~/.local/bin" >> ~/.bashrc
 source ~/.bashrc
 ```
 - test for coolkit installation
