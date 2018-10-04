@@ -99,7 +99,7 @@ def main():
             p = get_problem_name(args['inp'].split('/')[-1])
             if(p == None):
                 print(Colour.YELLOW+"Unable to detect prob name from file name"+Colour.END)
-                p = config_data('p_name')
+                p = config_data['p_name']
             if(p == None):
                 print(Colour.YELLOW+'No cached problem name found'+Colour.END)
                 print(Colour.RED+'Please provide the problem name using -p option'+Colour.END)

@@ -20,9 +20,9 @@ script:
   - tail -n3 ~/.bashrc
   - coolkit --help
   - pytest
-  - cd test/contests/835
+  - cd test/contests/837
   - coolkit init
   - cat .coolkit/config
-  - coolkit set -c 835
+  - coolkit set -c 837
   - coolkit fetch
   - coolkit run one.cpp

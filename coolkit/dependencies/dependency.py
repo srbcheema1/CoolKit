@@ -54,7 +54,7 @@ def is_installed(soft):
 
 def install_arg_complete():
     if is_installed('register-python-argcomplete'):
-        line = 'eval "$(register-python-argcomplete medipack)"'
+        line = 'eval "$(register-python-argcomplete coolkit)"'
         filename = os.environ['HOME'] + '/.bashrc'
         line_adder(filename,line)
 
@@ -91,9 +91,6 @@ if __name__ == '__main__':
     dependency_map = {
         'register-python-argcomplete':{
             'ubuntu':'sudo apt install python-argcomplete',
-        },
-        'ffmpeg':{
-            'ubuntu':'sudo apt install ffmpeg',
         },
         'figlet':{
             'ubuntu':'sudo apt install figlet',
