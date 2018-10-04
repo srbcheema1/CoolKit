@@ -1,0 +1,24 @@
+language: python
+python:
+    - '3.5'
+
+sudo: true
+
+matrix:
+    - os: linux
+      env:
+      global:
+          - HELLO='hello world'
+
+
+script:
+  - python3 -m pip install pytest
+  - python3 -m pip install setuptools
+  - python3 setup.py sdist
+  - python3 setup.py install
+  - coolkit --help
+  - pytest
+  - cd test/contests/835
+  - coolkit init
+  - coolkit fetch
+  - coolkit run one.cpp
