@@ -187,18 +187,30 @@ class Problem:
 
         prob_divs = prob_statement.findAll('div',recursive=False)
 
+        if(len(prob_divs) == 0):
+            Colour.print('unable to fetch '+self.p_name,Colour.YELLOW)
+            return
+
         self.p_desc = ""
         p_desc = prob_divs[1].findAll('p')
         for p in p_desc:
             self.p_desc += p.get_text().strip() + '\n\n'
 
         self.i_desc = ""
-        i_desc = prob_statement.findAll('div',{'class':'input-specification'})[0].findAll('p')
+        try:
+            i_desc = prob_statement.findAll('div',{'class':'input-specification'})[0].findAll('p')
+        except:
+            i_desc = ""
+            Colour.print(self.p_name+' has got no input description',Colour.YELLOW)
         for p in i_desc:
             self.i_desc += p.get_text().strip() + '\n\n'
 
         self.o_desc = ""
-        o_desc = prob_statement.findAll('div',{'class':'output-specification'})[0].findAll('p')
+        try:
+            o_desc = prob_statement.findAll('div',{'class':'output-specification'})[0].findAll('p')
+        except:
+            o_desc = ""
+            Colour.print(self.p_name+' has got no output description',Colour.YELLOW) #837/problem/G
         for p in o_desc:
             self.o_desc += p.get_text().strip() + '\n\n'
 
