@@ -6,8 +6,6 @@ import sys
 
 try:
     import getpass
-    from argparse import ArgumentParser
-    from argcomplete import autocomplete
 except:
     err = """
     You haven't installed the required dependencies.
@@ -15,11 +13,10 @@ except:
     print(err)
     sys.exit(0)
 
-from lib import Args
-from lib.Colour import Colour
-from lib.Constants import Const
-from lib.global_config import get_problem_name
-from lib.srbjson import srbjson
+from .lib.Args import Args
+from .lib.Parser import Parser
+from .lib.Colour import Colour
+from .lib.global_config import get_problem_name
 
 coolkit_help="""usage coolkit [option] [--suboptions [args]]
 
@@ -32,134 +29,10 @@ submit      to submit a problem
 config      to configure username and password"""
 
 
-def is_valid_file(parser, arg):
-    if not os.path.exists(arg):
-        parser.error("The file %s does not exist!" % arg)
-    else:
-        # return open(arg, 'r')  # return an open file handle
-        return arg
-
-def get_default(key):
-    global default_config
-    return default_config.get(key,None)
-
-def create_parser():
-    parser = ArgumentParser()
-    subparsers = parser.add_subparsers(dest='first_arg')
-
-    # init
-    '''
-    init can have default values
-    '''
-    ini_parser = subparsers.add_parser('init')
-    ini_parser.add_argument('-c',"--contest",
-                            default = None,
-                            help="contest num ex: 1080, 987, 840")
-    ini_parser.add_argument('-t',"--type",
-                            default = 'contest',
-                            choices = ['contest','gym'],
-                            help="contest type")
-    ini_parser.add_argument('-p',"--prob",
-                            default = 'A',
-                            help="problem seq ex: A, B, C")
-    ini_parser.add_argument('-s',"--site",
-                            default='codeforces',
-                            choices = ['codeforces'],
-                            help="contest_site full link ex: codeforces")
-
-    # set
-    '''
-    set should not have default values,
-    its meaning less to have defaults in set
-    '''
-    set_parser = subparsers.add_parser('set')
-    set_parser.add_argument('-c',"--contest",
-                            help="contest num ex: 1080, 987, 840")
-    set_parser.add_argument('-t',"--type",
-                            choices = ['contest','gym'],
-                            help="contest type")
-    set_parser.add_argument('-p',"--prob",
-                            help="problem seq ex: A, B, C")
-    set_parser.add_argument('-s',"--site",
-                            choices = ['codeforces'],
-                            help="contest_site ex: codeforces")
-
-    # run
-    run_parser = subparsers.add_parser('run')
-    run_parser.add_argument("inp",nargs='?',
-                            type=lambda x: is_valid_file(run_parser,x),
-                            default = get_default('inp'),
-                            help="input file ex: one.cpp")
-    run_parser.add_argument('-t',"--test",
-                            type=int,
-                            default = 0, # 0 means all
-                            help="test case num")
-    run_parser.add_argument('-p',"--prob",
-                            # default = get_default('prob') # pick it from input_file name
-                            default = None,
-                            help="problem seq ex: A, B, C")
-
-    # submit
-    smt_parser = subparsers.add_parser('submit')
-    smt_parser.add_argument("inp",nargs='?', # required
-                            type=lambda x: is_valid_file(run_parser,x),
-                            help="input file ex: one.cpp")
-    smt_parser.add_argument('-p',"--prob",
-                            # default = get_default('prob') # pick it from input_file name
-                            default = None,
-                            help="problem seq ex: A, B, C")
-    smt_parser.add_argument('-f',"--force",
-                            action='store_true',
-                            default=False,
-                            help="forcefully submit the file")
-
-    # fetch
-    '''
-    this options should be availabe to be callable from anywhere
-    no matter it is coolkit repo or not
-    and it also doesn't create a new repo
-    neither it sets values
-    '''
-    fch_parser = subparsers.add_parser('fetch')
-    fch_parser.add_argument('-f',"--force",
-                            action='store_true',
-                            default=False,
-                            help="forcefully fch contest")
-    fch_parser.add_argument('-c',"--contest",
-                            default = get_default('c_name'),
-                            help="contest num ex: 1080, 987, 840")
-    fch_parser.add_argument('-t',"--type",
-                            default = get_default('c_type'),
-                            choices = ['contest','gym'],
-                            help="contest type")
-    fch_parser.add_argument('-s',"--site",
-                            default = get_default('c_site'),
-                            choices = ['codeforces'],
-                            help="contest_site ex: codeforces")
-
-    # config
-    '''
-    this is also same as fetch
-    it wont create a new repo
-    it will also not set values
-    '''
-    cfg_parser = subparsers.add_parser('config')
-    cfg_parser.add_argument('-u',"--user",
-                                help="username/handle")
-    cfg_parser.add_argument('-p',"--pswd",
-                                help="password")
-
-    return parser
-
-def validate_args(args):
-    return
-
-def parse_args():
-    parser = create_parser()
-    autocomplete(parser)
-
+def main():
+    parser = Parser.create_parser()
     pars_args = parser.parse_args()
-    validate_args(pars_args)
+    Parser.validate_args(pars_args)
 
     args = {}
     first_arg = pars_args.first_arg
@@ -226,7 +99,7 @@ def parse_args():
             p = get_problem_name(args['inp'].split('/')[-1])
             if(p == None):
                 print(Colour.YELLOW+"Unable to detect prob name from file name"+Colour.END)
-                p = config_data('p_name')
+                p = config_data['p_name']
             if(p == None):
                 print(Colour.YELLOW+'No cached problem name found'+Colour.END)
                 print(Colour.RED+'Please provide the problem name using -p option'+Colour.END)
@@ -307,7 +180,4 @@ def parse_args():
 
 
 if __name__ == '__main__':
-    default_config = srbjson.local_template['coolkit']
-    if(Args.check_init()):
-        default_config = Args.fetch_data_from_local_config()
-    parse_args()
+    main()

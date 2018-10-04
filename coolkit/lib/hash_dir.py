@@ -2,10 +2,7 @@
 import os,time
 import hashlib
 
-try:
-    from lib.Colour import Colour
-except:
-    from Colour import Colour
+from .Colour import Colour
 
 def _dfs_dir(path):
     content = os.listdir(path)

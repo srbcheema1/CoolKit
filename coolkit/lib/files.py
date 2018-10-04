@@ -1,9 +1,6 @@
 import os
 
-try:
-    from lib.abs_path import abs_path
-except:
-    from abs_path import abs_path
+from .abs_path import abs_path
 
 def verify_folder(folder,debug=False):
     '''

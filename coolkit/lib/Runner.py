@@ -13,12 +13,8 @@ except:
     print(err)
     sys.exit(0)
 
-try:
-    from lib.Colour import Colour
-    from lib.utils import utils
-except:
-    from Colour import Colour
-    from utils import utils
+from .Colour import Colour
+from .utils import utils
 
 class Runner:
     def __init__(self,args,prob):

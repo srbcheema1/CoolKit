@@ -1,11 +1,7 @@
 import json
 
-try:
-    from lib.abs_path import abs_path
-    from lib.files import verify_file
-except:
-    from abs_path import abs_path
-    from files import verify_file
+from .abs_path import abs_path
+from .files import verify_file
 
 class srbjson:
     def __init__(self):

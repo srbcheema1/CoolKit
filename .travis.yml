@@ -1,0 +1,34 @@
+language: python
+python:
+    - '3.5'
+
+dist: trusty
+sudo: true
+compiler: g++
+install: export CXX="g++-6"
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - g++-6
+
+before_script:
+  - sudo ln -sf /usr/bin/g++-6 /usr/bin/g++
+  - python3 -m pip install pytest
+  - python3 -m pip install setuptools
+  - tail -n3 ~/.bashrc
+
+script:
+  - python3 setup.py sdist
+  - python3 setup.py install
+  - tail -n3 ~/.bashrc
+  - coolkit --help
+  - pytest
+  - cd test/contests/837
+  - coolkit init
+  - cat .coolkit/config
+  - coolkit set -c 837
+  - coolkit fetch
+  - coolkit run one.cpp -p A
+
