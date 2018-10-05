@@ -1,4 +1,5 @@
 - view option
-- hashing of io
 - profile
 - friends standings
+- offline userdata
+- caching for out-of contests in profile

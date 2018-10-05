@@ -51,7 +51,7 @@ class Problem:
         # file cached
         self.inputs = []
         self.outputs = []
-        self.soup = None        # TODO in future
+        self.soup = None
 
         # non cached
         self.link = "https://codeforces.com/"+self.c_type+"/"+self.c_name+"/problem/"+self.p_name

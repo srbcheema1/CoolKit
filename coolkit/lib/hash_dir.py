@@ -29,10 +29,6 @@ def _dfs_dir(path):
 
 
 def get_hash(path):
-    '''
-    TODO: it is not working properly will maintain it in future
-    '''
-    # return ""
     if(not os.path.exists(path)):
         print(Colour.RED+'path not exist ' + path+Colour.END)
         return ""
