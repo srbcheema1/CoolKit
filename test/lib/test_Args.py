@@ -3,6 +3,7 @@ import pytest
 import os
 import random
 import shutil
+import getpass
 
 from coolkit.lib.abs_path import abs_path
 from coolkit.lib.Args import Args
@@ -39,6 +40,8 @@ def test_Args():
         print(Colour.CYAN+'Try to run the file'+Colour.END)
         os.system('coolkit run one.cpp')
 
+        os.system('coolkit config --user coolkit')
+        os.system('coolkit config --pswd coolkit')
         print(Colour.CYAN+'Try to submit wrong file'+Colour.END)
         os.system('coolkit submit three.cpp')
 
@@ -85,4 +88,7 @@ def make_unique(loc):
         f.write(content + a + '\n')
 
 def is_good():
+    user = getpass.getuser()
+    if(user == 'travis'):
+        return False
     return True
