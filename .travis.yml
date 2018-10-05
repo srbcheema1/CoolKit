@@ -24,11 +24,11 @@ script:
   - python3 setup.py install
   - tail -n3 ~/.bashrc
   - coolkit --help
-  - pytest
-  - cd test/contests/837
-  - coolkit init
-  - cat .coolkit/config
-  - coolkit set -c 837
-  - coolkit fetch
-  - coolkit run one.cpp -p A
+  - pytest -s
+  #- cd test/contests/837
+  #- coolkit init
+  #- cat .coolkit/config
+  #- coolkit set -c 837
+  #- coolkit fetch
+  #- coolkit run one.cpp -p A
 
