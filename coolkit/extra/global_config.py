@@ -7,7 +7,7 @@ def get_contest_name(folder):
     if can't determine then return None
     '''
     user = getpass.getuser()
-    if(user == 'srb'):
+    if(user == 'srb' or user == 'travis'):
         # I kept for me, you too can use this ready made function
         return srb_contest_name(folder)
     '''
@@ -23,7 +23,7 @@ def get_problem_name(file_name):
     if can't determine then return None
     '''
     user = getpass.getuser()
-    if(user == 'srb'):
+    if(user == 'srb' or user == 'travis'):
         # I kept for me, you too can use this ready made function
         return srb_problem_name(file_name) # my way
     '''
