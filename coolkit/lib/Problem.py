@@ -86,10 +86,11 @@ class Problem:
 
         verify_folder(self.dir + '/io')
         now_hash = get_hash(self.dir +'/io')
-        if(self.hash != now_hash):
+        if(self.hash != now_hash and self.hash != ""):
             print(Colour.YELLOW+'Warning prob '+self.p_name+' has been modified'+Colour.END)
             self.hash = now_hash
-            srbjson.dump_data({"hash":self.hash}, self.dir + "/config",srbjson.prob_template)
+            self.is_good = False
+            srbjson.dump_data({"is_good":self.is_good}, self.dir + "/config",srbjson.prob_template)
 
         io = os.listdir(self.dir+'/io')
         if(len(io) != 2* self.num_test):

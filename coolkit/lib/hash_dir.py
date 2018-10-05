@@ -4,17 +4,27 @@ import hashlib
 
 from .Colour import Colour
 
+def findCheckSumMD5(fname):
+    BLOCKSIZE = 65536
+    hasher = hashlib.md5()
+    with open(fname, 'rb') as afile:
+        buf = afile.read(BLOCKSIZE)
+        while len(buf) > 0:
+            hasher.update(buf)
+            buf = afile.read(BLOCKSIZE)
+    return hasher.hexdigest()
+
+
 def _dfs_dir(path):
     content = os.listdir(path)
     dir_hash = "+"
-    dir_hash += str(os.path.getmtime(path))
     for a in content:
-        dir_hash += '-'
         if(os.path.isdir(os.path.join(path,a))):
             val = _dfs_dir(os.path.join(path,a))
             dir_hash += val
         elif(os.path.isfile(os.path.join(path,a))):
-            dir_hash += str(os.path.getmtime(os.path.join(path,a)))
+            dir_hash += '-'
+            dir_hash += str(findCheckSumMD5(os.path.join(path,a)))
     return dir_hash
 
 
@@ -22,12 +32,12 @@ def get_hash(path):
     '''
     TODO: it is not working properly will maintain it in future
     '''
-    return ""
+    # return ""
     if(not os.path.exists(path)):
         print(Colour.RED+'path not exist ' + path+Colour.END)
         return ""
     dir_hash = _dfs_dir(path)
-    return str(hashlib.sha1(dir_hash.encode('utf-8')).hexdigest())
+    return str(hashlib.md5(dir_hash.encode('utf-8')).hexdigest())
 
 
 if __name__ == "__main__":
