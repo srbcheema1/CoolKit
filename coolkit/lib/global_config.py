@@ -10,6 +10,7 @@ def create_global_config():
     path_of_global_config = '/'.join(abs_path(__file__).split('/')[:-2])+'/extra/global_config.py'
 
     print('not found global config, cwd is ', path_of_global_config)
+    verify_file('~/.config/coolkit/global_config.py')
     shutil.copy(path_of_global_config, abs_path('~/.config/coolkit/global_config.py'))
 
 # load file
