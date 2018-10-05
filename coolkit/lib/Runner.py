@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import sys
+import threading
 
 try:
     from terminaltables import AsciiTable
@@ -97,7 +98,17 @@ class Runner:
 
 
     def _run_on_tests(self,tests):
+        threads = []
         for i in tests:
+            thread = threading.Thread(target=self._run_on_test,args=(i,))
+            threads += [thread]
+            thread.start()
+
+        for x in threads:
+            x.join()
+
+
+    def _run_on_test(self,i):
             status = os.system('timeout 2s ' + self.execute_command + ' < ' + os.path.join(
                 self.test_loc, 'Input' + str(i)) + ' > .coolkit/out_' + self.prob.p_name + str(i))
 
