@@ -13,3 +13,6 @@ build/
 venv/
 env/
 venv3/
+
+# coolkit folder
+.coolkit
