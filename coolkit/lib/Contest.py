@@ -340,14 +340,3 @@ class Contest:
             date +=1
 
         return str(date).zfill(2) + '-' + month + ' ' + str(hour).zfill(2) + ':' + str(mins).zfill(2)
-
-if(__name__=="__main__"):
-    c_name="920"
-    if(len(sys.argv)==2):
-        c_name = sys.argv[1]
-
-    temp_contest = Contest(c_name)
-    temp_contest.pull_contest()
-    temp_contest.display_contest()
-
-    Contest.upcoming_contest(display=True)

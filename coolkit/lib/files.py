@@ -1,6 +1,8 @@
 import os
+import shutil
 
 from .abs_path import abs_path
+from .Colour import Colour
 
 def verify_folder(folder,debug=False):
     '''
@@ -23,3 +25,14 @@ def verify_file(file_path,debug=False):
         file_.close()
     elif os.path.isdir(file_path):
         if(debug): print('there exists folder of same name')
+
+def remove(path,debug=False):
+    path = abs_path(path)
+    if not os.path.exists(path):
+        return
+    if os.path.isfile(path):
+        os.remove(path)
+    elif os.path.isdir(path):
+        shutil.rmtree(path)
+    else:
+        Colour.print('unknown path : '+path,Colour.RED)

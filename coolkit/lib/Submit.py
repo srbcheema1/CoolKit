@@ -15,15 +15,20 @@ except:
     print(err)
     sys.exit(0)
 
-from .Colour import Colour
-
 
 class Submit:
-    def __init__(self,prob_id,inputfile,username,password):
+    notify_installed = True
+    force_stdout = False
+
+    def __init__(self,prob_id,inputfile,username,password,force_stdout=False):
         self.prob_id = prob_id
         self.inputfile = inputfile
         self.username = username
         self.password = password
+        Submit.notify_installed = Submit._is_installed_notify()
+        Submit.force_stdout = force_stdout
+        if(force_stdout):
+            notify_installed = False
 
     @staticmethod
     def get_latest_verdict(user):
@@ -45,7 +50,6 @@ class Submit:
 
 
     def submit(self):
-        # get latest submission id, so when submitting should have not equal id
         last_id, b, c, d, e = Submit.get_latest_verdict(self.username)
 
         browser = RoboBrowser(parser = 'html.parser')
@@ -79,54 +83,76 @@ class Submit:
         click.secho('[{0}] submitted ...'.format(self.inputfile), fg = 'green')
 
 
+
     def daemon(func):
         def wrapper(*args, **kwargs):
-            if os.fork(): return
+            if(Submit.force_stdout):
+                '''
+                in case nofify is not installed it wont run like demon
+                '''
+                return func(*args,**kwargs)
+
+            if os.fork():
+                '''
+                main process has value positive while fork has 0
+                returning in main process, so no function executed
+                '''
+                return
+            '''
+            child process will run this function and return
+            as child process is invisible it wont be visible
+            but will keep on running after parent finishes
+            '''
             func(*args, **kwargs)
             os._exit(os.EX_OK)
         return wrapper
 
     @daemon
-    def print_verdict(last_id,username,max_time = 100):
+    def print_verdict(last_id,username,max_time = 100,notify_installed = True):
         hasStarted = False
-        notify_installed = True
-        try:
-            sp.call(['notify-send','--help'],stdout=sp.PIPE)
-        except:
-            print(Colour.YELLOW+'notify-send seems not working, please install notify-send'+Colour.END)
-            notify_installed = False
-
         while True:
             id_, verdict_, time_, memory_, passedTestCount_ = Submit.get_latest_verdict(username)
             if id_ != last_id and verdict_ != 'TESTING' and verdict_ != None:
                 if verdict_ == 'OK':
                     message = 'OK - Passed ' + str(passedTestCount_) + ' tests'
+                    color = 'green'
                 else:
                     message = verdict_ + ' on ' + str(passedTestCount_+1) + ' test'
-                if(notify_installed): sp.call(['notify-send','Codeforces',message])
+                    color = 'red'
+                if(Submit.notify_installed): sp.call(['notify-send','Codeforces',message])
+                elif(Submit.force_stdout): click.secho(message,color)
                 break
             elif verdict_ == 'TESTING' and (not hasStarted):
                 message = 'Judgement has begun'
-                if(notify_installed): sp.call(['notify-send','Codeforces',message])
+                if(Submit.notify_installed): sp.call(['notify-send','Codeforces',message])
+                elif(Submit.force_stdout): click.secho(message,'green')
                 hasStarted = True
             time.sleep(0.5)
             max_time -= 1
             if(max_time < 0):
                 message = 'Time out'
-                if(notify_installed): sp.call(['notify-send','Codeforces',message])
+                if(Submit.notify_installed): sp.call(['notify-send','Codeforces',message])
+                elif(Submit.force_stdout): click.secho(message,'yellow')
                 break
 
+    def _is_installed_notify():
+        try:
+            sp.call(['notify-send','--help'],stdout=sp.PIPE)
+            return True
+        except:
+            click.secho('notify-send seems not working, please install notify-send',fg='red')
+            return False
 
 @click.command()
 @click.argument('prob_id')
 @click.argument('inputfile')
 @click.argument('username')
 @click.argument('password')
-def tester(prob_id, inputfile,username,password):
+def tester(prob_id, inputfile,username,password,force_stdout=False):
     if(not os.path.exists(inputfile)):
-        print(Colour.RED+"file "+inputfile+' doesnot exists'+Colour.END)
+        click.secho('file '+inputfile+' doesnot exists',fg='red')
         return
-    temp_submit = Submit(prob_id,inputfile,username,password)
+    temp_submit = Submit(prob_id,inputfile,username,password,force_stdout)
     temp_submit.submit()
 
 if __name__ == '__main__':

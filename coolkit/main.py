@@ -132,7 +132,6 @@ def main():
 
         if(not args['p_name']):
             print(Colour.YELLOW+"Prob name not provided, trying to detect from filename"+Colour.END)
-            print(args['inp'])
             p = get_problem_name(args['inp'].split('/')[-1])
             if(p == None):
                 print(Colour.YELLOW+"Unable to detect prob name from file name"+Colour.END)
@@ -151,6 +150,7 @@ def main():
         args['pswd'] = config_data['pswd']
         args['test'] = 0
         args['force'] = pars_args.force
+        args['force_stdout'] = pars_args.force_stdout
 
         Args.submit_it(args)
 

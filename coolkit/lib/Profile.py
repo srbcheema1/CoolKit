@@ -15,7 +15,7 @@ from .Colour import Colour
 from .Contest import Contest
 
 class Dummy_user:
-    def __init__(self,uname):
+    def __init__(self,uname,verbose=True):
         '''
         requires username as parameter. rest it will fetch online
         or from cached(to be implemented)
@@ -31,15 +31,15 @@ class Dummy_user:
         self.colour = ""
         self.div = ""
         self.contest_table = [['num','contest','rank','done','change','rating','title-change','link-num']]
-        self.fetch_data()
+        self.fetch_data(verbose)
 
 
-    def fetch_data(self):
+    def fetch_data(self,verbose=True):
         '''
         TODO: implementing caching, only for offline
         '''
         self.fetch_profile_data()
-        self.fetch_contests_data()
+        self.fetch_contests_data(verbose)
 
 
     def fetch_profile_data(self):
@@ -48,7 +48,7 @@ class Dummy_user:
         if(soup is None):
             return
 
-        if(not uname.lower() in soup.get_text().lower()):
+        if(not self.user_name.lower() in soup.get_text().lower()):
             return
 
         self.title = soup.find_all('div', {'class': 'user-rank'})[0].get_text().strip()
@@ -71,16 +71,16 @@ class Dummy_user:
             self.div = 1
 
 
-    def fetch_contests_data(self):
+    def fetch_contests_data(self,verbose=True):
         '''
         fetch data about contests played by the user
         '''
-        url = 'http://codeforces.com/contests/with/'+uname
+        url = 'http://codeforces.com/contests/with/'+self.user_name
         soup = Soup.get_soup(url)
         if(soup is None):
             return
 
-        if(not uname.lower() in soup.get_text().lower()):
+        if(not self.user_name.lower() in soup.get_text().lower()):
             return
 
         table_rows = soup.findAll('table',{'class':'tablesorter'})[0].findAll('tr')[1:]
@@ -92,7 +92,10 @@ class Dummy_user:
             c_name = row.findAll('td')[1].findAll('a')[0]['href'].strip().split('/')[-1]
             rank = row.findAll('td')[2].get_text().strip()
             solved = row.findAll('td')[3].get_text().strip()
-            outof , _p_name_list = Contest.get_number_of_problems(c_name)
+            if(verbose):
+                outof , _p_name_list = Contest.get_number_of_problems(c_name)
+            else:
+                outof , _p_name_list = "-", []
             rating_change = row.findAll('td')[4].get_text().strip()
             rating = row.findAll('td')[5].get_text().strip()
             change = row.findAll('td')[6].findAll('div')
@@ -115,14 +118,3 @@ class Dummy_user:
         table_data.append(['Registered: '+self.reg_date])
         print(AsciiTable(table_data).table)
 
-
-
-if(__name__=="__main__"):
-    uname='srbcheema1'
-    from sys import argv
-    if(len(argv)==2):
-        uname = argv[1]
-    dummy_user = Dummy_user(uname)
-
-    dummy_user.print_data()
-    print(AsciiTable(dummy_user.contest_table).table)

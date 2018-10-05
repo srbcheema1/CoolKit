@@ -145,23 +145,26 @@ class Args:
         data = srbjson.extract_data(Const.cache_dir+'/config',srbjson.global_template)
         u_name = data['user']
         pswd = data['pswd']
-        temp_prob = Problem(args['p_name'],args['c_name'],args['c_type'])
 
-        if(not temp_prob.is_good):
-            print(Colour.YELLOW+'Test cases not found locally...'+Colour.END)
-            # choice to fetch whole contest or problem
-            temp_prob.pull_problem()
+        if(not args['force']): # run only if it is not forced to submit
+            temp_prob = Problem(args['p_name'],args['c_name'],args['c_type'])
+            if(not temp_prob.is_good):
+                print(Colour.YELLOW+'Test cases not found locally...'+Colour.END)
+                # choice to fetch whole contest or problem
+                temp_prob.pull_problem()
 
-        if(not temp_prob.is_good):
-            print(Colour.FULLRED+'Sorry! Due to Connection problem. Unable to test your file'+Colour.END)
-            return
+            if(not temp_prob.is_good):
+                print(Colour.FULLRED+'Sorry! Due to Connection problem. Unable to test your file'+Colour.END)
+                return
 
-        runner = Runner(args,temp_prob)
-        runner.run()
+            runner = Runner(args,temp_prob)
+            runner.run()
 
-        submit = Submit(args['c_name']+args['p_name'],args['inp'],args['user'],args['pswd'])
+        submit = Submit(args['c_name']+args['p_name'],args['inp'],args['user'],args['pswd'],args['force_stdout'])
 
-        if(runner.result == 'GOOD'):
+        if(args['force']):
+            submit.submit()
+        elif(runner.result == 'GOOD'):
             submit.submit()
         elif(runner.result == 'CANT_SAY'):
             runner.print_table()

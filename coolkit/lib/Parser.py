@@ -98,6 +98,10 @@ class Parser:
                                 action='store_true',
                                 default=False,
                                 help="forcefully submit the file")
+        smt_parser.add_argument("--force_stdout",
+                                action='store_true',
+                                default=False,
+                                help="force verdict to stdout (not recommended)")
 
         # fetch
         '''
