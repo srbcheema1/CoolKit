@@ -1,10 +1,11 @@
 # CoolKit
 
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.ocm/srbcheema1/CoolKit/issues)
+[![Build status](https://api.travis-ci.org/srbcheema1/CoolKit.svg?branch=master)](https://travis-ci.org/srbcheema1/CoolKit)
 [![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.png?v=103)](https://github.com/srbcheema1/CoolKit)
 [![HitCount](http://hits.dwyl.io/srbcheema1/CoolKit.svg)](http://hits.dwyl.io/srbcheema1/CoolKit)
 
-CoolKit is `Coding + ToolKit`, A command-line tool used to automate your programming experience.
+**CoolKit** is `Coding + ToolKit`, A command-line tool used to automate your programming experience.
 
 
 ### Installation
@@ -15,20 +16,11 @@ CoolKit is `Coding + ToolKit`, A command-line tool used to automate your program
 ```
 sudo python3 -m pip install medipack
 ```
-- Ensure that binary path is in PATH
-
-Add line `export PATH=$PATH="~/.local/bin"` in your `.bashrc`
-
-```
-echo export PATH="$PATH":"~/.local/bin" >> ~/.bashrc
-source ~/.bashrc
-```
 - test for coolkit installation
 ```
 coolkit --help
 ```
 - if it displays help message you are ready to go.
-
 
 
 #### Build from Source
@@ -37,7 +29,7 @@ coolkit --help
 ```
 git clone https://github.com/srbcheema1/CoolKit
 cd CoolKit
-git checkout v0.0.2
+git checkout v0.0.3
 ```
 
 - install requirements
@@ -48,18 +40,21 @@ python3 -m pip install --user -r requirements.txt
 ```
 python3 setup.py install --user
 ```
-- Ensure that binary path is in PATH
-Add line `export PATH=$PATH="~/.local/bin"` in your `.bashrc`
-```
-echo export PATH="$PATH":"~/.local/bin" >> ~/.bashrc
-source ~/.bashrc
-```
-- test for coolkit installation
+
+#### Verify installation
+- check for working
 ```
 coolkit --help
 ```
 - if it displays help message you are ready to go.
 
+- In case not working, ensure that binary path is in PATH.
+Add line `export PATH=$PATH="~/.local/bin"` in your `.bashrc`
+
+```
+echo export PATH="$PATH":"~/.local/bin" >> ~/.bashrc
+source ~/.bashrc
+```
 
 
 ### Usage
@@ -69,7 +64,7 @@ srb@srb-pc:$ coolkit --help
 usage: coolkit [-h] {init,set,run,submit,fetch,config} ...
 
 positional arguments:
-  {init,set,run,submit,fetch,config}
+  {init,set,run,submit,fetch,config,view}
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -83,6 +78,7 @@ suboptions are:
     fetch       fetch a contest to use it for offline testing.
     run         run a code file against provided testcases
     submit      submit a code to online judge. and output the verdict.
+    view        view a user, contest, problem or upcomming contest
 ```
 
 ```
@@ -94,6 +90,7 @@ coolkit config -h
 coolkit fetch -h
 coolkit run -h
 coolkit submit -h
+coolkit view -h
 ```
 
 
@@ -102,6 +99,61 @@ coolkit submit -h
 - codeforces
 
 ### Examples
+
+#### init
+init an empty repository
+```
+srb@srb-pc:$ coolkit init
+```
+#### set
+set value of coolkit-variables for contest, prob, site, contest-type
+```
+srb@srb-pc:$ coolkit set -c 535
+srb@srb-pc:$ coolkit set -p A
+srb@srb-pc:$ coolkit set -t gym
+```
+
+#### config
+set value of global configuration variables like username, password
+```
+srb@srb-pc:$ coolkit config --user srbcheema1
+srb@srb-pc:$ coolkit config --pswd I_wont_write_it_here_xD
+```
+
+#### fetch
+fetch a contest, if you are standing in a coolkit folder then by default it will fetch a contest configured in that folder unless you provide using `-c` option. outside a coolkit repo it is necessary to provide contest name using `-c`
+```
+srb@srb-pc:$ coolkit fetch
+srb@srb-pc:$ coolkit fetch -c 1025
+```
+#### run
+run a problem against sample test cases. you can provide problem name using `-p` option, if you dont provide a problem name it will try to automatically detect the problem name using rules specified in `~/.config/coolkit/global_config.py`. **you can modify this file as you want**.
+if it is unable to detect file name then it will try to remember last problem you ran and run the test cases against it.
+```
+srb@srb-pc:$ coolkit run one.cpp
+Prob name not provided, trying to detect from filename
+running one.cpp file for A prob on 837
+srb@srb-pc:$ coolkit run soln.cpp
+Prob name not provided, trying to detect from filename
+Unable to detect prob name from file name
+```
+
+#### submit
+Submit a file on online judge and show you report through desktop notification. **it wont submit a file if it fails on local sample test cases**. Still if you want to submit a file use `-f` flag
+```
+srb@srb-pc:$ coolkit submit one.cpp
+srb@srb-pc:$ coolkit submit one.cpp -p A
+srb@srb-pc:$ coolkit submit one.cpp -p A -f
+```
+#### view
+```
+srb@srb-pc:$ coolkit view user srbcheema1
+srb@srb-pc:$ coolkit view prob A
+srb@srb-pc:$ coolkit view contest 535
+srb@srb-pc:$ coolkit view upcomming
+```
+
+### Demo for a contest
 
 [![Contest_Example_1](https://raw.githubusercontent.com/srbcheema1/CheemaFy/master/myPlugins/extra_things/png_images/coolkit/contest_example_1_1.png)](https://github.com/srbcheema1/)
 

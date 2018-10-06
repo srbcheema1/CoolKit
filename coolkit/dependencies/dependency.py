@@ -58,6 +58,13 @@ def install_arg_complete():
         filename = os.environ['HOME'] + '/.bashrc'
         line_adder(filename,line)
 
+def set_global_config():
+    path = abs_path('~/.config/coolkit/global_config.py')
+    if(os.path.isfile(path)):
+        return
+    path_of_default_global_config = '/'.join(abs_path(__file__).split('/')[:-2])+'/extra/global_config.py'
+    verify_file('~/.config/coolkit/global_config.py')
+    shutil.copy(path_of_default_global_config, path)
 
 def install_dependencies(dependency_map, verbose = False):
     supported_distros = _get_supported_distros(dependency_map)
