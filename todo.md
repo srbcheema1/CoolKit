@@ -1,5 +1,3 @@
-- view option
-- profile
 - friends standings
 - offline userdata
 - caching for out-of contests in profile

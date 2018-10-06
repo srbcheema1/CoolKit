@@ -139,6 +139,31 @@ class Parser:
         cfg_parser.add_argument('-p',"--pswd",
                                     help="password")
 
+        # view
+        '''
+        used to view contest, problem, user
+        '''
+        view_parser = subparsers.add_parser('view')
+        view_subparsers = view_parser.add_subparsers(dest='second_arg')
+
+        user_view_parser = view_subparsers.add_parser('user')
+        user_view_parser.add_argument("u_name",nargs='?',
+                                        default = None,
+                                        help="username ex: srbcheema1")
+
+        contest_view_parser = view_subparsers.add_parser('contest')
+        contest_view_parser.add_argument("c_name",nargs='?',
+                                        default = Parser.get_default('c_name',default_config),
+                                        help="contest num ex: 1080, 987, 840")
+
+        problem_view_parser = view_subparsers.add_parser('prob')
+        problem_view_parser.add_argument("p_name",nargs='?',
+                                        default = Parser.get_default('c_name',default_config),
+                                        help="Problem name ex: A B C")
+
+        upcoming_view_parser = view_subparsers.add_parser('upcoming')
+
+
         autocomplete(parser)
         return parser
 
