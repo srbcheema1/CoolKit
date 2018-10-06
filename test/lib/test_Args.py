@@ -12,8 +12,8 @@ from coolkit.lib.files import remove
 
 def test_Args():
     print()
+    cwd = abs_path(os.getcwd())
     try:
-        cwd = abs_path(os.getcwd())
         loc = cwd+'/test/contests/837'
         os.chdir(loc)
         remove(loc+'/.coolkit')
@@ -63,14 +63,15 @@ def test_Args():
         os.remove(abs_path('~/.config/coolkit/contest/222/prob/A/io/Input1'))
         os.system('coolkit fetch -c 222')
         remove('~/.config/coolkit/contest/222')
+        os.chdir(cwd)
 
     except Exception as e:
         # do clean up even in case of exception
-        cwd = abs_path(os.getcwd())
         loc = cwd+'/test/contests/837'
         remove('~/.config/coolkit/contest/222')
         remove(loc+'/.coolkit')
         remove(loc+'/hidden_one.cpp')
+        os.chdir(cwd)
         raise e
 
 

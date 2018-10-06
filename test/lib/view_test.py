@@ -7,8 +7,8 @@ from coolkit.lib.files import remove
 
 def test_view():
     print()
+    cwd = abs_path(os.getcwd())
     try:
-        cwd = abs_path(os.getcwd())
         loc = cwd+'/test/contests/837'
         os.chdir(loc)
         remove(loc+'/.coolkit')
@@ -17,7 +17,9 @@ def test_view():
         os.system('coolkit view contest')
         os.system('coolkit view prob A')
         os.system('coolkit view upcomming')
+        os.chdir(cwd)
     except Exception as e:
         remove(loc+'/.coolkit')
+        os.chdir(cwd)
         raise e
 
