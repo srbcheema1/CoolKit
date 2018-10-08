@@ -14,8 +14,10 @@ def reactified(path):
 
     path = ""
     for item in direc:
-        path = path + "/"
-        path = path + item
+        path += "/" + item
+
+    if(path == ''): # special case like /home/.. will get '' empty should mean /
+        path = '/'
 
     return path
 

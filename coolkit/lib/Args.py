@@ -1,5 +1,6 @@
 import os
 import shutil
+import sys
 
 from .abs_path import abs_path
 from .Colour import Colour
@@ -20,12 +21,17 @@ class Args:
         '''
         cwd = abs_path(os.getcwd())
         home_loc = abs_path('~')
+        root_loc = abs_path('/')
         now = cwd
-        while(now != home_loc):
+        while(now != home_loc and now != root_loc):
             if('.coolkit' in os.listdir(now) and os.path.isdir(os.path.join(now,'.coolkit'))):
                 if(debug): print('got .coolkit at ',now)
                 break
             now = abs_path(os.path.join(now,os.pardir))
+        if(now == root_loc):
+            Colour.print('Coolkit should be run in path under home directory',Colour.RED)
+            sys.exit(1)
+
         if(now == home_loc):
             verify_folder(cwd+'/.coolkit/')
             srbjson.create_file(cwd+'/.coolkit/config',srbjson.local_template)
@@ -57,12 +63,16 @@ class Args:
 
         cwd = abs_path(os.getcwd())
         home_loc = abs_path('~')
+        root_loc = abs_path('/')
         now = cwd
-        while(now != home_loc):
+        while(now != home_loc and now != root_loc):
             if('.coolkit' in os.listdir(now) and os.path.isdir(os.path.join(now,'.coolkit'))):
                 if(debug): print('got .coolkit at ',now)
                 break
             now = abs_path(os.path.join(now,os.pardir))
+        if(now == root_loc):
+            Colour.print('Coolkit should be run in path under home directory',Colour.RED)
+            sys.exit(1)
 
         srbjson.dump_data(args,now+'/.coolkit/config',srbjson.local_template)
 
@@ -79,11 +89,15 @@ class Args:
         '''
         cwd = abs_path(os.getcwd())
         home_loc = abs_path('~')
+        root_loc = abs_path('/')
         now = cwd
-        while(now != home_loc):
+        while(now != home_loc and now != root_loc):
             if('.coolkit' in os.listdir(now) and os.path.isdir(os.path.join(now,'.coolkit'))):
                 return True
             now = abs_path(os.path.join(now,os.pardir))
+        if(now == root_loc):
+            Colour.print('Coolkit should be run in path under home directory',Colour.RED)
+            sys.exit(1)
         return False
 
     def verify_init():
@@ -95,11 +109,15 @@ class Args:
         Args.verify_init()
         cwd = abs_path(os.getcwd())
         home_loc = abs_path('~')
+        root_loc = abs_path('/')
         now = cwd
-        while(now != home_loc):
+        while(now != home_loc and now!= root_loc):
             if('.coolkit' in os.listdir(now) and os.path.isdir(os.path.join(now,'.coolkit'))):
                 break
             now = abs_path(os.path.join(now,os.pardir))
+        if(now == root_loc):
+            Colour.print('Coolkit should be run in path under home directory',Colour.RED)
+            sys.exit(1)
 
         data = srbjson.extract_data(now+'/.coolkit/config',srbjson.local_template)
         return data
