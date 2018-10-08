@@ -10,6 +10,7 @@ grequests==0.3.0
 idna==2.7
 requests==2.19.1
 robobrowser==0.5.3
+selenium==3.14.1
 six==1.11.0
 terminaltables==3.1.0
 texttable==1.4.0
