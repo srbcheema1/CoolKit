@@ -1,8 +1,18 @@
 #! /usr/bin/env python3
-import os,time
+import os, time, sys
 import hashlib
 
-from .Colour import Colour
+
+try:
+    import click
+except:
+    err = """
+    You haven't installed the required dependencies.
+    """
+    import sys, traceback
+    traceback.print_exc()
+    print(err)
+    sys.exit(0)
 
 def findCheckSumMD5(fname):
     BLOCKSIZE = 65536
@@ -30,7 +40,7 @@ def _dfs_dir(path):
 
 def get_hash(path):
     if(not os.path.exists(path)):
-        print(Colour.RED+'path not exist ' + path+Colour.END)
+        click.secho('path does not exist: '+path,fg='red')
         return ""
     dir_hash = _dfs_dir(path)
     return str(hashlib.md5(dir_hash.encode('utf-8')).hexdigest())
@@ -38,8 +48,7 @@ def get_hash(path):
 
 if __name__ == "__main__":
     path = './srb_test'
-    import sys
     if(len(sys.argv)==2):
         path = sys.argv[1]
     dir_hash = get_hash(path)
-    print(Colour.CYAN+dir_hash+Colour.END)
+    print(dir_hash)
