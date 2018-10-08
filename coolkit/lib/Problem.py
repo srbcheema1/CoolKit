@@ -1,4 +1,3 @@
-#! /usr/bin/env python3
 from functools import reduce
 import os
 import re
@@ -301,15 +300,3 @@ class Problem:
             formatted_outputs += [pre]
 
         return formatted_inputs, formatted_outputs
-
-if __name__ == "__main__":
-    p_name = 'B'
-    c_name = 1025
-    if(len(sys.argv) >= 2): c_name = sys.argv[1]
-    if(len(sys.argv) >= 3): p_name = sys.argv[2]
-
-    prob = Problem(p_name,c_name)
-    prob.pull_problem(force=False)
-    prob.display_problem()
-    print(Colour.CYAN+prob.link+Colour.END)
-    print(prob.mult_soln)
