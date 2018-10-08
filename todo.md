@@ -1,5 +1,4 @@
-- friends standings
-- offline userdata
+- offline userdata (not much required)
 - caching for out-of contests in profile
 
 

@@ -78,7 +78,7 @@ suboptions are:
     fetch       fetch a contest to use it for offline testing.
     run         run a code file against provided testcases
     submit      submit a code to online judge. and output the verdict.
-    view        view a user, contest, problem or upcomming contest
+    view        view a user, contest, problem, friends-standings or upcomming contest
 ```
 
 ```
@@ -151,6 +151,7 @@ srb@srb-pc:$ coolkit view user srbcheema1
 srb@srb-pc:$ coolkit view prob A
 srb@srb-pc:$ coolkit view contest 535
 srb@srb-pc:$ coolkit view upcomming
+srb@srb-pc:$ coolkit view standings
 ```
 
 ### Demo for a contest
