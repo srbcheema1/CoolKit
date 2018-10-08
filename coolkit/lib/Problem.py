@@ -5,8 +5,9 @@ import sys
 
 try:
     import shutil
-    from terminaltables import AsciiTable
     import texttable
+
+    from terminaltables import AsciiTable
 except:
     err = """
     You haven't installed the required dependencies.

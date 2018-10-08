@@ -20,11 +20,12 @@ except:
 from .lib.Args import Args
 from .lib.Colour import Colour
 from .lib.Contest import Contest
-from .lib.global_config import get_problem_name
-from .lib.Parser import Parser
-from .lib.Profile import Dummy_user
 from .lib.Friends import Friends
 from .lib.Friends import Standing
+from .lib.global_config import get_problem_name
+from .lib.Parser import Parser
+from .lib.Problem import Problem
+from .lib.Profile import Dummy_user
 
 coolkit_help="""usage coolkit [option] [--suboptions [args]]
 

@@ -1,3 +1,15 @@
+try:
+    import getpass
+except:
+    err = """
+    You haven't installed the required dependencies.
+    """
+    print(err)
+    import sys, traceback,os
+    if(os.environ['HOME'] == 'srb'):
+        traceback.print_exc()
+    sys.exit(1)
+
 class utils:
     def __init__(self):
         pass
@@ -26,3 +38,12 @@ class utils:
 
         return temp
 
+    @staticmethod
+    def do_online_test():
+        '''
+        for running pytest on travis
+        '''
+        user = getpass.getuser()
+        if(user == 'travis'):
+            return False
+        return True

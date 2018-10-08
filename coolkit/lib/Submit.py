@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
-import time
 import os
 import subprocess as sp
+import time
 
 try:
     import click
     import requests
+
     from robobrowser import RoboBrowser
 except:
     err = """

@@ -2,6 +2,7 @@ import sys
 
 try:
     import grequests
+
     from bs4 import BeautifulSoup
 except:
     err = """

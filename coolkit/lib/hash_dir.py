@@ -1,6 +1,8 @@
 #! /usr/bin/env python3
-import os, time, sys
 import hashlib
+import os
+import sys
+import time
 
 
 try:

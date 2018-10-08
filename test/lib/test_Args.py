@@ -3,12 +3,25 @@ import pytest
 import os
 import random
 import shutil
-import getpass
+
+
+try:
+    import getpass
+except:
+    err = """
+    You haven't installed the required dependencies.
+    """
+    print(err)
+    import sys, traceback,os
+    if(os.environ['HOME'] == 'srb'):
+        traceback.print_exc()
+    sys.exit(1)
 
 from coolkit.lib.abs_path import abs_path
 from coolkit.lib.Args import Args
 from coolkit.lib.Colour import Colour
 from coolkit.lib.files import remove
+from coolkit.lib.utils import utils
 
 def test_Args():
     print()
@@ -40,12 +53,13 @@ def test_Args():
         print(Colour.CYAN+'Try to run the file'+Colour.END)
         os.system('coolkit run one.cpp')
 
-        os.system('coolkit config --user coolkit')
-        os.system('coolkit config --pswd coolkit')
+        if(os.environ['USER'] == 'travis'):
+            os.system('coolkit config --user coolkit')
+            os.system('coolkit config --pswd coolkit')
         print(Colour.CYAN+'Try to submit wrong file'+Colour.END)
         os.system('coolkit submit three.cpp')
 
-        if(is_good()):
+        if(utils.do_online_test()):
             print(Colour.CYAN+'Try to submit right file'+Colour.END)
             make_unique(loc)
             os.system('coolkit submit hidden_one.cpp')
@@ -87,9 +101,3 @@ def make_unique(loc):
         content = f.read()
         f.seek(0, 0)
         f.write(content + a + '\n')
-
-def is_good():
-    user = getpass.getuser()
-    if(user == 'travis'):
-        return False
-    return True

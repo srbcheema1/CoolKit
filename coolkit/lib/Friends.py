@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
 # PYTHON_ARGCOMPLETE_OK
 
-import time
 import os
 import subprocess as sp
+import time
 
 try:
-    from argparse import ArgumentParser
-    from argcomplete import autocomplete
-    from bs4 import BeautifulSoup
     import click
     import getpass
     import requests
+
+    from argparse import ArgumentParser
+    from argcomplete import autocomplete
+    from bs4 import BeautifulSoup
     from robobrowser import RoboBrowser
     from terminaltables import AsciiTable
     import texttable

@@ -2,10 +2,11 @@ import os
 import sys
 
 try:
-    import shutil
     import grequests as grq
-    from terminaltables import AsciiTable
+    import shutil
+
     from bs4 import BeautifulSoup
+    from terminaltables import AsciiTable
 except:
     err = """
     You haven't installed the required dependencies.

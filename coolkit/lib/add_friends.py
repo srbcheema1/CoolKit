@@ -6,16 +6,17 @@ import sys
 import time
 
 try:
-    from argparse import ArgumentParser
-    from argcomplete import autocomplete
     import click
     import getpass
+
+    from argparse import ArgumentParser
+    from argcomplete import autocomplete
     from selenium import webdriver
-    from selenium.webdriver.common.keys import Keys
-    from selenium.webdriver.support.ui import WebDriverWait
-    from selenium.webdriver.support import expected_conditions as EC
-    from selenium.webdriver.common.by import By
     from selenium.common.exceptions import TimeoutException
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.common.keys import Keys
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver.support.ui import WebDriverWait
 except:
     err = """
     You haven't installed the required dependencies.
