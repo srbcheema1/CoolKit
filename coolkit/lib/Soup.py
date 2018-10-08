@@ -7,10 +7,11 @@ except:
     err = """
     You haven't installed the required dependencies.
     """
-    import sys, traceback
-    traceback.print_exc()
     print(err)
-    sys.exit(0)
+    import sys, traceback,os
+    if(os.environ['HOME'] == 'srb'):
+        traceback.print_exc()
+    sys.exit(1)
 
 from .Colour import Colour
 

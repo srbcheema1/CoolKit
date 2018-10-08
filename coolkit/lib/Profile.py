@@ -7,7 +7,10 @@ except:
     You haven't installed the required dependencies.
     """
     print(err)
-    sys.exit(0)
+    import sys, traceback,os
+    if(os.environ['HOME'] == 'srb'):
+        traceback.print_exc()
+    sys.exit(1)
 
 from .Soup import Soup
 from .Colour import Colour

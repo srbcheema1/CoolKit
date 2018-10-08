@@ -12,7 +12,10 @@ except:
     You haven't installed the required dependencies.
     """
     print(err)
-    sys.exit(0)
+    import sys, traceback,os
+    if(os.environ['HOME'] == 'srb'):
+        traceback.print_exc()
+    sys.exit(1)
 
 from .lib.Args import Args
 from .lib.Colour import Colour
@@ -34,7 +37,8 @@ submit      to submit a problem
 config      to configure username and password"""
 
 
-def main():
+
+def safe_main():
     parser = Parser.create_parser()
     pars_args = parser.parse_args()
     Parser.validate_args(pars_args)
@@ -93,11 +97,11 @@ def main():
 
         if(not args['c_name']):
             print(Colour.RED+'contest not set, please set contest using `coolkit set -c <contest_num>`'+Colour.END)
-            sys.exit(0)
+            sys.exit(1)
 
         if(not args['inp']):
             print(Colour.RED+'no input file provided or found in cache'+Colour.END)
-            sys.exit(0)
+            sys.exit(1)
 
         if(not args['p_name']):
             print(Colour.YELLOW+"Prob name not provided, trying to detect from filename"+Colour.END)
@@ -109,7 +113,7 @@ def main():
                 print(Colour.YELLOW+'No cached problem name found'+Colour.END)
                 print(Colour.RED+'Please provide the problem name using -p option'+Colour.END)
                 Args.set_local_config({'inp':args['inp']}) #cache up the input file for next turn
-                sys.exit(0)
+                sys.exit(1)
             args['p_name'] = p
 
         Args.set_local_config(args) #cache up the args for next turn
@@ -129,11 +133,11 @@ def main():
 
         if(not args['c_name']):
             print(Colour.RED+'contest not set, please set contest using `coolkit set -c <contest_num>`'+Colour.END)
-            sys.exit(0)
+            sys.exit(1)
 
         if(not args['inp']):
             print(Colour.RED+'no input file provided or found in cache'+Colour.END)
-            sys.exit(0)
+            sys.exit(1)
 
         if(not args['p_name']):
             print(Colour.YELLOW+"Prob name not provided, trying to detect from filename"+Colour.END)
@@ -141,7 +145,7 @@ def main():
             if(p == None):
                 print(Colour.YELLOW+"Unable to detect prob name from file name"+Colour.END)
                 print(Colour.RED+'Please provide the problem name using -p option'+Colour.END)
-                sys.exit(0)
+                sys.exit(1)
             args['p_name'] = p
 
         config_data = Args.fetch_data_from_global_config()
@@ -170,12 +174,12 @@ def main():
         if(not args['c_name']):
             if(not Args.check_init()):
                 print(Colour.RED+'no contest provided, either provide contest using -c or run command from a coolkit repo'+Colour.END)
-                sys.exit(0)
+                sys.exit(1)
             config_data = args.fetch_data_from_local_config()
             args['c_name'] = config_data['c_name'] # can be none
             if(not args['c_name']):
                 print(Colour.RED+'contest not set, use `coolkit set -c <contest num>`, or provide contest name using -c parameter'+Colour.END)
-                sys.exit(0)
+                sys.exit(1)
         Args.fetch_contest(args)
 
     elif(first_arg == "config"):
@@ -238,7 +242,7 @@ def main():
         elif(second_arg == "prob"):
             if(not Args.check_init()):
                 print(Colour.RED+'please run this command from a coolkit repo'+Colour.END)
-                sys.exit(0)
+                sys.exit(1)
             p_name = pars_args.p_name
             c_name = Args.fetch_data_from_local_config()['c_name']
             if(not c_name):
@@ -258,6 +262,12 @@ def main():
         elif(second_arg == "upcoming"):
             Contest.upcoming_contest(display=True)
 
+def main():
+    try:
+        safe_main()
+    except KeyboardInterrupt:
+        print('Exiting safely ... ')
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()

@@ -8,10 +8,11 @@ except:
     err = """
     You haven't installed the required dependencies.
     """
-    import sys, traceback
-    traceback.print_exc()
     print(err)
-    sys.exit(0)
+    import sys, traceback,os
+    if(os.environ['HOME'] == 'srb'):
+        traceback.print_exc()
+    sys.exit(1)
 
 from .Colour import Colour
 from .utils import utils
@@ -46,7 +47,7 @@ class Runner:
     def run(self):
         if not self.extension in ['c', 'cpp', 'java', 'py', 'rb']:
             print(Colour.CYAN+'Supports only C, C++, Python, Java, and Ruby as of now.'+Colour.END)
-            sys.exit(0)
+            sys.exit(1)
 
         if(self.args['test'] != 0):
             self._run_single_test(self.args['test'])
@@ -61,7 +62,7 @@ class Runner:
             if compile_status != 0:
                 print(Colour.RED + 'Compilation error.' + Colour.END)
                 os.system(self.compiler + ' \'' + self.input_file + '\'') #spaces in path
-                sys.exit(0)
+                sys.exit(1)
 
         # RUN
         self._run_on_tests([test+1 for test in range(self.prob.num_test)])
@@ -159,7 +160,7 @@ class Runner:
             if compile_status != 0:
                 print(Colour.RED + 'Compilation error.' + Colour.END)
                 os.system(self.compiler + ' \'' + self.input_file + '\'') #spaces in path
-                sys.exit(0)
+                sys.exit(1)
 
         status = os.system(self.execute_command + ' < ' + os.path.join(self.test_loc, 'Input' + str(test)) )
 

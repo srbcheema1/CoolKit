@@ -21,7 +21,10 @@ except:
     You haven't installed the required dependencies.
     """
     print(err)
-    sys.exit(0)
+    import sys, traceback,os
+    if(os.environ['HOME'] == 'srb'):
+        traceback.print_exc()
+    sys.exit(1)
 
 class Add_friends():
     def get_user_list(file_path):
@@ -67,7 +70,7 @@ class Add_friends():
             WebDriverWait(browser,5).until(LogoutButton)
         except TimeoutException:
             print("Loading took too much time!")
-            sys.exit(0)
+            sys.exit(1)
 
 
     def add_friends(browser,user_list=[],ignore_list=[],force=False):

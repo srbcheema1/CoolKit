@@ -103,7 +103,7 @@ class Args:
     def verify_init():
         if(not Args.check_init()):
             print(Colour.RED+'not a coolkit repo'+Colour.END)
-            sys.exit(0)
+            sys.exit(1)
 
     def fetch_data_from_local_config():
         Args.verify_init()
