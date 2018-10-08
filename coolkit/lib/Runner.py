@@ -77,7 +77,7 @@ class Runner:
                 i + 1,
                 inputs[i],
                 self.orig_outputs[i],
-                self.user_outputs[i] if any(sub in self.results[i] for sub in ['AC', 'WA']) else 'N/A',
+                self.user_outputs[i] if any(sub in self.results[i] for sub in ['AC', 'WA','Diff']) else 'N/A',
                 self.results[i]
             ]
             table_data.append(row)
