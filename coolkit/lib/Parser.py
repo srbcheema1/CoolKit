@@ -156,12 +156,18 @@ class Parser:
                                         default = Parser.get_default('c_name',default_config),
                                         help="contest num ex: 1080, 987, 840")
 
+        standings_view_parser = view_subparsers.add_parser('standings')
+        standings_view_parser.add_argument("c_name",nargs='?',
+                                        default = Parser.get_default('c_name',default_config),
+                                        help="contest num ex: 1080, 987, 840")
+
         problem_view_parser = view_subparsers.add_parser('prob')
         problem_view_parser.add_argument("p_name",nargs='?',
                                         default = Parser.get_default('c_name',default_config),
                                         help="Problem name ex: A B C")
 
         upcoming_view_parser = view_subparsers.add_parser('upcoming')
+        friends_view_parser = view_subparsers.add_parser('friends')
 
 
         autocomplete(parser)

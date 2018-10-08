@@ -20,6 +20,8 @@ from .lib.Contest import Contest
 from .lib.global_config import get_problem_name
 from .lib.Parser import Parser
 from .lib.Profile import Dummy_user
+from .lib.FriendsStandings import Standing
+from .lib.Friends import Friends
 
 coolkit_help="""usage coolkit [option] [--suboptions [args]]
 
@@ -202,6 +204,36 @@ def main():
             temp_contest = Contest(c_name)
             temp_contest.pull_contest()
             temp_contest.display_contest()
+
+        elif(second_arg == "standings"):
+            c_name = pars_args.c_name
+            if(not c_name):
+                if(Args.check_init()):
+                    print(Colour.YELLOW+'contest not set, use `coolkit set -c <contest num>`'+Colour.END)
+                c_name = input('Enter contest name : ')
+
+            config_data = Args.fetch_data_from_global_config()
+            if(not config_data['user']):
+                print(Colour.RED+'Please configure your username using "coolkit config -u <username>"'+Colour.END)
+                config_data['user'] = input('Enter your username : ')
+            if(not config_data['pswd']):
+                print(Colour.YELLOW+'Please configure your password using "coolkit config -p <password>"'+Colour.END)
+                config_data['pswd'] = getpass.getpass('Enter your password:')
+
+            temp_Standing = Standing(c_name,config_data['user'],config_data['pswd'])
+            temp_Standing.show()
+
+        elif(second_arg == "friends"):
+            config_data = Args.fetch_data_from_global_config()
+            if(not config_data['user']):
+                print(Colour.RED+'Please configure your username using "coolkit config -u <username>"'+Colour.END)
+                config_data['user'] = input('Enter your username : ')
+            if(not config_data['pswd']):
+                print(Colour.YELLOW+'Please configure your password using "coolkit config -p <password>"'+Colour.END)
+                config_data['pswd'] = getpass.getpass('Enter your password:')
+
+            temp_friends = Friends(config_data['user'],config_data['pswd'])
+            temp_friends.show()
 
         elif(second_arg == "prob"):
             if(not Args.check_init()):
