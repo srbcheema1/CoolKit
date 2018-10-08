@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import time
 import os
 import subprocess as sp
@@ -20,8 +22,10 @@ class Submit:
     notify_installed = True
     force_stdout = False
 
-    def __init__(self,prob_id,inputfile,username,password,force_stdout=False):
-        self.prob_id = prob_id
+    def __init__(self,c_name,p_name,inputfile,username,password,force_stdout=False):
+        self.c_name = c_name
+        self.p_name = p_name
+        self.prob_id = c_name + p_name
         self.inputfile = inputfile
         self.username = username
         self.password = password
@@ -32,10 +36,11 @@ class Submit:
 
     @staticmethod
     def get_latest_verdict(user):
-        r = requests.get('http://codeforces.com/api/user.status?' +
-                         'handle={}&from=1&count=1'.format(user))
+        req = 'http://codeforces.com/api/user.status?'+'handle='+user+'&from=1&count=1'
+        r = requests.get(req)
         js = r.json()
         if 'status' not in js or js['status'] != 'OK':
+            click.secho("unable to connect, try it yourself : "+req,fg='red')
             raise ConnectionError('Cannot connect to codeforces!')
         try:
             result = js['result'][0]
@@ -69,13 +74,15 @@ class Submit:
             click.secho('Login Failed.. Maybe wrong id/password.', fg = 'red')
             return
 
-        browser.open('http://codeforces.com/problemset/submit')
+        browser.open('http://codeforces.com/contest/'+self.c_name+'/submit')
         submit_form = browser.get_form(class_ = 'submit-form')
-        submit_form['submittedProblemCode'] = self.prob_id
+        submit_form['submittedProblemIndex'].value = self.p_name
         submit_form['sourceFile'] = self.inputfile
 
         browser.submit_form(submit_form)
-        if browser.url[-6:] != 'status':
+        print(browser.url)
+        # if browser.url[-6:] != 'status': # it was used when submitting from problemset
+        if not 'my' in browser.url:
             click.secho('Failed submission, probably you have submit the same file before', fg = 'red')
             return
 
@@ -144,15 +151,16 @@ class Submit:
             return False
 
 @click.command()
-@click.argument('prob_id')
+@click.argument('c_name')
+@click.argument('p_name')
 @click.argument('inputfile')
 @click.argument('username')
 @click.argument('password')
-def tester(prob_id, inputfile,username,password,force_stdout=False):
+def tester(c_name,p_name, inputfile,username,password,force_stdout=False):
     if(not os.path.exists(inputfile)):
         click.secho('file '+inputfile+' doesnot exists',fg='red')
         return
-    temp_submit = Submit(prob_id,inputfile,username,password,force_stdout)
+    temp_submit = Submit(c_name,p_name,inputfile,username,password,force_stdout)
     temp_submit.submit()
 
 if __name__ == '__main__':

@@ -160,7 +160,7 @@ class Args:
             runner = Runner(args,temp_prob)
             runner.run()
 
-        submit = Submit(args['c_name']+args['p_name'],args['inp'],args['user'],args['pswd'],args['force_stdout'])
+        submit = Submit(args['c_name'],args['p_name'],args['inp'],args['user'],args['pswd'],args['force_stdout'])
 
         if(args['force']):
             submit.submit()
