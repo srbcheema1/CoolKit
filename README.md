@@ -1,6 +1,7 @@
 # CoolKit
 
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.ocm/srbcheema1/CoolKit/issues)
+[![a srbcheema1 production](https://img.shields.io/badge/-a%20srbcheema1%20production-blue.svg)](https://github.com/srbcheema1)
 [![Build status](https://api.travis-ci.org/srbcheema1/CoolKit.svg?branch=master)](https://travis-ci.org/srbcheema1/CoolKit)
 [![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.png?v=103)](https://github.com/srbcheema1/CoolKit)
 [![HitCount](http://hits.dwyl.io/srbcheema1/CoolKit.svg)](http://hits.dwyl.io/srbcheema1/CoolKit)
@@ -14,7 +15,7 @@
 
 - Use pip to install, user `--user` flag
 ```
-sudo python3 -m pip install medipack
+sudo python3 -m pip install coolkit
 ```
 - test for coolkit installation
 ```
@@ -29,7 +30,7 @@ coolkit --help
 ```
 git clone https://github.com/srbcheema1/CoolKit
 cd CoolKit
-git checkout v0.0.3
+git checkout v0.0.4
 ```
 
 - install requirements
@@ -61,13 +62,14 @@ source ~/.bashrc
 
 ```
 srb@srb-pc:$ coolkit --help
-usage: coolkit [-h] {init,set,run,submit,fetch,config} ...
+usage: Coolkit [-h] [-v] {init,set,run,submit,fetch,config,view} ...
 
 positional arguments:
   {init,set,run,submit,fetch,config,view}
 
 optional arguments:
   -h, --help            show this help message and exit
+  -v, --version         display version number
 ```
 
 ```
@@ -78,7 +80,7 @@ suboptions are:
     fetch       fetch a contest to use it for offline testing.
     run         run a code file against provided testcases
     submit      submit a code to online judge. and output the verdict.
-    view        view a user, contest, problem, friends-standings or upcomming contest
+    view        view a user, contest, problem, friends-standings or upcoming contest
 ```
 
 ```
@@ -150,7 +152,8 @@ srb@srb-pc:$ coolkit submit one.cpp -p A -f
 srb@srb-pc:$ coolkit view user srbcheema1
 srb@srb-pc:$ coolkit view prob A
 srb@srb-pc:$ coolkit view contest 535
-srb@srb-pc:$ coolkit view upcomming
+srb@srb-pc:$ coolkit view upcoming
+srb@srb-pc:$ coolkit view friends
 srb@srb-pc:$ coolkit view standings
 ```
 
@@ -161,7 +164,7 @@ srb@srb-pc:$ coolkit view standings
 
 ### Similar Tools
 
-- It is worth it to mention few other tools that I was using from a year or so. I have really loved those tools and also used some of their modules/functions in this tool. Those tools are [Acedit](https://github.com/coderick14/ACedIt) and [Idne](https://github.com/endiliey/idne/blob/master/idne.py).
+- It is worth it to mention few other tools that I was using from a year or so. I have really loved those tools and also used some of their modules/functions in this tool. Those tools are [SpojPi](https://github.com/nimitbhardwaj/SpojPI), [Acedit](https://github.com/coderick14/ACedIt) and [Idne](https://github.com/endiliey/idne/blob/master/idne.py).
 
 
 ### Note

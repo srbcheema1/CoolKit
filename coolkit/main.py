@@ -17,6 +17,7 @@ except:
         traceback.print_exc()
     sys.exit(1)
 
+from . import __version__
 from .lib.Args import Args
 from .lib.Colour import Colour
 from .lib.Contest import Contest

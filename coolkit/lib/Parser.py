@@ -14,6 +14,7 @@ except:
         traceback.print_exc()
     sys.exit(1)
 
+from .. import __version__
 from .Args import Args
 from .Constants import Const
 from .srbjson import srbjson
@@ -34,6 +35,10 @@ class Parser:
             default_config = Args.fetch_data_from_local_config()
 
         parser = ArgumentParser()
+        parser.add_argument('-v',"--version",
+                            action='store_true',
+                            help="display version number")
+
         subparsers = parser.add_subparsers(dest='first_arg')
 
         # init
@@ -177,5 +182,7 @@ class Parser:
         return parser
 
     def validate_args(args):
+        if(args.version):
+            print('coolkit '+__version__)
         return
 
