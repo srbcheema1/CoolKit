@@ -156,7 +156,8 @@ class Args:
 
         runner = Runner(args,temp_prob)
         runner.run()
-        runner.print_table()
+        if(args['test']==0): # dont print table for single prob
+            runner.print_table()
 
 
     def submit_it(args):
