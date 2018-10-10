@@ -30,7 +30,7 @@ coolkit --help
 ```
 git clone https://github.com/srbcheema1/CoolKit
 cd CoolKit
-git checkout v0.0.4
+git checkout v0.0.5
 ```
 
 - install requirements

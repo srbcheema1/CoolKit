@@ -43,3 +43,5 @@ signed main(){
     //cin>>t;
     while(t--)solve();
 }
+
+// https://codeforces.com/contest/837/problem/A

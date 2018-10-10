@@ -1,3 +1,6 @@
+- view testcase
+- coloured prints to sys.stderr.write(); print()
+
 - offline userdata (not much required)
 - caching for out-of contests in profile
 
