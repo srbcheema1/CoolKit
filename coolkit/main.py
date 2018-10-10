@@ -253,7 +253,7 @@ def safe_main():
                 Args.set_local_config({'c_name',c_name})
             if(not p_name):
                 Colour.print(Colour.YELLOW+'problem not set, use `coolkit set -p <problem name>`'+Colour.END)
-                p_name = input('Enter contest name : ')
+                p_name = input('Enter problem name : ')
                 Args.set_local_config({'p_name',p_name})
 
             prob = Problem(p_name,c_name)
