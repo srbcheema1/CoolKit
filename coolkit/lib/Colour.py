@@ -44,7 +44,7 @@ class Colour:
     @staticmethod
     def print(message,colour=''):
         # print(colour + message + Colour.END)
-        sys.stderr.write(colour+message+'\n'+Colour.END)
+        sys.stderr.write(colour+message+Colour.END+'\n')
 
     @staticmethod
     def get_colour(title):
