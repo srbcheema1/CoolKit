@@ -18,7 +18,7 @@ from .Colour import Colour
 from .utils import utils
 
 class Runner:
-    def __init__(self,args,prob):
+    def __init__(self,args,prob,cool_path):
         self.args = args
         self.prob = prob
 
@@ -32,22 +32,24 @@ class Runner:
         self.bad_flag = False
         self.result = 'GOOD'
 
+        self.cool_path = cool_path
         self.input_file = self.args['inp'].split('/')[-1]
         self.basename = self.input_file.split('.')[0]
         self.extension = self.input_file.split('.')[-1]
+        self.executable = self.cool_path + '/' + self.basename + '.out'
         self.compiler = {
             'py': None,
             'rb': None,
-            'c': 'gcc -static -DONLINE_JUDGE -g -fno-asm -lm -s -O2 -o .coolkit/' + self.basename+ '.out',
-            'cpp': 'g++ -static -DONLINE_JUDGE -g -lm -s -x c++ -O2 -std=c++14 -o .coolkit/' + self.basename+'.out',
+            'c': 'gcc -static -DONLINE_JUDGE -g -fno-asm -lm -s -O2 -o ' + self.executable,
+            'cpp': 'g++ -static -DONLINE_JUDGE -g -lm -s -x c++ -O2 -std=c++14 -o ' + self.executable,
             'java': 'javac -d .'
         }[self.extension]
 
         self.execute_command = {
             'py': 'python \'' + self.args['inp'] + '\'',
             'rb': 'ruby \'' + self.args['inp'] + '\'',
-            'c': '.coolkit/' + self.basename+'.out',
-            'cpp': '.coolkit/' + self.basename+'.out',
+            'c': self.executable,
+            'cpp': self.executable,
             'java': 'java -DONLINE_JUDGE=true -Duser.language=en -Duser.region=US -Duser.variant=US ' + self.basename
         }[self.extension]
 
@@ -97,7 +99,7 @@ class Runner:
 
     def _run_on_test(self,i):
             status = os.system('timeout 2s ' + self.execute_command + ' < ' + os.path.join(
-                self.test_loc, 'Input' + str(i)) + ' > .coolkit/out_' + self.prob.p_name + str(i))
+                self.test_loc, 'Input' + str(i)) + ' > ' + self.cool_path + '/out_' + self.prob.p_name + str(i))
 
             with open(os.path.join(self.test_loc, 'Input' + str(i)), 'r') as in_handler:
                 orig_input = in_handler.read().strip().split('\n')
@@ -120,7 +122,7 @@ class Runner:
 
             if status == 0:
                 # Ran successfully
-                with open('.coolkit/out_'+ self.prob.p_name + str(i), 'r') as user_out_handler:
+                with open(self.cool_path+'/out_'+ self.prob.p_name + str(i), 'r') as user_out_handler:
                     user_output = user_out_handler.read().strip().split('\n')
                     user_output = '\n'.join(
                         [line.strip() for line in user_output])
@@ -181,8 +183,8 @@ class Runner:
         compiler = {
             'py': None,
             'rb': None,
-            'c': 'gcc -static -g -fno-asm -lm -s -O2 -o .coolkit/' + self.basename+ '.out',
-            'cpp': 'g++ -static -g -lm -s -x c++ -O2 -std=c++14 -o .coolkit/' + self.basename+'.out',
+            'c': 'gcc -static -g -fno-asm -lm -s -O2 -o ' + self.executable,
+            'cpp': 'g++ -static -g -lm -s -x c++ -O2 -std=c++14 -o ' + self.executable,
             'java': 'javac -d .'
         }[self.extension]
         if not self.compiler is None:
