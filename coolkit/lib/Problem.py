@@ -100,6 +100,23 @@ class Problem:
             self.is_good = False
             srbjson.dump_data({"is_good":self.is_good}, self.dir + "/config",srbjson.prob_template)
 
+        if(self.is_good): # load i/o
+            self.inputs = [''] * self.num_test
+            self.outputs = [''] * self.num_test
+            test_loc = self.dir + '/io'
+            for i in range(self.num_test):
+                with open(os.path.join(test_loc, 'Input' + str(i+1)), 'r') as in_handler:
+                    orig_input = in_handler.read().strip().split('\n')
+                    orig_input = '\n'.join(
+                        [line.strip() for line in orig_input])
+                    self.inputs[i] = orig_input
+
+                with open(os.path.join(test_loc, 'Output' + str(i+1)), 'r') as out_handler:
+                    orig_output = out_handler.read().strip().split('\n')
+                    orig_output = '\n'.join(
+                        [line.strip() for line in orig_output])
+                    self.outputs[i] = orig_output
+
 
     def pull_problem(self,force=False):
         self.fetch_problem(force)
