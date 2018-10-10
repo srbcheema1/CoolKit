@@ -4,8 +4,8 @@ except:
     err = """
     You haven't installed the required dependencies.
     """
-    print(err)
     import sys, traceback,os
+    sys.stderr.write(err)
     if(os.environ['HOME'] == 'srb'):
         traceback.print_exc()
     sys.exit(1)
