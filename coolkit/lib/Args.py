@@ -35,13 +35,13 @@ class Args:
         if(now == home_loc):
             verify_folder(cwd+'/.coolkit/')
             srbjson.create_file(cwd+'/.coolkit/config',srbjson.local_template)
-            print(Colour.GREEN+'initialized empty CoolKit repository in '+cwd+'/.coolkit/'+Colour.END)
+            Colour.print('initialized empty CoolKit repository in '+cwd+'/.coolkit/',Colour.GREEN)
         elif(now != cwd):
             verify_folder(cwd+'/.coolkit/')
             shutil.copy(now+'/.coolkit/config',cwd+'/.coolkit/config')
-            print(Colour.GREEN+'initialized empty CoolKit repository in '+cwd+'/.coolkit/'+Colour.END)
+            Colour.print('initialized empty CoolKit repository in '+cwd+'/.coolkit/',Colour.GREEN)
         else:
-            if(init): print(Colour.YELLOW+'Already a coolkit repo'+Colour.END)
+            if(init): Colour.print('Already a coolkit repo',Colour.YELLOW)
 
         if(not 'c_name' in args or not args['c_name']):
             contest_name = get_contest_name(cwd.split('/')[-1])
@@ -102,7 +102,7 @@ class Args:
 
     def verify_init():
         if(not Args.check_init()):
-            print(Colour.RED+'not a coolkit repo'+Colour.END)
+            Colour.print('not a coolkit repo',Colour.RED)
             sys.exit(1)
 
     def fetch_data_from_local_config():
@@ -133,7 +133,7 @@ class Args:
         c_name = str(args['c_name'])
         temp_contest = Contest(c_name)
         if(not args['force'] and temp_contest.is_good):
-            print(Colour.GREEN+'cache exists'+Colour.END)
+            Colour.print('cache exists',Colour.GREEN)
             return
         temp_contest.pull_contest(args['force'])
 
@@ -146,12 +146,12 @@ class Args:
 
         temp_prob = Problem(args['p_name'],args['c_name'],args['c_type'])
         if(not temp_prob.is_good):
-            print(Colour.YELLOW+'Test cases not found locally...'+Colour.END)
+            Colour.print('Test cases not found locally...',Colour.YELLOW)
             # choice to fetch whole contest or problem
             temp_prob.pull_problem()
 
         if(not temp_prob.is_good):
-            print(Colour.FULLRED+'Sorry! Due to Connection problem. Unable to test your file'+Colour.END)
+            Colour.print('Sorry! Due to Connection problem. Unable to test your file',Colour.FULLRED)
             return
 
         runner = Runner(args,temp_prob)
@@ -168,12 +168,12 @@ class Args:
         if(not args['force']): # run only if it is not forced to submit
             temp_prob = Problem(args['p_name'],args['c_name'],args['c_type'])
             if(not temp_prob.is_good):
-                print(Colour.YELLOW+'Test cases not found locally...'+Colour.END)
+                Colour.print('Test cases not found locally...',Colour.YELLOW)
                 # choice to fetch whole contest or problem
                 temp_prob.pull_problem()
 
             if(not temp_prob.is_good):
-                print(Colour.FULLRED+'Sorry! Due to Connection problem. Unable to test your file'+Colour.END)
+                Colour.print('Sorry! Due to Connection problem. Unable to test your file',Colour.FULLRED)
                 return
 
             runner = Runner(args,temp_prob)
@@ -189,6 +189,6 @@ class Args:
             runner.print_table()
             submit.submit()
         else:
-            print(Colour.FULLRED+'ERROR locally, so wont upload faulty file'+Colour.END)
+            Colour.print('ERROR locally, so wont upload faulty file',Colour.FULLRED)
             runner.print_table()
             if(args['force']): submit.submit()

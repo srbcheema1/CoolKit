@@ -1,3 +1,5 @@
+import sys
+
 class Colour:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
@@ -40,8 +42,9 @@ class Colour:
     FULLWHITE = '\033[107m'
 
     @staticmethod
-    def print(mesage,colour=''):
-        print(colour + mesage + Colour.END)
+    def print(message,colour=''):
+        # print(colour + message + Colour.END)
+        sys.stderr.write(colour+message+Colour.END+'\n')
 
     @staticmethod
     def get_colour(title):

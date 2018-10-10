@@ -12,8 +12,8 @@ except:
     err = """
     You haven't installed the required dependencies.
     """
-    print(err)
     import sys, traceback,os
+    sys.stderr.write(err)
     if(os.environ['HOME'] == 'srb'):
         traceback.print_exc()
     sys.exit(1)
@@ -88,7 +88,7 @@ class Problem:
         verify_folder(self.dir + '/io')
         now_hash = get_hash(self.dir +'/io')
         if(self.hash != now_hash and self.hash != ""):
-            print(Colour.YELLOW+'Warning prob '+self.p_name+' has been modified'+Colour.END)
+            Colour.print('Warning prob '+self.p_name+' has been modified', Colour.END)
             self.hash = now_hash
             self.is_good = False
             srbjson.dump_data({"is_good":self.is_good}, self.dir + "/config",srbjson.prob_template)
@@ -96,7 +96,7 @@ class Problem:
         io = os.listdir(self.dir+'/io')
         if(len(io) != 2* self.num_test):
             if(len(io)!=0):
-                print(Colour.RED+self.p_name + ' testcases corrupt' + str(io) + Colour.END)
+                Colour.print(self.p_name + ' testcases corrupt' + str(io), Colour.RED)
             self.is_good = False
             srbjson.dump_data({"is_good":self.is_good}, self.dir + "/config",srbjson.prob_template)
 
@@ -158,7 +158,7 @@ class Problem:
             self.soup = Soup.get_soup(self.link)
 
         if(self.soup is None):
-            print(Colour.RED+'failed to fetch problem'+Colour.END)
+            Colour.print('failed to fetch problem', Colour.RED)
             return
 
         self.load_from_soup(self.soup)
@@ -190,7 +190,7 @@ class Problem:
         prob_divs = prob_statement.findAll('div',recursive=False)
 
         if(len(prob_divs) == 0):
-            Colour.print('unable to fetch '+self.p_name,Colour.YELLOW)
+            Colour.print('unable to fetch '+self.p_name, Colour.YELLOW)
             return
 
         self.p_desc = ""
@@ -203,7 +203,7 @@ class Problem:
             i_desc = prob_statement.findAll('div',{'class':'input-specification'})[0].findAll('p')
         except:
             i_desc = ""
-            Colour.print(self.p_name+' has got no input description',Colour.YELLOW)
+            Colour.print(self.p_name+' has got no input description', Colour.YELLOW)
         for p in i_desc:
             self.i_desc += p.get_text().strip() + '\n\n'
 
@@ -212,7 +212,7 @@ class Problem:
             o_desc = prob_statement.findAll('div',{'class':'output-specification'})[0].findAll('p')
         except:
             o_desc = ""
-            Colour.print(self.p_name+' has got no output description',Colour.YELLOW) #837/problem/G
+            Colour.print(self.p_name+' has got no output description', Colour.YELLOW) #837/problem/G
         for p in o_desc:
             self.o_desc += p.get_text().strip() + '\n\n'
 
@@ -237,7 +237,7 @@ class Problem:
                 self.num_test = len(self.inputs)
             else:
                 self.is_good = False
-                print(Colour.RED+'num of inputs unequal to num of outputs in problem'+Colour.END)
+                Colour.print('num of inputs unequal to num of outputs in problem', Colour.RED)
 
 
     def display_problem(self):
@@ -284,7 +284,7 @@ class Problem:
         outputs = soup.findAll('div', {'class': 'output'})
 
         if len(inputs) == 0 or len(outputs) == 0:
-            print(Colour.RED+'Unable to fetch test cases in prob '+p_name + Colour.END)
+            Colour.print('Unable to fetch test cases in prob '+p_name, Colour.RED)
             return [],[],False
 
         repls = ('<br>', '\n'), ('<br/>', '\n'), ('</br>', '')

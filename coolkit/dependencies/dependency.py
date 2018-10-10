@@ -1,5 +1,6 @@
 import os
 import subprocess
+import sys
 
 class C: # for colours
     R = '\033[91m'
@@ -7,6 +8,8 @@ class C: # for colours
     Y = '\033[93m'
     E = '\033[0m'
 
+def print_err(msg,colour=''):
+    sys.stderr.write(colour+msg+'/n'+C.E)
 
 def _get_supported_distros(dependency_map):
     supported_distros = set()
@@ -70,9 +73,9 @@ def install_dependencies(dependency_map, verbose = False):
     supported_distros = _get_supported_distros(dependency_map)
     distro = get_distro(supported_distros)
     if(not distro and verbose):
-        print(C.R+'unrecognised distro, please contact srbcheema2@gmail.com for full support for your distro'+C.E)
+        print_err('unrecognised distro, please contact srbcheema2@gmail.com for full support for your distro',C.R)
     elif(distro and verbose):
-        print(C.G+'Distro detected to be '+distro+' based'+C.E)
+        print_err('Distro detected to be '+distro+' based',C.G)
 
     all_installed = True
 
@@ -81,14 +84,14 @@ def install_dependencies(dependency_map, verbose = False):
             continue
         rules = dependency_map[d]
         if distro and distro in rules.keys():
-            print(C.G+'installing '+d+' dependency'+C.E)
+            print_err('installing '+d+' dependency',C.G)
             os.system(rules[distro])
             if not is_installed(d):
-                print(C.Y+'please install ' +d+ ' dependency manually'+C.E)
-                print(C.Y+'try command : '+rules[distro]+C.E)
+                print_err('please install ' +d+ ' dependency manually',C.Y)
+                print_err('try command : '+rules[distro],C.Y)
                 all_installed = False
         else:
-            print(C.Y+'Please install ' +d+' dependency manually'+C.E)
+            print_err('Please install ' +d+ ' dependency manually',C.R)
             all_installed = False
 
     return all_installed
