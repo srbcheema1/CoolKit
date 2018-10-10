@@ -9,7 +9,7 @@ class C: # for colours
     E = '\033[0m'
 
 def print_err(msg,colour=''):
-    sys.stderr.write(colour+msg+'/n'+C.E)
+    sys.stderr.write(colour+msg+'\n'+C.E)
 
 def _get_supported_distros(dependency_map):
     supported_distros = set()
