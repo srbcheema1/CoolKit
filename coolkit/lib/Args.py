@@ -85,7 +85,7 @@ class Args:
 
     def check_init():
         '''
-        set config to global config file.
+        check if directory is initilized or not
         '''
         cwd = abs_path(os.getcwd())
         home_loc = abs_path('~')
@@ -99,6 +99,23 @@ class Args:
             Colour.print('Coolkit should be run in path under home directory',Colour.RED)
             sys.exit(1)
         return False
+
+    def get_init_path():
+        '''
+        set config to global config file.
+        '''
+        cwd = abs_path(os.getcwd())
+        home_loc = abs_path('~')
+        root_loc = abs_path('/')
+        now = cwd
+        while(now != home_loc and now != root_loc):
+            if('.coolkit' in os.listdir(now) and os.path.isdir(os.path.join(now,'.coolkit'))):
+                return now+'/.coolkit'
+            now = abs_path(os.path.join(now,os.pardir))
+        if(now == root_loc):
+            Colour.print('Coolkit should be run in path under home directory',Colour.RED)
+            sys.exit(1)
+        return None
 
     def verify_init():
         if(not Args.check_init()):
@@ -154,7 +171,7 @@ class Args:
             Colour.print('Sorry! Due to Connection problem. Unable to test your file',Colour.FULLRED)
             return
 
-        runner = Runner(args,temp_prob)
+        runner = Runner(args,temp_prob,Args.get_init_path())
         runner.run()
         if(args['test']==0): # dont print table for single prob
             runner.print_table()
@@ -176,7 +193,7 @@ class Args:
                 Colour.print('Sorry! Due to Connection problem. Unable to test your file',Colour.FULLRED)
                 return
 
-            runner = Runner(args,temp_prob)
+            runner = Runner(args,temp_prob,Args.get_init_path())
             runner.run()
 
         submit = Submit(args['c_name'],args['p_name'],args['inp'],args['user'],args['pswd'],args['force_stdout'])
