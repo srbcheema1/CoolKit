@@ -61,7 +61,7 @@ class Runner:
 
     def run(self):
         if not self.extension in ['c', 'cpp', 'java', 'py', 'rb']:
-            print(Colour.CYAN+'Supports only C, C++, Python, Java, and Ruby as of now.'+Colour.END)
+            Colour.print('Supports only C, C++, Python, Java, and Ruby as of now.',Colour.RED)
             sys.exit(1)
 
         Runner.stamp_adder(self.input_file,self.comment_symbol + self.prob.link)
@@ -70,14 +70,14 @@ class Runner:
             self._run_single_test(self.args['test'])
             return
 
-        print(Colour.GREEN+'running %s file for %s prob on %s'%
-                (self.args['inp'],self.args['p_name'],self.args['c_name'])+Colour.END)
+        Colour.print('running %s file for %s prob on %s'%
+                (self.args['inp'],self.args['p_name'],self.args['c_name']),Colour.GREEN)
 
         # COMPILE
         if not self.compiler is None:
             compile_status = os.system(self.compiler + ' \'' + self.input_file + '\'') #spaces in path
             if compile_status != 0:
-                print(Colour.RED + 'Compilation error.' + Colour.END)
+                Colour.print('Compilation error.', Colour.RED)
                 os.system(self.compiler + ' \'' + self.input_file + '\'') #spaces in path
                 sys.exit(1)
 
@@ -167,7 +167,7 @@ class Runner:
         # print(tt.draw())
         print(AsciiTable(table_data).table)
         if(self.bad_flag):
-            print(Colour.CYAN + self.prob.link + Colour.END)
+            Colour.print(self.prob.link, Colour.CYAN)
         if(self.prob.mult_soln):
             table_data = [
                     [Colour.PURPLE+'May contain multiple answers'+Colour.END],
@@ -188,7 +188,7 @@ class Runner:
         if not self.compiler is None:
             compile_status = os.system(compiler + ' \'' + self.input_file + '\' > /dev/null 2>&1')
             if compile_status != 0:
-                print(Colour.RED + 'Compilation error.' + Colour.END)
+                Colour.print('Compilation error.', Colour.RED)
                 os.system(self.compiler + ' \'' + self.input_file + '\'') #spaces in path
                 sys.exit(1)
 
