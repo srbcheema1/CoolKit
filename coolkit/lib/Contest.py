@@ -77,7 +77,7 @@ class Contest:
         '''
         self._fetch_contest_home()
         if (len(self.prob_mapp) == 0):
-            print(Colour.RED+'failed to fetch contest home'+Colour.END)
+            Colour.print('failed to fetch contest home', Colour.RED)
             return
 
         '''
@@ -97,13 +97,13 @@ class Contest:
         '''
         tries = 1
         while(len(failed_links) > 0 and tries <= 2):
-            print(Colour.YELLOW + str(tries)+': try to fetch problems' + Colour.END)
+            Colour.print(str(tries)+': try to fetch problems', Colour.YELLOW)
             failed_links = self._fetch_prob_test_cases(failed_links)
             tries += 1
 
         if(len(failed_links) > 0):
             for a in failed_links:
-                print(Colour.RED + 'failed to fetch ' + a + Colour.END)
+                Colour.print('failed to fetch ' + a, Colour.RED)
             self.is_good = False
         else:
             self.is_good = True
@@ -125,7 +125,7 @@ class Contest:
         Method to download prob_test_cases for all problems
         """
         p_names = [ link.split('/')[-1] for link in links ]
-        print(Colour.YELLOW + 'fetching problems ... ' + Colour.PURPLE, p_names, Colour.END)
+        Colour.print('fetching problems ... ' + Colour.PURPLE + str(p_names), Colour.YELLOW)
 
         rs = (grq.get(link) for link in links)
         responses = grq.map(rs)
@@ -173,15 +173,15 @@ class Contest:
             if(self.prob_mapp[a].is_good and a in self.p_name_list): # remove waste folders
                 good_probs += 1
             else:
-                print(Colour.RED+'Removed Bad Problem : '+a+Colour.END)
+                Colour.print('Removed Bad Problem : '+a, Colour.RED)
                 shutil.rmtree(self.prob_mapp[a].dir)
                 del self.prob_mapp[a]
 
         if(self.num_prob == -1):
-            print(Colour.YELLOW+'Contest not configured yet'+Colour.END)
+            Colour.print('Contest not configured yet', Colour.YELLOW)
             self.is_good = False
         elif(good_probs != self.num_prob):
-            print(Colour.YELLOW+'expected',self.num_prob,'probs got',good_probs,'good probs',Colour.END)
+            Colour.print('expected '+str(self.num_prob)+' probs got '+str(good_probs)+' good probs', Colour.YELLOW)
             self.is_good = False
 
 
@@ -257,7 +257,7 @@ class Contest:
 
         contests = [['id','title','','time','dur.','link']]
         if(soup is None):
-            print(Colour.RED+'unable to fetch upcoming contests list'+Colour.END)
+            Colour.print('unable to fetch upcoming contests list',Colour.RED)
             return contests
 
         datatable = soup.find_all('div',{'class':'datatable'})[0].find_all('table')[0]
