@@ -1,7 +1,3 @@
-- view testcase
-- coloured prints to sys.stderr.write(); print()
-- view prob is not displaying testcases
-
 - offline userdata (not much required)
 - caching for out-of contests in profile
 
