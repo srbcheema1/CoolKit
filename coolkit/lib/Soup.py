@@ -33,9 +33,9 @@ class Soup:
                 temp_unsent_requests = (grequests.get(url) for url in ['https://google.com'])
                 temp_result = grequests.map(temp_unsent_requests)[0]
                 if(temp_result == None):
-                    print(Colour.RED + 'please check your internet connection' + Colour.END)
+                    Colour.print('please check your internet connection', Colour.RED)
             else:
-                print(Colour.RED+'soup result on '+url+' :'+Colour.END,result)
+                Colour.print('soup result on '+url+' :'+Colour.END+str(result), Colour.RED)
             return None
         soup = BeautifulSoup(result.text, 'html.parser')
         return soup
