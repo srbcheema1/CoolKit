@@ -30,7 +30,7 @@ coolkit --help
 ```
 git clone https://github.com/srbcheema1/CoolKit
 cd CoolKit
-git checkout v0.0.6
+git checkout v0.0.7
 ```
 
 - install requirements
@@ -49,14 +49,21 @@ coolkit --help
 ```
 - if it displays help message you are ready to go.
 
-- In case not working, ensure that binary path is in PATH.
-Add line `export PATH=$PATH="~/.local/bin"` in your `.bashrc`
 
+#### troubleshooting
+- In case `coolkit -h` is not working, ensure that binary path is in PATH.
+Add line `export PATH=$PATH="~/.local/bin"` in your `~/.bashrc` or `~/.zshrc`.
+
+- bash users run these commands
 ```
 echo export PATH="$PATH":"~/.local/bin" >> ~/.bashrc
 source ~/.bashrc
 ```
-
+- zsh users run these commands
+```
+echo export PATH="$PATH":"~/.local/bin" >> ~/.zshrc
+source ~/.zshrc
+```
 
 ### Usage
 
