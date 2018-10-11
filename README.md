@@ -65,6 +65,18 @@ echo export PATH="$PATH":"~/.local/bin" >> ~/.zshrc
 source ~/.zshrc
 ```
 
+#### Make it more smart
+- **Highly Recommended to use this feature to harness the full potential of coolkit**
+- you can make your coolkit to autodetect your `contest` and `problem` from your nomenclature of files and directories.
+- to do so you will need to redefine `get_contest_name` and `get_problem_name` in `~/.config/coolkit/global_config.py`.
+- you may define your own functions or use pre-build functions by uncommenting these lines:
+```
+# return srb_contest_name(folder)
+# return srb_problem_name(file_name)
+```
+- feel free to ping me on `srbcheema2@gmail.com` to make a `global_config.py` file for you as per your nomenclature.
+
+
 ### Usage
 
 ```
