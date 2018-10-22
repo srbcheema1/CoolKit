@@ -76,22 +76,26 @@ class Add_friends():
 
     def add_friends(browser,user_list=[],ignore_list=[],force=False):
         for user_id in user_list:
-            browser.get('http://codeforces.com/profile/'+user_id)
-            star = browser.find_element_by_class_name('friendStar')
-            is_friend = False if 'addFriend' in star.get_attribute('class') else True
-            if(user_id in ignore_list):
-                print('ignoring '+user_id)
-                continue
-            if(not is_friend):
-                if(not force):
-                    inp = input('do you want to add '+user_id+' as a friend, y/n : ')
+            try:
+                browser.get('http://codeforces.com/profile/'+user_id)
+                star = browser.find_element_by_class_name('friendStar')
+                is_friend = False if 'addFriend' in star.get_attribute('class') else True
+                if(user_id in ignore_list):
+                    print('ignoring '+user_id)
+                    continue
+                if(not is_friend):
+                    if(not force):
+                        inp = input('do you want to add '+user_id+' as a friend, y/n : ')
+                    else:
+                        inp = 'y'
+                    if(inp in ['y','Y']):
+                        star.click()
+                        print('added '+user_id+' as friend')
                 else:
-                    inp = 'y'
-                if(inp in ['y','Y']):
-                    star.click()
-                    print('added '+user_id+' as friend')
-            else:
-                print(user_id+' is already your friend')
+                    print(user_id+' is already your friend')
+            except:
+                print('unable to add ',user_id)
+
 
 
 def create_parser():
@@ -110,7 +114,7 @@ def create_parser():
                         default=None,
                         help="exclude list")
     parser.add_argument('-f',"--force",
-                        default=False,
+                        action='store_true',
                         help="Add users without asking")
     autocomplete(parser)
     return parser
@@ -133,4 +137,4 @@ if __name__ == "__main__":
 
     browser = Add_friends.get_browser(hidden = True)
     Add_friends.login_codeforces(browser,username,password)
-    Add_friends.add_friends(browser,user_list,ignore_list,force=False)
+    Add_friends.add_friends(browser,user_list,ignore_list,force=pars_args.force)
