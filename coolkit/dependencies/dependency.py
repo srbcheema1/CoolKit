@@ -2,8 +2,6 @@ import os
 import subprocess
 import sys
 
-import dependencies
-
 class C: # for colours
     R = '\033[91m'
     G = '\033[92m'
@@ -11,7 +9,6 @@ class C: # for colours
     E = '\033[0m'
 
 
-#~~handlers~~
 def print_err(msg,colour=''):
     sys.stderr.write(colour+msg+'\n'+C.E)
 
@@ -26,7 +23,6 @@ def line_adder(filename, line):
         if(not line in lines):
             f.seek(0, 0)
             f.write(content + '\n' + line + '\n')
-#--handlers--
 
 
 def is_installed(soft):
@@ -42,20 +38,18 @@ def is_installed(soft):
         return True
     return False
 
-
-def get_available_package_manager(dependency_map):
+def _get_supported_package_managers(dependency_map):
     package_managers = set()
     for rules in dependency_map.values():
         for key in rules.keys():
             package_managers.add(key)
 
-    try:
-        for package_manager in package_managers :
-            if is_installed(package_manager) :
-                return package_manager
-        return None
-    except:
-        return None
+    supported_package_managers = set()
+    for package_manager in package_managers :
+        if is_installed(package_manager) :
+            supported_package_managers.add(package_manager)
+    
+    return supported_package_managers
 
 
 def install_arg_complete():
@@ -76,23 +70,24 @@ def set_global_config():
 
 def install_dependencies(dependency_map, verbose = False):
     all_installed = True
-    package_manager = get_available_package_manager(dependency_map)
+    package_managers = _get_supported_package_managers(dependency_map)
 
-#--handling-absence-of-package-manager--
-    if not package_manager :
-        all_installed = False
+#--handling-absence-of-package-managers--
+    if len(package_managers)==0 :
         if verbose :
             print_err('Error: Unrecognised package manager',C.R)
             print_err('Please contact srbcheema2@gmail.com for full support for your system.')
 
-            for dependency in dependency_map.keys() :
-                if not is_installed(dependency) :
-                    print_err('Please install ' + dependency + ' dependency manually',C.R)
-#--absence-of-package-manager-handled-
-
+        for dependency in dependency_map.keys() :
+            if not is_installed(dependency) :
+                print_err('Please install ' + dependency + ' dependency manually',C.R)
+                all_installed = False
+#--absence-of-package-managers-handled-
     else :
         if verbose :
-            print_clr('Package manager detected to be '+ C.E + package_manager , C.G) #distinction of package manager
+            print_clr('Package managers detected ', C.G ) 
+            for package_manager in package_managers :
+                print(package_manager) #distinction of package managers
 
         for dependency in dependency_map.keys():
 
@@ -104,16 +99,37 @@ def install_dependencies(dependency_map, verbose = False):
             rules = dependency_map[dependency]
 
             print_clr('.:Installing ' + C.E + dependency + C.G +' dependency' , C.G) #distinction of dependency
-            os.system(rules[package_manager])
+            
+            for package_manger in package_managers :
+                os.system(rules[package_manager])
+                if is_installed(dependency) :#else try other package managers
+                    break
 
             if not is_installed(dependency):
                 print_err('please install ' + dependency + ' dependency manually',C.Y)
-                print_err('try command : '+rules[package_manager],C.Y)
+                for package_manager in package_managers :
+                    print_err('try command : '+rules[package_manager],C.Y)
                 all_installed = False
 
     return all_installed
 
 
 if __name__ == '__main__':
-    install_dependencies(dependencies.dependency_map,verbose=True)
+    dependency_map = {
+        'register-python-argcomplete':{
+            'apt':'sudo apt install python-argcomplete',#debian/ubuntu-based
+            'pacman':'sudo pacman -S python-argcomplete',#arch-based
+            'yum':'sudo yum -y install python-argcomplete',#red-hat
+            'dnf':'sudo dnf install python-argcomplete',#fedora
+            'zypper':'sudo zypper install python-argcomplete',#suse
+        },
+        'figlet':{
+            'apt':'sudo apt install figlet',
+            'pacman':'sudo pacman -S figlet',
+            'yum':'sudo yum -y install figlet',
+            'dnf':'sudo dnf install figlet',
+            'zypper':'sudo zypper install figlet',
+        },
+    }
+    install_dependencies( dependency_map , verbose=True )
     install_arg_complete()
