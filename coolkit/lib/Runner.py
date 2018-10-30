@@ -68,7 +68,7 @@ class Runner:
 
         Runner.stamp_adder(self.input_file,self.comment_symbol + self.prob.link)
 
-        if(self.args['test'] != 0):
+        if(self.args['test'] != -1):
             self._run_single_test(self.args['test'])
             return
 
@@ -96,56 +96,55 @@ class Runner:
         for x in threads:
             x.join()
 
-
     def _run_on_test(self,i):
-            status = os.system('timeout 2s ' + self.execute_command + ' < ' + os.path.join(
-                self.test_loc, 'Input' + str(i)) + ' > ' + self.cool_path + '/out_' + self.prob.p_name + str(i))
+        status = os.system('timeout 2s ' + self.execute_command + ' < ' + os.path.join(
+            self.test_loc, 'Input' + str(i)) + ' > ' + self.cool_path + '/out_' + self.prob.p_name + str(i))
 
-            with open(os.path.join(self.test_loc, 'Input' + str(i)), 'r') as in_handler:
-                orig_input = in_handler.read().strip().split('\n')
-                orig_input = '\n'.join(
-                    [line.strip() for line in orig_input])
-                self.orig_inputs[i] = orig_input
+        with open(os.path.join(self.test_loc, 'Input' + str(i)), 'r') as in_handler:
+            orig_input = in_handler.read().strip().split('\n')
+            orig_input = '\n'.join(
+                [line.strip() for line in orig_input])
+            self.orig_inputs[i] = orig_input
 
-            with open(os.path.join(self.test_loc, 'Output' + str(i)), 'r') as out_handler:
-                orig_output = out_handler.read().strip().split('\n')
-                orig_output = '\n'.join(
-                    [line.strip() for line in orig_output])
-                self.orig_outputs[i] = orig_output
+        with open(os.path.join(self.test_loc, 'Output' + str(i)), 'r') as out_handler:
+            orig_output = out_handler.read().strip().split('\n')
+            orig_output = '\n'.join(
+                [line.strip() for line in orig_output])
+            self.orig_outputs[i] = orig_output
 
-            if status == 31744:
-                # Time Limit Exceeded
-                self.results[i] = Colour.BOLD+Colour.YELLOW + 'TLE' +Colour.END
-                self.user_outputs[i] = ''
-                self.bad_flag = True
-                self.result = 'BAD'
+        if status == 31744:
+            # Time Limit Exceeded
+            self.results[i] = Colour.BOLD+Colour.YELLOW + 'TLE' +Colour.END
+            self.user_outputs[i] = ''
+            self.bad_flag = True
+            self.result = 'BAD'
 
-            if status == 0:
-                # Ran successfully
-                with open(self.cool_path+'/out_'+ self.prob.p_name + str(i), 'r') as user_out_handler:
-                    user_output = user_out_handler.read().strip().split('\n')
-                    user_output = '\n'.join(
-                        [line.strip() for line in user_output])
-                    self.user_outputs[i] = user_output
+        if status == 0:
+            # Ran successfully
+            with open(self.cool_path+'/out_'+ self.prob.p_name + str(i), 'r') as user_out_handler:
+                user_output = user_out_handler.read().strip().split('\n')
+                user_output = '\n'.join(
+                    [line.strip() for line in user_output])
+                self.user_outputs[i] = user_output
 
-                if orig_output == user_output:
-                    # All Correct
-                    self.results[i] = Colour.BOLD+Colour.GREEN+ 'AC' +Colour.END
-                elif self.prob.mult_soln:
-                    # Multiple possible
-                    self.results[i] = Colour.BOLD+Colour.CYAN+ 'Diff' +Colour.END
-                    if self.result == 'GOOD': self.result = 'CANT_SAY'
-                else:
-                    # Wrong ans
-                    self.bad_flag = True
-                    self.results[i] = Colour.BOLD+Colour.DARKRED+ 'WA' +Colour.END
-                    self.result = 'BAD'
+            if orig_output == user_output:
+                # All Correct
+                self.results[i] = Colour.BOLD+Colour.GREEN+ 'AC' +Colour.END
+            elif self.prob.mult_soln:
+                # Multiple possible
+                self.results[i] = Colour.BOLD+Colour.CYAN+ 'Diff' +Colour.END
+                if self.result == 'GOOD': self.result = 'CANT_SAY'
             else:
-                # Runtime Error
+                # Wrong ans
                 self.bad_flag = True
-                self.results[i] = Colour.BOLD+Colour.FULLRED+ 'RTE' +Colour.END
+                self.results[i] = Colour.BOLD+Colour.DARKRED+ 'WA' +Colour.END
                 self.result = 'BAD'
-                self.user_outputs[i] = ''
+        else:
+            # Runtime Error
+            self.bad_flag = True
+            self.results[i] = Colour.BOLD+Colour.FULLRED+ 'RTE' +Colour.END
+            self.result = 'BAD'
+            self.user_outputs[i] = ''
 
 
     def print_table(self):
@@ -194,7 +193,7 @@ class Runner:
                 os.system(self.compiler + ' \'' + self.input_file + '\'') #spaces in path
                 sys.exit(1)
 
-        status = os.system(self.execute_command + ' < ' + os.path.join(self.test_loc, 'Input' + str(test)) )
+        os.system(self.execute_command + ' < ' + os.path.join(self.test_loc, 'Input' + str(test)) )
 
     @staticmethod
     def stamp_adder(filename, line):

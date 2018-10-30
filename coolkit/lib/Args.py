@@ -14,6 +14,7 @@ from .srbjson import srbjson
 from .Submit import Submit
 
 class Args:
+    @staticmethod
     def init_repo(args={},debug=False,init=False):
         '''
         initilize a repo as coolkit repo with default configuration
@@ -51,7 +52,7 @@ class Args:
                 args['c_name'] = contest_name
         srbjson.dump_data(args,cwd+'/.coolkit/config',srbjson.local_template)
 
-
+    @staticmethod
     def set_local_config(args={},debug=False):
         '''
         set config to config file.
@@ -76,13 +77,14 @@ class Args:
 
         srbjson.dump_data(args,now+'/.coolkit/config',srbjson.local_template)
 
+    @staticmethod
     def set_global_config(args={}):
         '''
         set config to global config file.
         '''
         srbjson.dump_data(args,abs_path(Const.cache_dir + '/config'),srbjson.global_template)
 
-
+    @staticmethod
     def check_init():
         '''
         check if directory is initilized or not
@@ -100,6 +102,7 @@ class Args:
             sys.exit(1)
         return False
 
+    @staticmethod
     def get_init_path():
         '''
         set config to global config file.
@@ -117,11 +120,13 @@ class Args:
             sys.exit(1)
         return None
 
+    @staticmethod
     def verify_init():
         if(not Args.check_init()):
             Colour.print('not a coolkit repo',Colour.RED)
             sys.exit(1)
 
+    @staticmethod
     def fetch_data_from_local_config():
         Args.verify_init()
         cwd = abs_path(os.getcwd())
@@ -139,10 +144,12 @@ class Args:
         data = srbjson.extract_data(now+'/.coolkit/config',srbjson.local_template)
         return data
 
+    @staticmethod
     def fetch_data_from_global_config():
         data = srbjson.extract_data(abs_path('~/.config/coolkit/config'),srbjson.global_template)
         return data
 
+    @staticmethod
     def fetch_contest(args):
         '''
         check cache
@@ -154,7 +161,7 @@ class Args:
             return
         temp_contest.pull_contest(args['force'])
 
-
+    @staticmethod
     def run(args):
         temp_contest = Contest(args['c_name'],args['c_type'])
         if(not temp_contest.is_good):
@@ -173,15 +180,12 @@ class Args:
 
         runner = Runner(args,temp_prob,Args.get_init_path())
         runner.run()
-        if(args['test']==0): # dont print table for single prob
+        if(args['test']==-1): # dont print table for single prob
             runner.print_table()
 
 
+    @staticmethod
     def submit_it(args):
-        data = srbjson.extract_data(Const.cache_dir+'/config',srbjson.global_template)
-        u_name = data['user']
-        pswd = data['pswd']
-
         if(not args['force']): # run only if it is not forced to submit
             temp_prob = Problem(args['p_name'],args['c_name'],args['c_type'])
             if(not temp_prob.is_good):
