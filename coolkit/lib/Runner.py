@@ -16,6 +16,7 @@ except:
 
 from .Colour import Colour
 from .utils import utils
+from .abs_path import abs_path
 
 class Runner:
     def __init__(self,args,prob,cool_path):
@@ -61,6 +62,12 @@ class Runner:
             'java': '// ',
         }[self.extension]
 
+        self.now_loc = abs_path(os.getcwd())
+        self.custom_testcases = False
+        if(os.path.isfile(os.path.join(self.now_loc,"Input.txt")) and os.path.isfile(os.path.join(self.now_loc,"Output.txt"))):
+            self.custom_testcases = True
+
+
     def run(self):
         if not self.extension in ['c', 'cpp', 'java', 'py', 'rb']:
             Colour.print('Supports only C, C++, Python, Java, and Ruby as of now.',Colour.RED)
@@ -93,10 +100,19 @@ class Runner:
             threads += [thread]
             thread.start()
 
+        if(self.custom_testcases):
+            thread = threading.Thread(target=self._run_on_test,args=(0,))
+            threads += [thread]
+            thread.start()
+
         for x in threads:
             x.join()
 
     def _run_on_test(self,i):
+        if(i==0):
+            self._run_on_custom()
+            return
+
         status = os.system('timeout 2s ' + self.execute_command + ' < ' + os.path.join(
             self.test_loc, 'Input' + str(i)) + ' > ' + self.cool_path + '/out_' + self.prob.p_name + str(i))
 
@@ -150,7 +166,9 @@ class Runner:
     def print_table(self):
         table_data = [['S No', 'Input',
                        'Orig Output', 'Your Output', 'Result']]
-        for i in range(1,self.prob.num_test+1):
+        first_test = 1
+        if(self.custom_testcases): first_test = 0
+        for i in range(first_test,self.prob.num_test+1):
             row = [
                 i,
                 self.orig_inputs[i],
@@ -177,6 +195,38 @@ class Runner:
             print(AsciiTable(table_data).table)
 
 
+    def _run_on_custom(self,i=0):
+        status = os.system('timeout 2s ' + self.execute_command + ' < ' + os.path.join(
+            self.now_loc, 'Input.txt') + ' > ' + self.cool_path + '/out_' + self.prob.p_name + str(i))
+        with open(os.path.join(self.now_loc, 'Input.txt'), 'r') as in_handler:
+            orig_input = in_handler.read().strip().split('\n')
+            orig_input = '\n'.join(
+                [line.strip() for line in orig_input])
+            self.orig_inputs[i] = orig_input
+        with open(os.path.join(self.now_loc, 'Output.txt'), 'r') as out_handler:
+            orig_output = out_handler.read().strip().split('\n')
+            orig_output = '\n'.join(
+                [line.strip() for line in orig_output])
+            self.orig_outputs[i] = orig_output
+
+        if status == 31744:
+            self.results[i] = Colour.BOLD+Colour.YELLOW + 'TLE' +Colour.END
+            self.user_outputs[i] = ''
+        if status == 0:
+            with open(self.cool_path+'/out_'+ self.prob.p_name + str(i), 'r') as user_out_handler:
+                user_output = user_out_handler.read().strip().split('\n')
+                user_output = '\n'.join(
+                    [line.strip() for line in user_output])
+                self.user_outputs[i] = user_output
+            if orig_output == user_output:
+                self.results[i] = Colour.BOLD+Colour.GREEN+ 'AC' +Colour.END
+            else:
+                self.results[i] = Colour.BOLD+Colour.DARKRED+ 'WA' +Colour.END
+        else:
+            self.results[i] = Colour.BOLD+Colour.FULLRED+ 'RTE' +Colour.END
+            self.user_outputs[i] = ''
+
+
     def _run_single_test(self,test):
         # COMPILE
         compiler = {
@@ -193,7 +243,13 @@ class Runner:
                 os.system(self.compiler + ' \'' + self.input_file + '\'') #spaces in path
                 sys.exit(1)
 
-        os.system(self.execute_command + ' < ' + os.path.join(self.test_loc, 'Input' + str(test)) )
+        if(test == 0):
+            if(os.path.isfile(os.path.join(self.now_loc,"Input.txt"))):
+                os.system(self.execute_command + ' < ' + os.path.join(self.now_loc, 'Input.txt') )
+            else:
+                Colour.print('Please create Input.txt file in folder for custom test cases', Colour.RED)
+        else:
+            os.system(self.execute_command + ' < ' + os.path.join(self.test_loc, 'Input' + str(test)) )
 
     @staticmethod
     def stamp_adder(filename, line):
