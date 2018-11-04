@@ -52,7 +52,7 @@ coolkit --help
 
 #### troubleshooting
 - In case `coolkit -h` is not working, ensure that binary path is in PATH.
-Add line `export PATH=$PATH="~/.local/bin"` in your `~/.bashrc` or `~/.zshrc`.
+Add line `export PATH=$PATH:"~/.local/bin"` in your `~/.bashrc` or `~/.zshrc`.
 
 - bash users run these commands
 ```
