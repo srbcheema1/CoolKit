@@ -159,7 +159,7 @@ def safe_main():
             config_data['pswd'] = getpass.getpass('Enter your password:')
         args['user'] = config_data['user']
         args['pswd'] = config_data['pswd']
-        args['test'] = 0
+        args['test'] = -1
         args['force'] = pars_args.force
         args['force_stdout'] = pars_args.force_stdout
 
@@ -177,7 +177,7 @@ def safe_main():
             if(not Args.check_init()):
                 Colour.print(Colour.RED+'no contest provided, either provide contest using -c or run command from a coolkit repo'+Colour.END)
                 sys.exit(1)
-            config_data = args.fetch_data_from_local_config()
+            config_data = Args.fetch_data_from_local_config()
             args['c_name'] = config_data['c_name'] # can be none
             if(not args['c_name']):
                 Colour.print(Colour.RED+'contest not set, use `coolkit set -c <contest num>`, or provide contest name using -c parameter'+Colour.END)

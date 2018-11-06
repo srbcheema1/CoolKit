@@ -17,12 +17,6 @@
 ```
 sudo python3 -m pip install coolkit
 ```
-- test for coolkit installation
-```
-coolkit --help
-```
-- if it displays help message you are ready to go.
-
 
 #### Build from Source
 
@@ -30,7 +24,7 @@ coolkit --help
 ```
 git clone https://github.com/srbcheema1/CoolKit
 cd CoolKit
-git checkout v0.0.7
+git checkout <latest_version say: v0.0.x>
 ```
 
 - install requirements
@@ -52,7 +46,7 @@ coolkit --help
 
 #### troubleshooting
 - In case `coolkit -h` is not working, ensure that binary path is in PATH.
-Add line `export PATH=$PATH="~/.local/bin"` in your `~/.bashrc` or `~/.zshrc`.
+Add line `export PATH=$PATH:"~/.local/bin"` in your `~/.bashrc` or `~/.zshrc`.
 
 - bash users run these commands
 ```
@@ -158,6 +152,9 @@ srb@srb-pc:$ coolkit run soln.cpp
 Prob name not provided, trying to detect from filename
 Unable to detect prob name from file name
 ```
+
+There is a cool new feature: you may add your own custom input/outputs to test against binary during run command. just add these to files to your present working directory `Input.txt` and `Output.txt` containing input and output respectively.
+
 
 #### submit
 Submit a file on online judge and show you report through desktop notification. **it wont submit a file if it fails on local sample test cases**. Still if you want to submit a file use `-f` flag

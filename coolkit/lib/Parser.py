@@ -20,15 +20,18 @@ from .Constants import Const
 from .srbjson import srbjson
 
 class Parser:
+    @staticmethod
     def is_valid_file(parser, arg):
         if not os.path.exists(arg):
             parser.error("The file %s does not exist!" % arg)
         else:
             return arg
 
+    @staticmethod
     def get_default(key,default_config):
         return default_config.get(key,None)
 
+    @staticmethod
     def create_parser():
         default_config = srbjson.local_template['coolkit']
         if(Args.check_init()):
@@ -86,7 +89,7 @@ class Parser:
                                 help="input file ex: one.cpp")
         run_parser.add_argument('-t',"--test",
                                 type=int,
-                                default = 0, # 0 means all
+                                default = -1, # -1 means all, 0 means custom
                                 help="test case num")
         run_parser.add_argument('-p',"--prob",
                                 # default = Parser.get_default('prob',default_config) # pick it from input_file name
@@ -174,13 +177,14 @@ class Parser:
                                         default = Parser.get_default('p_name',default_config),
                                         help="Problem name ex: A B C")
 
-        upcoming_view_parser = view_subparsers.add_parser('upcoming')
-        friends_view_parser = view_subparsers.add_parser('friends')
+        view_subparsers.add_parser('upcoming')
+        view_subparsers.add_parser('friends')
 
 
         autocomplete(parser)
         return parser
 
+    @staticmethod
     def validate_args(args):
         if(args.version):
             print('coolkit '+__version__)
