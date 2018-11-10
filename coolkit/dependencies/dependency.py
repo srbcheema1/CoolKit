@@ -8,16 +8,12 @@ class C: # for colours
     Y = '\033[93m'
     E = '\033[0m'
 
+
 def print_err(msg,colour=''):
     sys.stderr.write(colour+msg+'\n'+C.E)
 
-def _get_supported_distros(dependency_map):
-    supported_distros = set()
-    for rules in dependency_map.values():
-        for key in rules.keys():
-            supported_distros.add(key)
-    return supported_distros
-
+def print_clr(msg,colour=''):
+    print(colour+msg+C.E)
 
 def line_adder(filename, line):
     with open(filename, 'r+') as f:
@@ -27,18 +23,6 @@ def line_adder(filename, line):
         if(not line in lines):
             f.seek(0, 0)
             f.write(content + '\n' + line + '\n')
-
-
-def get_distro(distros):
-    try:
-        p = subprocess.Popen(['uname','-a'], stdout=subprocess.PIPE)
-        out = p.stdout.read().decode('utf-8').lower()
-        for d in distros:
-            if d in out:
-                return d
-        return None
-    except:
-        return None
 
 
 def is_installed(soft):
@@ -54,12 +38,23 @@ def is_installed(soft):
         return True
     return False
 
+def _get_available_package_mangers(supported_package_managers, verbose = False): #dependency specific supported package managers
+    if verbose : print_clr('Package mangers detected...')
+    available_package_managers = set()
+    for spm in supported_package_managers :
+        if is_installed(spm) :
+            available_package_managers.add(spm)
+            if verbose : print(spm)
+
+    return available_package_managers
+
 
 def install_arg_complete():
     if is_installed('register-python-argcomplete'):
         line = 'eval "$(register-python-argcomplete coolkit)"'
         filename = os.environ['HOME'] + '/.bashrc'
         line_adder(filename,line)
+
 
 def set_global_config():
     path = abs_path('~/.config/coolkit/global_config.py')
@@ -69,30 +64,37 @@ def set_global_config():
     verify_file('~/.config/coolkit/global_config.py')
     shutil.copy(path_of_default_global_config, path)
 
-def install_dependencies(dependency_map, verbose = False):
-    supported_distros = _get_supported_distros(dependency_map)
-    distro = get_distro(supported_distros)
-    if(not distro and verbose):
-        print_err('unrecognised distro, please contact srbcheema2@gmail.com for full support for your distro',C.R)
-    elif(distro and verbose):
-        print_err('Distro detected to be '+distro+' based',C.G)
 
+def install_dependencies(dependency_map, verbose = False):
     all_installed = True
 
-    for d in dependency_map.keys():
-        if is_installed(d):
+    for dependency in dependency_map.keys():
+
+        if is_installed(dependency):
+            if verbose :
+                print_clr('.:Dependency '+dependency+' already installed...',C.G)
             continue
-        rules = dependency_map[d]
-        if distro and distro in rules.keys():
-            print_err('installing '+d+' dependency',C.G)
-            os.system(rules[distro])
-            if not is_installed(d):
-                print_err('please install ' +d+ ' dependency manually',C.Y)
-                print_err('try command : '+rules[distro],C.Y)
+
+        rules = dependency_map[dependency]
+        available_package_managers = _get_available_package_mangers(rules.keys(), verbose)
+
+        if len(available_package_managers) == 0 :
+            print_err("No supported package manager available for '" + dependency + "' on your system, please contact srbcheema2@gmail.com for full support of your system.",C.R)
+
+        else :
+            print_clr('.:Installing ' + C.E + dependency + C.G +' dependency' , C.G) #distinction of dependency
+            
+            for apm in available_package_managers :
+                os.system(rules[apm])
+                if is_installed(dependency) :#else try other package managers
+                    break
+
+            if not is_installed(dependency):
+                print_err('please install ' + dependency + ' dependency manually',C.Y)
+                for apm in available_package_managers :
+                    print_err('try command : '+rules[apm],C.Y)
+                
                 all_installed = False
-        else:
-            print_err('Please install ' +d+ ' dependency manually',C.R)
-            all_installed = False
 
     return all_installed
 
@@ -100,11 +102,13 @@ def install_dependencies(dependency_map, verbose = False):
 if __name__ == '__main__':
     dependency_map = {
         'register-python-argcomplete':{
-            'ubuntu':'sudo apt install python-argcomplete',
-        },
-        'figlet':{
-            'ubuntu':'sudo apt install figlet',
+        #Supported Package Managers
+               'apt' : 'sudo apt install python-argcomplete',#debian/ubuntu-based
+            'pacman' : 'sudo pacman -S python-argcomplete',#arch-based
+               'yum' : 'sudo yum -y install python-argcomplete',#red-hat
+               'dnf' : 'sudo dnf install python-argcomplete',#fedora
+            'zypper' : 'sudo zypper install python-argcomplete',#suse
         },
     }
-    install_dependencies(dependency_map,verbose=True)
+    install_dependencies(dependency_map, verbose=True)
     install_arg_complete()
