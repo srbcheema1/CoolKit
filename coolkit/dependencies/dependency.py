@@ -81,7 +81,7 @@ def install_dependencies(dependency_map, verbose = False):
         available_package_managers = _get_available_package_mangers( rules.keys(),verbose ) #dependency specific managers
 
         if len(available_package_managers) == 0 :
-            print_err("Unsupported package manager, please contact srbcheema1@gmail.com for full support of your system.",C.R)
+            print_err("No supported package manager available for '" + dependency + "' on your system, please contact srbcheema2@gmail.com for full support of your system.",C.R)
 
         else :
             print_clr('.:Installing ' + C.E + dependency + C.G +' dependency' , C.G) #distinction of dependency
