@@ -78,7 +78,7 @@ def install_dependencies(dependency_map, verbose = False):
             continue
 
         rules = dependency_map[dependency]
-        available_package_managers = _get_available_package_mangers( rules.keys(),verbose ) #dependency specific managers
+        available_package_managers = _get_available_package_mangers(rules.keys(), verbose)
 
         if len(available_package_managers) == 0 :
             print_err("No supported package manager available for '" + dependency + "' on your system, please contact srbcheema2@gmail.com for full support of your system.",C.R)
