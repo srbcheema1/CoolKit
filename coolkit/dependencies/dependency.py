@@ -112,5 +112,5 @@ if __name__ == '__main__':
             'zypper' : 'sudo zypper install python-argcomplete',#suse
         },
     }
-    install_dependencies( dependency_map , verbose=True )
+    install_dependencies(dependency_map, verbose=True)
     install_arg_complete()
