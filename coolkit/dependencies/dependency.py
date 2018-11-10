@@ -39,14 +39,12 @@ def is_installed(soft):
     return False
 
 def _get_available_package_mangers(supported_package_managers, verbose = False): #dependency specific supported package managers
-    if verbose :
-        print_clr('Package mangers detected...')
+    if verbose : print_clr('Package mangers detected...')
     available_package_managers = set()
     for spm in supported_package_managers :
         if is_installed(spm) :
             available_package_managers.add(spm)
-            if verbose :
-                print(spm)
+            if verbose : print(spm)
 
     return available_package_managers
 
