@@ -61,6 +61,7 @@ class Submit:
 
         browser = RoboBrowser(parser = 'html.parser')
         browser.open('http://codeforces.com/enter')
+        # todo check if it takes time
         enter_form = browser.get_form('enterForm')
         enter_form['handleOrEmail'] = self.username
         enter_form['password'] = self.password
@@ -76,6 +77,7 @@ class Submit:
             click.secho('Login Failed.. Maybe wrong id/password.', fg = 'red')
             return
 
+        # todo check if it takes time
         browser.open('http://codeforces.com/contest/'+self.c_name+'/submit')
         submit_form = browser.get_form(class_ = 'submit-form')
         submit_form['submittedProblemIndex'].value = self.p_name
