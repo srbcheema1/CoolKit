@@ -135,7 +135,7 @@ class Runner:
             self.bad_flag = True
             self.result = 'BAD'
 
-        if status == 0:
+        elif status == 0:
             # Ran successfully
             with open(self.cool_path+'/out_'+ self.prob.p_name + str(i), 'r') as user_out_handler:
                 user_output = user_out_handler.read().strip().split('\n')
@@ -212,7 +212,7 @@ class Runner:
         if status == 31744:
             self.results[i] = Colour.BOLD+Colour.YELLOW + 'TLE' +Colour.END
             self.user_outputs[i] = ''
-        if status == 0:
+        elif status == 0:
             with open(self.cool_path+'/out_'+ self.prob.p_name + str(i), 'r') as user_out_handler:
                 user_output = user_out_handler.read().strip().split('\n')
                 user_output = '\n'.join(
