@@ -38,7 +38,7 @@ def is_installed(soft):
         return True
     return False
 
-def _get_available_package_mangers(supported_package_managers, verbose = False): #dependency specific supported package managers
+def _get_available_package_mangers(supported_package_managers, verbose = False): # dependency specific supported package managers
     if verbose : print_clr('Package mangers detected...')
     available_package_managers = set()
     for spm in supported_package_managers :
@@ -67,7 +67,6 @@ def set_global_config():
 
 def install_dependencies(dependency_map, verbose = False):
     all_installed = True
-
     for dependency in dependency_map.keys():
 
         if is_installed(dependency):
@@ -82,18 +81,18 @@ def install_dependencies(dependency_map, verbose = False):
             print_err("No supported package manager available for '" + dependency + "' on your system, please contact srbcheema2@gmail.com for full support of your system.",C.R)
 
         else :
-            print_clr('.:Installing ' + C.E + dependency + C.G +' dependency' , C.G) #distinction of dependency
-            
+            print_clr('.:Installing ' + C.E + dependency + C.G +' dependency' , C.G) # distinction of dependency
+
             for apm in available_package_managers :
                 os.system(rules[apm])
-                if is_installed(dependency) :#else try other package managers
+                if is_installed(dependency) :# else try other package managers
                     break
 
             if not is_installed(dependency):
                 print_err('please install ' + dependency + ' dependency manually',C.Y)
                 for apm in available_package_managers :
                     print_err('try command : '+rules[apm],C.Y)
-                
+
                 all_installed = False
 
     return all_installed
@@ -102,12 +101,11 @@ def install_dependencies(dependency_map, verbose = False):
 if __name__ == '__main__':
     dependency_map = {
         'register-python-argcomplete':{
-        #Supported Package Managers
-               'apt' : 'sudo apt install python-argcomplete',#debian/ubuntu-based
-            'pacman' : 'sudo pacman -S python-argcomplete',#arch-based
-               'yum' : 'sudo yum -y install python-argcomplete',#red-hat
-               'dnf' : 'sudo dnf install python-argcomplete',#fedora
-            'zypper' : 'sudo zypper install python-argcomplete',#suse
+               'apt' : 'sudo apt install python-argcomplete',# debian/ubuntu-based
+            'pacman' : 'sudo pacman -S python-argcomplete',# arch-based
+               'yum' : 'sudo yum -y install python-argcomplete',# red-hat
+               'dnf' : 'sudo dnf install python-argcomplete',# fedora
+            'zypper' : 'sudo zypper install python-argcomplete',# suse
         },
     }
     install_dependencies(dependency_map, verbose=True)
