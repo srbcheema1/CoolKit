@@ -1,4 +1,4 @@
-from .abs_path import abs_path
+from srblib import abs_path
 
 
 class Const:

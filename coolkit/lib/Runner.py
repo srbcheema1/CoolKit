@@ -2,21 +2,17 @@ import os
 import sys
 import threading
 
+from srblib import abs_path
+from srblib import show_dependency_error_and_exit
+
 try:
     from terminaltables import AsciiTable
 except:
-    err = """
-    You haven't installed the required dependencies.
-    """
-    import sys, traceback,os
-    sys.stderr.write(err)
-    if(os.environ['HOME'] == 'srb'):
-        traceback.print_exc()
-    sys.exit(1)
+    show_dependency_error_and_exit()
 
 from .Colour import Colour
 from .utils import utils
-from .abs_path import abs_path
+
 
 class Runner:
     def __init__(self,args,prob,cool_path):

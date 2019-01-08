@@ -2,11 +2,12 @@ import os
 import shutil
 import sys
 
-from .abs_path import abs_path
+from srblib import abs_path
+from srblib import verify_folder, verify_file
+
 from .Colour import Colour
 from .Constants import Const
 from .Contest import Contest
-from .files import verify_folder, verify_file
 from .global_config import get_contest_name, get_problem_name
 from .Problem import Problem
 from .Runner import Runner

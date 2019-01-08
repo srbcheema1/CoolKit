@@ -3,26 +3,21 @@ import os
 import re
 import sys
 
+from srblib import show_dependency_error_and_exit
+from srblib import verify_file, verify_folder
+from srblib import Soup
+
 try:
     import shutil
     import texttable
 
     from terminaltables import AsciiTable
 except:
-    err = """
-    You haven't installed the required dependencies.
-    """
-    import sys, traceback,os
-    sys.stderr.write(err)
-    if(os.environ['HOME'] == 'srb'):
-        traceback.print_exc()
-    sys.exit(1)
+    show_dependency_error_and_exit()
 
 from .Colour import Colour
 from .Constants import Const
-from .files import verify_file, verify_folder
 from .hash_dir import get_hash
-from .Soup import Soup
 from .srbjson import srbjson
 from .utils import utils
 

@@ -2,9 +2,9 @@ import os
 import shutil
 from importlib.util import spec_from_file_location, module_from_spec
 
-from .abs_path import abs_path
+from srblib import abs_path, verify_file
+
 from .Constants import Const
-from .files import verify_file
 
 def create_global_config():
     path_of_default_global_config = '/'.join(abs_path(__file__).split('/')[:-2])+'/extra/global_config.py'

@@ -1,18 +1,13 @@
 import sys
 
+from srblib import show_dependency_error_and_exit
+from srblib import Soup
+
 try:
     from terminaltables import AsciiTable
 except:
-    err = """
-    You haven't installed the required dependencies.
-    """
-    import sys, traceback,os
-    sys.stderr.write(err)
-    if(os.environ['HOME'] == 'srb'):
-        traceback.print_exc()
-    sys.exit(1)
+    show_dependency_error_and_exit()
 
-from .Soup import Soup
 from .Colour import Colour
 from .Contest import Contest
 

@@ -4,18 +4,13 @@
 import os
 import sys
 
+from srblib import show_dependency_error_and_exit
+
 try:
     import getpass
     from terminaltables import AsciiTable
 except:
-    err = """
-    You haven't installed the required dependencies.
-    """
-    import sys, traceback,os
-    sys.stderr.write(err)
-    if(os.environ['HOME'] == 'srb'):
-        traceback.print_exc()
-    sys.exit(1)
+    show_dependency_error_and_exit()
 
 from . import __version__
 from .lib.Args import Args

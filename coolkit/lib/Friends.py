@@ -5,6 +5,8 @@ import os
 import subprocess as sp
 import time
 
+from srblib import show_dependency_error_and_exit
+
 try:
     import click
     import getpass
@@ -17,14 +19,7 @@ try:
     from terminaltables import AsciiTable
     import texttable
 except:
-    err = """
-    You haven't installed the required dependencies.
-    """
-    import sys, traceback,os
-    sys.stderr.write(err)
-    if(os.environ['HOME'] == 'srb'):
-        traceback.print_exc()
-    sys.exit(1)
+    show_dependency_error_and_exit()
 
 
 class Friends:

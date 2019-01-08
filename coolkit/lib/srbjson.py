@@ -1,7 +1,6 @@
 import json
 
-from .abs_path import abs_path
-from .files import verify_file
+from srblib import abs_path, verify_file
 
 class srbjson:
     def __init__(self):
