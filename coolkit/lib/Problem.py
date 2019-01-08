@@ -6,6 +6,7 @@ import sys
 from srblib import show_dependency_error_and_exit
 from srblib import verify_file, verify_folder
 from srblib import Soup
+from srblib import path_hash
 
 try:
     import shutil
@@ -17,7 +18,6 @@ except:
 
 from .Colour import Colour
 from .Constants import Const
-from .hash_dir import get_hash
 from .srbjson import srbjson
 from .utils import utils
 
@@ -81,7 +81,7 @@ class Problem:
         self.p_desc = data['p_desc']
 
         verify_folder(self.dir + '/io')
-        now_hash = get_hash(self.dir +'/io')
+        now_hash = path_hash(self.dir +'/io')
         if(self.hash != now_hash and self.hash != ""):
             Colour.print('Warning prob '+self.p_name+' has been modified', Colour.END)
             self.hash = now_hash
@@ -133,7 +133,7 @@ class Problem:
             with open(filename, 'w') as handler:
                 handler.write(out)
 
-        self.hash = get_hash(self.dir +'/io')
+        self.hash = path_hash(self.dir +'/io')
 
         srbjson.dump_data({
                 "hash":self.hash,
