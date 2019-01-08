@@ -14,7 +14,7 @@ except:
         traceback.print_exc()
     sys.exit(1)
 
-from .. import __version__
+from .. import __version__, __mod_name__
 from .Args import Args
 from .Constants import Const
 from .srbjson import srbjson
@@ -187,6 +187,7 @@ class Parser:
     @staticmethod
     def validate_args(args):
         if(args.version):
-            print('coolkit '+__version__)
+            print(__mod_name__+'=='+__version__)
+            sys.exit(0)
         return
 
