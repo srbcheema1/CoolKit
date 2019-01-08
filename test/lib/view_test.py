@@ -1,12 +1,15 @@
 import pytest
 import os
 
-from coolkit.lib.abs_path import abs_path
-from coolkit.lib.files import remove
+from srblib import abs_path
+from srblib import remove
+from srblib import on_travis
+
 from coolkit.lib.utils import utils
 
-
 def test_view():
+    if not on_travis:
+        return
     print()
     cwd = abs_path(os.getcwd())
     try:

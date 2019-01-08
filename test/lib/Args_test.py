@@ -5,25 +5,23 @@ import random
 import shutil
 
 
+from srblib import show_dependency_error_and_exit
+from srblib import remove
+from srblib import abs_path
+from srblib import on_travis
+
 try:
     import getpass
 except:
-    err = """
-    You haven't installed the required dependencies.
-    """
-    print(err)
-    import sys, traceback,os
-    if(os.environ['HOME'] == 'srb'):
-        traceback.print_exc()
-    sys.exit(1)
+    show_dependency_error_and_exit()
 
-from coolkit.lib.abs_path import abs_path
 from coolkit.lib.Args import Args
 from coolkit.lib.Colour import Colour
-from coolkit.lib.files import remove
 from coolkit.lib.utils import utils
 
 def test_Args():
+    if not on_travis:
+        return
     print()
     cwd = abs_path(os.getcwd())
     try:

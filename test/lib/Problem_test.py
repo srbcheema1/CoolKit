@@ -1,5 +1,7 @@
 import pytest
 
+from srblib import on_travis
+
 from coolkit.lib.Problem import Problem
 from coolkit.lib.Colour import Colour
 

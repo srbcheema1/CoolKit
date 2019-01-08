@@ -1,5 +1,7 @@
 import pytest
 
+from srblib import on_travis
+
 from coolkit.lib.Contest import Contest
 
 def test_contest():

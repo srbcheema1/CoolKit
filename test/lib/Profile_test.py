@@ -1,17 +1,12 @@
 import pytest
 
+from srblib import show_dependency_error_and_exit
+from srblib import on_travis
 
 try:
     from terminaltables import AsciiTable
 except:
-    err = """
-    You haven't installed the required dependencies.
-    """
-    print(err)
-    import sys, traceback,os
-    if(os.environ['HOME'] == 'srb'):
-        traceback.print_exc()
-    sys.exit(1)
+    show_dependency_error_and_exit()
 
 
 from coolkit.lib.Profile import Dummy_user
