@@ -2,13 +2,10 @@ import os
 import sys
 import threading
 
-from srblib import abs_path
+from srblib import abs_path, relative_path
+from srblib import debug
 from srblib import show_dependency_error_and_exit
-
-try:
-    from terminaltables import AsciiTable
-except:
-    show_dependency_error_and_exit()
+from srblib import Tabular
 
 from .Colour import Colour
 from .utils import utils
@@ -30,7 +27,7 @@ class Runner:
         self.result = 'GOOD'
 
         self.cool_path = cool_path
-        self.input_file = self.args['inp'].split('/')[-1]
+        self.input_file = relative_path(self.args['inp'])
         self.basename = self.input_file.split('.')[0]
         self.extension = self.input_file.split('.')[-1]
         self.executable = self.cool_path + '/' + self.basename + '.out'
@@ -81,9 +78,10 @@ class Runner:
         # COMPILE
         if not self.compiler is None:
             compile_status = os.system(self.compiler + ' \'' + self.input_file + '\'') #spaces in path
+            if(debug): print(self.compiler + ' \'' + self.input_file + '\'') #spaces in path
             if compile_status != 0:
                 Colour.print('Compilation error.', Colour.RED)
-                os.system(self.compiler + ' \'' + self.input_file + '\'') #spaces in path
+                # os.system(self.compiler + ' \'' + self.input_file + '\'') # prints twice
                 sys.exit(1)
 
         # RUN
@@ -180,7 +178,7 @@ class Runner:
         # tt = texttable.Texttable()
         # tt.add_rows(table_data)
         # print(tt.draw())
-        print(AsciiTable(table_data).table)
+        print(Tabular(table_data))
         if(self.bad_flag):
             Colour.print(self.prob.link, Colour.CYAN)
         if(self.prob.mult_soln):
@@ -188,7 +186,7 @@ class Runner:
                     [Colour.PURPLE+'May contain multiple answers'+Colour.END],
                     [utils.shrink(self.prob.o_desc,80,[32])]
                 ]
-            print(AsciiTable(table_data).table)
+            print(Tabular(table_data))
 
 
     def _run_on_custom(self,i=0):
