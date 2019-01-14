@@ -7,6 +7,8 @@ from srblib import debug
 from srblib import show_dependency_error_and_exit
 from srblib import Tabular
 
+from code_tester import comp_files
+
 from .Colour import Colour
 from .utils import utils
 
@@ -137,7 +139,11 @@ class Runner:
                     [line.strip() for line in user_output])
                 self.user_outputs[i] = user_output
 
-            if orig_output == user_output:
+            orig_out_file = os.path.join(self.test_loc, 'Output' + str(i))
+            user_out_file = self.cool_path+'/out_'+ self.prob.p_name + str(i)
+            ret, size_diff = comp_files(orig_out_file,user_out_file)
+
+            if ret == -1 and size_diff == False:
                 # All Correct
                 self.results[i] = Colour.BOLD+Colour.GREEN+ 'AC' +Colour.END
             elif self.prob.mult_soln:
@@ -212,7 +218,12 @@ class Runner:
                 user_output = '\n'.join(
                     [line.strip() for line in user_output])
                 self.user_outputs[i] = user_output
-            if orig_output == user_output:
+
+            orig_out_file = os.path.join(self.test_loc, 'Output' + str(i))
+            user_out_file = self.cool_path+'/out_'+ self.prob.p_name + str(i)
+            ret, size_diff = comp_files(orig_out_file,user_out_file)
+
+            if ret == -1 and size_diff == False:
                 self.results[i] = Colour.BOLD+Colour.GREEN+ 'AC' +Colour.END
             else:
                 self.results[i] = Colour.BOLD+Colour.DARKRED+ 'WA' +Colour.END
