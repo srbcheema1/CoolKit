@@ -180,17 +180,30 @@ def safe_main():
         Args.fetch_contest(args)
 
     elif(first_arg == "config"):
-        if(pars_args.user): args['user'] = pars_args.user
-        if(pars_args.pswd): args['pswd'] = pars_args.pswd
+        config_data = Args.fetch_data_from_global_config()
+        if(pars_args.user):
+            user = pars_args.user
+        else:
+            user = input('Enter your user name (default: '+ config_data.get('user') +'): ')
+            if user == '': user = config_data.get('user')
+        if(pars_args.pswd):
+            pswd = pars_args.pswd
+            args['pswd'] = pswd
+        else:
+            pswd = getpass.getpass('Enter your password (press enter to not to change): ')
+            if pswd != '': args['pswd'] = pswd
+        args['user'] = user
         Args.set_global_config(args)
 
     elif(first_arg == "view"):
         second_arg = pars_args.second_arg
+        config_data = Args.fetch_data_from_global_config()
 
         if(second_arg == "user"):
             u_name = pars_args.u_name
             if(not u_name):
-                u_name = input('Enter your username : ')
+                u_name = input('Enter username (default: '+ config_data.get('user') +'): ')
+                if u_name == '': u_name = config_data.get('user')
             dummy_user = Dummy_user(u_name,verbose=False)
             dummy_user.print_data()
             print(AsciiTable(dummy_user.contest_table).table)
@@ -213,7 +226,6 @@ def safe_main():
                     Colour.print(Colour.YELLOW+'contest not set, use `coolkit set -c <contest num>`'+Colour.END)
                 c_name = input('Enter contest name : ')
 
-            config_data = Args.fetch_data_from_global_config()
             if(not config_data['user']):
                 Colour.print(Colour.RED+'Please configure your username using "coolkit config -u <username>"'+Colour.END)
                 config_data['user'] = input('Enter your username : ')

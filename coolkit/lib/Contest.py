@@ -4,13 +4,13 @@ import sys
 from srblib import show_dependency_error_and_exit
 from srblib import verify_folder, verify_file
 from srblib import Soup
+from srblib import Tabular
 
 try:
     import grequests as grq
     import shutil
 
     from bs4 import BeautifulSoup
-    from terminaltables import AsciiTable
 except:
     show_dependency_error_and_exit()
 
@@ -183,15 +183,23 @@ class Contest:
 
     def display_contest(self):
         table_data = [[Colour.BOLD+Colour.GREEN+self.c_title+Colour.END]]
-        print(AsciiTable(table_data).table)
+        print(Tabular(table_data))
         table_data = [['#','Name','submissions','Link']]
+        prob_list = []
         for prob in self.prob_mapp.values():
+            if len(prob.p_title) > 1 and prob.p_title[1] == '.': prob.p_title = prob.p_title[3:]
+            prob_list.append(prob)
+        prob_list.sort(key=lambda x: int(x.subm),reverse=True)
+        for prob in prob_list:
             table_data.append([prob.p_name,prob.p_title,prob.subm,prob.link])
-        print(AsciiTable(table_data).table)
+        print(Tabular(table_data))
         table_data = [['S no','Announcements']]
         for a,ann in enumerate(self.announce_arr):
             table_data.append([a+1,utils.shrink(ann,max_len=80)])
-        print(AsciiTable(table_data).table)
+        if(len(table_data) > 1):
+            print(Tabular(table_data))
+        else:
+            print(Tabular([['No Announcements']]))
 
 
 
@@ -271,12 +279,12 @@ class Contest:
             link = "www.codeforces.com/"+c_type+"/"+c_name
             contests.append([c_name,title,writer,time,duration,link])
 
-        if(display is True): print(AsciiTable(contests).table)
+        if(display is True): print(Tabular(contests))
         return contests
 
 
     @staticmethod
-    def get_number_of_problems(c_name,c_type='contest',cacheing=False):
+    def get_number_of_problems(c_name,c_type='contest',caching=False):
         # TODO implementing caching else it is slow
         url = "https://codeforces.com/"+c_type+"/"+c_name
         soup = Soup.get_soup(url)

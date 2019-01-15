@@ -52,8 +52,7 @@ def test_Args():
         os.system('coolkit run one.cpp')
 
         if(os.environ['USER'] == 'travis'):
-            os.system('coolkit config --user coolkit')
-            os.system('coolkit config --pswd coolkit')
+            os.system('coolkit config --user coolkit --pswd coolkit')
         print(Colour.CYAN+'Try to submit wrong file'+Colour.END)
         os.system('coolkit submit three.cpp')
 
