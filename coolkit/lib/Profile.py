@@ -2,11 +2,8 @@ import sys
 
 from srblib import show_dependency_error_and_exit
 from srblib import Soup
+from srblib import Tabular
 
-try:
-    from terminaltables import AsciiTable
-except:
-    show_dependency_error_and_exit()
 
 from .Colour import Colour
 from .Contest import Contest
@@ -113,5 +110,5 @@ class Dummy_user:
             ' (max. ' + Colour.get_colour(self.max_title) + self.max_title + ',' + self.max_rating + Colour.END + ')'])
         table_data.append(['Friend of: ' + self.friends + ' users'])
         table_data.append(['Registered: '+self.reg_date])
-        print(AsciiTable(table_data).table)
+        print(Tabular(table_data))
 

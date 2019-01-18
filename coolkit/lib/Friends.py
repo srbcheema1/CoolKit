@@ -16,7 +16,6 @@ try:
     from argcomplete import autocomplete
     from bs4 import BeautifulSoup
     from robobrowser import RoboBrowser
-    from terminaltables import AsciiTable
     import texttable
 except:
     show_dependency_error_and_exit()

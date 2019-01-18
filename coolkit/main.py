@@ -5,10 +5,10 @@ import os
 import sys
 
 from srblib import show_dependency_error_and_exit
+from srblib import Tabular
 
 try:
     import getpass
-    from terminaltables import AsciiTable
 except:
     show_dependency_error_and_exit()
 
@@ -206,7 +206,7 @@ def safe_main():
                 if u_name == '': u_name = config_data.get('user')
             dummy_user = Dummy_user(u_name,verbose=False)
             dummy_user.print_data()
-            print(AsciiTable(dummy_user.contest_table).table)
+            print(Tabular(dummy_user.contest_table))
 
         elif(second_arg == "contest"):
             c_name = pars_args.c_name

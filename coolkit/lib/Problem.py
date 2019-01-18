@@ -7,12 +7,11 @@ from srblib import show_dependency_error_and_exit
 from srblib import verify_file, verify_folder
 from srblib import Soup
 from srblib import path_hash
+from srblib import Tabular
 
 try:
     import shutil
     import texttable
-
-    from terminaltables import AsciiTable
 except:
     show_dependency_error_and_exit()
 
@@ -255,20 +254,20 @@ class Problem:
     def display_problem(self):
         if(not self.is_good):
             table_data = [[Colour.FULLRED+Colour.BOLD+'WARNING:'+Colour.END+Colour.RED+' Problem incomplete'+Colour.END]]
-            print(AsciiTable(table_data).table)
+            print(Tabular(table_data))
 
         table_data = [[Colour.PURPLE+self.p_title+Colour.END],[self.time_limit]]
-        print(AsciiTable(table_data).table)
+        print(Tabular(table_data))
 
         table_data = [[Colour.CYAN+'Description'+Colour.END],[utils.shrink(self.p_desc,80,[32])]]
-        print(AsciiTable(table_data).table)
+        print(Tabular(table_data))
         table_data = [[Colour.CYAN+'Input'+Colour.END],[utils.shrink(self.i_desc,80,[32])]]
-        print(AsciiTable(table_data).table)
+        print(Tabular(table_data))
         table_data = [[Colour.CYAN+'Output'+Colour.END],[utils.shrink(self.o_desc,80,[32])]]
-        print(AsciiTable(table_data).table)
+        print(Tabular(table_data))
 
         table_data = [[Colour.CYAN+'Examples'+Colour.END]]
-        print(AsciiTable(table_data).table)
+        print(Tabular(table_data))
 
         printer = [['#','input','output']]
         for i in range(len(self.inputs)):
@@ -281,7 +280,7 @@ class Problem:
         print(tt.draw())
 
         table_data = [[Colour.CYAN+'Hint'+Colour.END],[utils.shrink(self.h_desc,80,[32])]]
-        print(AsciiTable(table_data).table)
+        print(Tabular(table_data))
 
 
     @staticmethod
