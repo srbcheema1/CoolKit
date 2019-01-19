@@ -1,4 +1,7 @@
-import getpass
+from srblib import on_srbpc, on_travis
+from srblib import SrbJson
+
+srb_predictor = SrbJson('~/.config/coolkit/config',{"coolkit":{}}).get('srb_predictor',True)
 
 def get_contest_name(folder):
     '''
@@ -6,8 +9,7 @@ def get_contest_name(folder):
     returns contest number if possible to detect
     if can't determine then return None
     '''
-    user = getpass.getuser()
-    if(user == 'srb' or user == 'travis'):
+    if(on_srbpc or on_travis or srb_predictor):
         # I kept for me, you too can use this ready made function
         return srb_contest_name(folder)
     '''
@@ -22,8 +24,7 @@ def get_problem_name(file_name):
     returns problem name if possible to detect
     if can't determine then return None
     '''
-    user = getpass.getuser()
-    if(user == 'srb' or user == 'travis'):
+    if(on_srbpc or on_travis or srb_predictor):
         # I kept for me, you too can use this ready made function
         return srb_problem_name(file_name) # my way
     '''
@@ -87,9 +88,17 @@ def srb_problem_name(file_name):
             return part.upper()
 
     newstr = ''.join((ch if ch in '0123456789' else ' ') for ch in file_name)
-    num_arr = newstr.split(' ')
-    if(len(num_arr) == 1):
-        numm = int(num_arr[0])
+    _num_arr = newstr.split(' ')
+    num_arr = []
+    for a in _num_arr:
+        if a != '':
+            numm = int(a)
+            if(numm < 26):
+                num_arr.append(a)
+
+    # if(len(num_arr) == 1):
+    if(len(num_arr) > 0):
+        numm = int(num_arr[-1])
         if(numm < 26):
             return chr(ord('A') + numm - 1)
 
