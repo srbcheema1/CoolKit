@@ -4,13 +4,12 @@
 import os
 import sys
 import time
+import getpass
 
 from srblib import show_dependency_error_and_exit
+from srblib import Colour
 
 try:
-    import click
-    import getpass
-
     from argparse import ArgumentParser
     from argcomplete import autocomplete
     from selenium import webdriver
@@ -29,7 +28,7 @@ class Add_friends():
 
         user_list = []
         if(not os.path.isfile(file_path)):
-            click.secho('path not found '+file_path,fg='red')
+            Colour.print('path not found '+file_path,Colour.RED)
             sys.exit(1)
         with open(file_path,'r') as fin:
             lines = fin.readlines()

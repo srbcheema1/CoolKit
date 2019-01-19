@@ -6,9 +6,9 @@ import subprocess as sp
 import time
 
 from srblib import show_dependency_error_and_exit
+from srblib import Colour
 
 try:
-    import click
     import getpass
     import requests
 
@@ -38,10 +38,10 @@ class Friends:
             checks = list(map(lambda x: x.getText()[1:].strip(),
                 browser.select('div.caption.titled')))
             if self.username not in checks:
-                click.secho('Login Failed.. Wrong password.', fg = 'red')
+                Colour.print('Login Failed.. Wrong password.', Colour.RED)
                 return
         except Exception as e:
-            click.secho('Login Failed.. Maybe wrong id/password.', fg = 'red')
+            Colour.print('Login Failed.. Maybe wrong id/password.', Colour.RED)
             return
 
         browser.open('http://codeforces.com/friends')
@@ -71,10 +71,10 @@ class Standing:
             checks = list(map(lambda x: x.getText()[1:].strip(),
                 browser.select('div.caption.titled')))
             if self.username not in checks:
-                click.secho('Login Failed.. Wrong password.', fg = 'red')
+                Colour.print('Login Failed.. Wrong password.', Colour.RED)
                 return
         except Exception as e:
-            click.secho('Login Failed.. Maybe wrong id/password.', fg = 'red')
+            Colour.print('Login Failed.. Maybe wrong id/password.', Colour.RED)
             return
 
         browser.open('http://codeforces.com/contest/'+self.c_name+'/standings/friends/true')

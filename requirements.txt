@@ -1,10 +1,8 @@
 argcomplete
 bs4
-click
 code_tester
 grequests
 requests
 robobrowser
-selenium
 srblib
 texttable

@@ -5,10 +5,11 @@ import subprocess as sp
 import time
 
 from srblib import show_dependency_error_and_exit
-from srblib import Colour
 
 try:
+    import click
     import requests
+
     from robobrowser import RoboBrowser
 except:
     show_dependency_error_and_exit()
@@ -36,7 +37,7 @@ class Submit:
         r = requests.get(req)
         js = r.json()
         if 'status' not in js or js['status'] != 'OK':
-            Colour.print("unable to connect, try it yourself : "+req,Colour.RED)
+            click.secho("unable to connect, try it yourself : "+req,fg='red')
             raise ConnectionError('Cannot connect to codeforces!')
         try:
             result = js['result'][0]
@@ -65,10 +66,10 @@ class Submit:
             checks = list(map(lambda x: x.getText()[1:].strip(),
                 browser.select('div.caption.titled')))
             if self.username not in checks:
-                Colour.print('Login Failed.. Wrong password.', Colour.RED)
+                click.secho('Login Failed.. Wrong password.', fg = 'red')
                 return
         except Exception as e:
-            Colour.print('Login Failed.. Maybe wrong id/password.', Colour.RED)
+            click.secho('Login Failed.. Maybe wrong id/password.', fg = 'red')
             return
 
         # todo check if it takes time
@@ -81,11 +82,11 @@ class Submit:
         print(browser.url)
         # if browser.url[-6:] != 'status': # it was used when submitting from problemset
         if not 'my' in browser.url:
-            Colour.print('Failed submission, probably you have submit the same file before', Colour.RED)
+            click.secho('Failed submission, probably you have submit the same file before', fg = 'red')
             return
 
         Submit.print_verdict(last_id,self.username,100)
-        Colour.print('[{0}] submitted ...'.format(self.inputfile), Colour.GREEN)
+        click.secho('[{0}] submitted ...'.format(self.inputfile), fg = 'green')
 
 
 
@@ -120,24 +121,24 @@ class Submit:
             if id_ != last_id and verdict_ != 'TESTING' and verdict_ != None:
                 if verdict_ == 'OK':
                     message = 'OK - Passed ' + str(passedTestCount_) + ' tests'
-                    color = Colour.GREEN
+                    color = 'green'
                 else:
                     message = verdict_ + ' on ' + str(passedTestCount_+1) + ' test'
-                    color = Colour.RED
+                    color = 'red'
                 if(Submit.notify_installed): sp.call(['notify-send','Codeforces',message])
-                elif(Submit.force_stdout): Colour.print(message,color)
+                elif(Submit.force_stdout): click.secho(message,color)
                 break
             elif verdict_ == 'TESTING' and (not hasStarted):
                 message = 'Judgement has begun'
                 if(Submit.notify_installed): sp.call(['notify-send','Codeforces',message])
-                elif(Submit.force_stdout): Colour.print(message,Colour.GREEN)
+                elif(Submit.force_stdout): click.secho(message,'green')
                 hasStarted = True
             time.sleep(0.5)
             max_time -= 1
             if(max_time < 0):
                 message = 'Time out'
                 if(Submit.notify_installed): sp.call(['notify-send','Codeforces',message])
-                elif(Submit.force_stdout): Colour.print(message,Colour.YELLOW)
+                elif(Submit.force_stdout): click.secho(message,'yellow')
                 break
 
     def _is_installed_notify():
@@ -145,5 +146,21 @@ class Submit:
             sp.call(['notify-send','--help'],stdout=sp.PIPE)
             return True
         except:
-            Colour.print('notify-send seems not working, please install notify-send',Colour.RED)
+            click.secho('notify-send seems not working, please install notify-send',fg='red')
             return False
+
+@click.command()
+@click.argument('c_name')
+@click.argument('p_name')
+@click.argument('inputfile')
+@click.argument('username')
+@click.argument('password')
+def tester(c_name,p_name, inputfile,username,password,force_stdout=False):
+    if(not os.path.exists(inputfile)):
+        click.secho('file '+inputfile+' doesnot exists',fg='red')
+        return
+    temp_submit = Submit(c_name,p_name,inputfile,username,password,force_stdout)
+    temp_submit.submit()
+
+if __name__ == '__main__':
+    tester()
