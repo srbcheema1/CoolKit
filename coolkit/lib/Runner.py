@@ -6,6 +6,7 @@ from srblib import abs_path, relative_path
 from srblib import debug
 from srblib import show_dependency_error_and_exit
 from srblib import Tabular
+from srblib import dump_output
 
 from code_tester import comp_files
 
@@ -79,11 +80,12 @@ class Runner:
 
         # COMPILE
         if not self.compiler is None:
-            compile_status = os.system(self.compiler + ' \'' + self.input_file + '\'') #spaces in path
             if(debug): print(self.compiler + ' \'' + self.input_file + '\'') #spaces in path
+            compile_status = os.system(self.compiler + ' \'' + self.input_file + '\'' + dump_output)
             if compile_status != 0:
+                print(self.compiler + ' \'' + self.input_file + '\'') #spaces in path
                 Colour.print('Compilation error.', Colour.RED)
-                # os.system(self.compiler + ' \'' + self.input_file + '\'') # prints twice
+                os.system(self.compiler + ' \'' + self.input_file + '\'') # prints twice
                 sys.exit(1)
 
         # RUN
@@ -242,8 +244,10 @@ class Runner:
             'java': 'javac -d .'
         }[self.extension]
         if not self.compiler is None:
-            compile_status = os.system(compiler + ' \'' + self.input_file + '\' > /dev/null 2>&1')
+            if(debug): print(self.compiler + ' \'' + self.input_file + '\'') #spaces in path
+            compile_status = os.system(compiler + ' \'' + self.input_file + '\' ' + dump_output)
             if compile_status != 0:
+                print(self.compiler + ' \'' + self.input_file + '\'') #spaces in path
                 Colour.print('Compilation error.', Colour.RED)
                 os.system(self.compiler + ' \'' + self.input_file + '\'') #spaces in path
                 sys.exit(1)
