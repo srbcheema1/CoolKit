@@ -1,0 +1,36 @@
+environment:
+  matrix:
+    - PYTHON: "C:\\Python36"
+      PYTHON_VERSION: "3.6.x" # currently 3.6.5
+      PYTHON_ARCH: "32"
+
+    - PYTHON: "C:\\Python36-x64"
+      PYTHON_VERSION: "3.6.x" # currently 3.6.7
+      PYTHON_ARCH: "64"
+
+install:
+  # Install Python (from the official https://python.org) and pip if not already installed.
+  - ps: if (-not(Test-Path($env:PYTHON))) { & appveyor\install.ps1 }
+
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PYTHON%\\lib\\site-packages;%PATH%"
+  - "SET PYTHONPATH=%PYTHON%;%PYTHON%\\Scripts;%PYTHON%\\lib\\site-packages;%PYTHONPATH%"
+
+  - "python -m pip install --upgrade pip"
+  - "python -m pip install -r requirements.txt"
+  - "python -m pip install pytest"
+
+build_script:
+  # Build the compiled extension
+  - "python setup.py build"
+  - "python setup.py install"
+
+test_script:
+  # Run the project tests and store results in .xml log
+  - echo "test to be enabled for this"
+
+after_test:
+  # If tests are successful, create binary packages for the project.
+  - "python setup.py bdist_wininst"
+  - "python setup.py bdist_msi"
+  - "python setup.py sdist"
+  - ps: "ls dist"
