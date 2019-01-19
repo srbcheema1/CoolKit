@@ -33,6 +33,10 @@ class Runner:
         self.basename = self.input_file.split('.')[0]
         self.extension = self.input_file.split('.')[-1]
         self.executable = self.cool_path + '/' + self.basename + '.out'
+
+        if not self.extension in ['c', 'cpp', 'java', 'py', 'rb']:
+            Colour.print('Supports only C, C++, Python, Java, and Ruby as of now.',Colour.RED)
+            sys.exit(1)
         self.compiler = {
             'py': None,
             'rb': None,
@@ -64,10 +68,6 @@ class Runner:
 
 
     def run(self):
-        if not self.extension in ['c', 'cpp', 'java', 'py', 'rb']:
-            Colour.print('Supports only C, C++, Python, Java, and Ruby as of now.',Colour.RED)
-            sys.exit(1)
-
         Runner.stamp_adder(self.input_file,self.comment_symbol + self.prob.link)
 
         if(self.args['test'] != -1):
@@ -219,7 +219,7 @@ class Runner:
                     [line.strip() for line in user_output])
                 self.user_outputs[i] = user_output
 
-            orig_out_file = os.path.join(self.test_loc, 'Output' + str(i))
+            orig_out_file = os.path.join(self.now_loc, 'Output.txt')
             user_out_file = self.cool_path+'/out_'+ self.prob.p_name + str(i)
             ret, size_diff = comp_files(orig_out_file,user_out_file)
 
