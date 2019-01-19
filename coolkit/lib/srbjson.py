@@ -1,68 +1,27 @@
 import json
 
 from srblib import abs_path, verify_file
+from srblib import SrbJson
 
 class srbjson:
     def __init__(self):
         pass
 
     @staticmethod
-    def create_file(fille,template):
-        verify_file(fille)
-        jfile = open(fille, 'w')
-        json.dump(template,jfile,indent = 4,ensure_ascii = False)
-        jfile.close()
-
+    def create_file(file_name,template):
+        SrbJson(file_name,template)
 
     @staticmethod
     def extract_data(file_name,template):
-        """
-        Extracts json data from the given file
-        if there is no such file
-            it will create one
-        if there is currupt file
-            it will create new
-        if file is ok
-            it will return its content
-        """
-        fille = abs_path(file_name)
-        try:
-            jfile = open(fille)
-        except FileNotFoundError:
-            srbjson.create_file(fille,template)
-        jfile = open(fille)
-        data = json.load(jfile)
-        if(not 'coolkit' in data.keys()):
-            srbjson.create_file(fille,template)
-            jfile = open(fille)
-            data = json.load(jfile)
-        return data['coolkit']
-
-
-    @staticmethod
-    def _write_data(data,file_name):
-        """
-        Write RAW data into a json file
-        """
-        fille = abs_path(file_name)
-        jfile = open(fille, 'w')
-        data = {'coolkit':data}
-        json.dump(data,jfile,indent = 4,ensure_ascii = False)
-        jfile.close()
-
+        return SrbJson(file_name,template).data
 
     @staticmethod
     def dump_data(data,file_name,template):
-        """
-        create RAW data from LIST
-        uses _write_data
-        """
-        fille = abs_path(file_name)
-        dictt = srbjson.extract_data(fille,template)
+        temp = SrbJson(file_name,template)
         for key in data:
-            if(key in dictt):
-                dictt[key] = data[key]
-        srbjson._write_data(dictt,file_name)
+            if(key in temp):
+                temp.data[key] = data[key]
+        temp._burn_data_to_file() # lazy burning
 
     global_template = {
         "coolkit":{
