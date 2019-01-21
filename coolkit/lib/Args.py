@@ -3,6 +3,7 @@ import shutil
 import sys
 
 from srblib import abs_path
+from srblib import SrbJson
 from srblib import verify_folder, verify_file
 
 from .Colour import Colour
@@ -79,13 +80,6 @@ class Args:
         srbjson.dump_data(args,now+'/.coolkit/config',srbjson.local_template)
 
     @staticmethod
-    def set_global_config(args={}):
-        '''
-        set config to global config file.
-        '''
-        srbjson.dump_data(args,abs_path(Const.cache_dir + '/config'),srbjson.global_template)
-
-    @staticmethod
     def check_init():
         '''
         check if directory is initilized or not
@@ -122,14 +116,14 @@ class Args:
         return None
 
     @staticmethod
-    def verify_init():
+    def _verify_init(): # end program if not init
         if(not Args.check_init()):
             Colour.print('not a coolkit repo',Colour.RED)
             sys.exit(1)
 
     @staticmethod
     def fetch_data_from_local_config():
-        Args.verify_init()
+        Args._verify_init()
         cwd = abs_path(os.getcwd())
         home_loc = abs_path('~')
         root_loc = abs_path('/')
@@ -146,9 +140,8 @@ class Args:
         return data
 
     @staticmethod
-    def fetch_data_from_global_config():
-        data = srbjson.extract_data(abs_path('~/.config/coolkit/config'),srbjson.global_template)
-        return data
+    def fetch_global_config():
+        return SrbJson('~/.config/coolkit/config',srbjson.global_template)
 
     @staticmethod
     def fetch_contest(args):

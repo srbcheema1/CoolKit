@@ -27,7 +27,10 @@ class srbjson:
         "coolkit":{
             "user":None,
             "pswd":None,
-
+            "site": "codeforces",
+            "secondary_user": None,
+            "secondary_pswd": None,
+            "srb_predictor": False,
             "site":"codeforces"
         }
     }

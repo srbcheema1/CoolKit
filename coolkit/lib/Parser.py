@@ -108,6 +108,10 @@ class Parser:
                                 action='store_true',
                                 default=False,
                                 help="force verdict to stdout (not recommended)")
+        smt_parser.add_argument("-s","--secondary",
+                                action='store_true',
+                                default=False,
+                                help="submit from secondary ID")
 
         # fetch
         '''

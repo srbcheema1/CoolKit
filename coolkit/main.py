@@ -6,6 +6,7 @@ import sys
 
 from srblib import show_dependency_error_and_exit
 from srblib import Tabular
+from srblib import debug
 
 try:
     import getpass
@@ -80,7 +81,7 @@ def safe_main():
         sets up cache for next time
         '''
         if(not Args.check_init()):
-            Colour.print(Colour.YELLOW+'repo not found'+Colour.END)
+            Colour.print('coolkit repo not found',Colour.YELLOW)
             Args.init_repo()
 
         args['inp'] = pars_args.inp # can be none
@@ -93,22 +94,22 @@ def safe_main():
         args['c_site'] = config_data['c_site'] # can be None
 
         if(not args['c_name']):
-            Colour.print(Colour.RED+'contest not set, please set contest using `coolkit set -c <contest_num>`'+Colour.END)
+            Colour.print('contest not set, please set contest using `coolkit set -c <contest_num>`',Colour.RED)
             sys.exit(1)
 
         if(not args['inp']):
-            Colour.print(Colour.RED+'no input file provided or found in cache'+Colour.END)
+            Colour.print('no input file provided or found in cache',Colour.RED)
             sys.exit(1)
 
         if(not args['p_name']):
-            Colour.print(Colour.YELLOW+"Prob name not provided, trying to detect from filename"+Colour.END)
+            Colour.print("Prob name not provided, trying to detect from filename",Colour.YELLOW)
             p = get_problem_name(args['inp'].split('/')[-1])
             if(p == None):
-                Colour.print(Colour.YELLOW+"Unable to detect prob name from file name"+Colour.END)
+                Colour.print("Unable to detect prob name from file name",Colour.YELLOW)
                 p = config_data['p_name']
             if(p == None):
-                Colour.print(Colour.YELLOW+'No cached problem name found'+Colour.END)
-                Colour.print(Colour.RED+'Please provide the problem name using -p option'+Colour.END)
+                Colour.print('No cached problem name found',Colour.YELLOW)
+                Colour.print('Please provide the problem name using -p option',Colour.RED)
                 Args.set_local_config({'inp':args['inp']}) #cache up the input file for next turn
                 sys.exit(1)
             args['p_name'] = p
@@ -129,35 +130,44 @@ def safe_main():
         args['c_site'] = config_data['c_site']
 
         if(not args['c_name']):
-            Colour.print(Colour.RED+'contest not set, please set contest using `coolkit set -c <contest_num>`'+Colour.END)
+            Colour.print('contest not set, please set contest using `coolkit set -c <contest_num>`',Colour.RED)
             sys.exit(1)
 
         if(not args['inp']):
-            Colour.print(Colour.RED+'no input file provided or found in cache'+Colour.END)
+            Colour.print('no input file provided or found in cache',Colour.RED)
             sys.exit(1)
 
         if(not args['p_name']):
-            Colour.print(Colour.YELLOW+"Prob name not provided, trying to detect from filename"+Colour.END)
+            Colour.print("Prob name not provided, trying to detect from filename",Colour.YELLOW)
             p = get_problem_name(args['inp'].split('/')[-1])
             if(p == None):
-                Colour.print(Colour.YELLOW+"Unable to detect prob name from file name"+Colour.END)
-                Colour.print(Colour.RED+'Please provide the problem name using -p option'+Colour.END)
+                Colour.print("Unable to detect prob name from file name",Colour.YELLOW)
+                Colour.print('Please provide the problem name using -p option',Colour.RED)
                 sys.exit(1)
             args['p_name'] = p
 
-        config_data = Args.fetch_data_from_global_config()
+        config_data = Args.fetch_global_config()
         if(not config_data['user']):
-            Colour.print(Colour.RED+'Please configure your username using "coolkit config -u <username>"'+Colour.END)
-            config_data['user'] = input('Enter your username : ')
+            Colour.print('Please configure your username using "coolkit config -u <username>"',Colour.YELLOW)
+            config_data['user'] = input('Enter your username : ') # it will also store it
         if(not config_data['pswd']):
-            Colour.print(Colour.YELLOW+'Please configure your password using "coolkit config -p <password>"'+Colour.END)
-            config_data['pswd'] = getpass.getpass('Enter your password:')
+            Colour.print('Please configure your password using "coolkit config -p <password>"',Colour.YELLOW)
+            config_data['pswd'] = getpass.getpass('Enter your password : ') # it will also store it
+
         args['user'] = config_data['user']
         args['pswd'] = config_data['pswd']
         args['test'] = -1
         args['force'] = pars_args.force
         args['force_stdout'] = pars_args.force_stdout
 
+        if(pars_args.secondary): # special case for others
+            if config_data.get('secondary_user') and config_data.get('secondary_pswd'):
+                args['user'] = config_data['secondary_user']
+                args['pswd'] = config_data['secondary_pswd']
+                if(debug): Colour.print('Using secondary user, '+args['user'],Colour.GREEN)
+            else:
+                Colour.print('Please configure your secondary user in config file manually',Colour.YELLOW)
+                sys.exit(0)
         Args.submit_it(args)
 
 
@@ -170,38 +180,38 @@ def safe_main():
 
         if(not args['c_name']):
             if(not Args.check_init()):
-                Colour.print(Colour.RED+'no contest provided, either provide contest using -c or run command from a coolkit repo'+Colour.END)
+                Colour.print('no contest provided, either provide contest using -c or run command from a coolkit repo',Colour.RED)
                 sys.exit(1)
             config_data = Args.fetch_data_from_local_config()
             args['c_name'] = config_data['c_name'] # can be none
             if(not args['c_name']):
-                Colour.print(Colour.RED+'contest not set, use `coolkit set -c <contest num>`, or provide contest name using -c parameter'+Colour.END)
+                Colour.print('contest not set, use `coolkit set -c <contest num>`, or provide contest name using -c parameter',Colour.RED)
                 sys.exit(1)
         Args.fetch_contest(args)
 
     elif(first_arg == "config"):
-        config_data = Args.fetch_data_from_global_config()
+        config_data = Args.fetch_global_config()
         if(pars_args.user):
-            user = pars_args.user
+            config_data['user'] = pars_args.user
         else:
-            user = input('Enter your user name (default: '+ config_data.get('user') +'): ')
-            if user == '': user = config_data.get('user')
+            user = input('Enter your user name (default: '+ str(config_data.get('user')) +'): ') # str for None
+            if user != '': config_data['user'] = user
         if(pars_args.pswd):
-            pswd = pars_args.pswd
-            args['pswd'] = pswd
+            config_data['pswd'] = pars_args.pswd
         else:
             pswd = getpass.getpass('Enter your password (press enter to not to change): ')
-            if pswd != '': args['pswd'] = pswd
-        args['user'] = user
-        Args.set_global_config(args)
+            if pswd != '': config_data['pswd'] = pswd
 
     elif(first_arg == "view"):
         second_arg = pars_args.second_arg
-        config_data = Args.fetch_data_from_global_config()
+        config_data = Args.fetch_global_config().data
 
         if(second_arg == "user"):
             u_name = pars_args.u_name
             if(not u_name):
+                if not config_data.get('user'):
+                    Colour.print('Please provide username using flag -u/--user or configure your username',Colour.YELLOW)
+                    sys.exit(0)
                 u_name = input('Enter username (default: '+ config_data.get('user') +'): ')
                 if u_name == '': u_name = config_data.get('user')
             dummy_user = Dummy_user(u_name,verbose=False)
@@ -212,7 +222,7 @@ def safe_main():
             c_name = pars_args.c_name
             if(not c_name):
                 if(Args.check_init()):
-                    Colour.print(Colour.YELLOW+'contest not set, use `coolkit set -c <contest num>`'+Colour.END)
+                    Colour.print('contest not set, use `coolkit set -c <contest num>`',Colour.YELLOW)
                 c_name = input('Enter contest name : ')
 
             temp_contest = Contest(c_name)
@@ -223,26 +233,26 @@ def safe_main():
             c_name = pars_args.c_name
             if(not c_name):
                 if(Args.check_init()):
-                    Colour.print(Colour.YELLOW+'contest not set, use `coolkit set -c <contest num>`'+Colour.END)
+                    Colour.print('contest not set, use `coolkit set -c <contest num>`',Colour.YELLOW)
                 c_name = input('Enter contest name : ')
 
             if(not config_data['user']):
-                Colour.print(Colour.RED+'Please configure your username using "coolkit config -u <username>"'+Colour.END)
+                Colour.print('Please configure your username using "coolkit config -u <username>"',Colour.RED)
                 config_data['user'] = input('Enter your username : ')
             if(not config_data['pswd']):
-                Colour.print(Colour.YELLOW+'Please configure your password using "coolkit config -p <password>"'+Colour.END)
+                Colour.print('Please configure your password using "coolkit config -p <password>"',Colour.RED)
                 config_data['pswd'] = getpass.getpass('Enter your password : ')
 
             temp_Standing = Standing(c_name,config_data['user'],config_data['pswd'])
             temp_Standing.show()
 
         elif(second_arg == "friends"):
-            config_data = Args.fetch_data_from_global_config()
+            config_data = Args.fetch_global_config()
             if(not config_data['user']):
-                Colour.print(Colour.RED+'Please configure your username using "coolkit config -u <username>"'+Colour.END)
-                config_data['user'] = input('Enter your username : ')
+                Colour.print('Please configure your username using "coolkit config -u <username>"',Colour.RED)
+                config_data['user'] = input('Enter your username : ') # it will save it too
             if(not config_data['pswd']):
-                Colour.print(Colour.YELLOW+'Please configure your password using "coolkit config -p <password>"'+Colour.END)
+                Colour.print('Please configure your password using "coolkit config -p <password>"',Colour.RED)
                 config_data['pswd'] = getpass.getpass('Enter your password : ')
 
             temp_friends = Friends(config_data['user'],config_data['pswd'])
@@ -250,23 +260,23 @@ def safe_main():
 
         elif(second_arg == "prob"):
             if(not Args.check_init()):
-                Colour.print(Colour.RED+'please run this command from a coolkit repo'+Colour.END)
+                Colour.print('please run this command from a coolkit repo',Colour.RED)
                 sys.exit(1)
             p_name = pars_args.p_name
             c_name = Args.fetch_data_from_local_config()['c_name']
             if(not c_name):
-                Colour.print(Colour.YELLOW+'contest not set, use `coolkit set -c <contest num>`'+Colour.END)
+                Colour.print('contest not set, use `coolkit set -c <contest num>`',Colour.YELLOW)
                 c_name = input('Enter contest name : ')
                 Args.set_local_config({'c_name',c_name})
             if(not p_name):
-                Colour.print(Colour.YELLOW+'problem not set, use `coolkit set -p <problem name>`'+Colour.END)
+                Colour.print('problem not set, use `coolkit set -p <problem name>`',Colour.YELLOW)
                 p_name = input('Enter problem name : ')
                 Args.set_local_config({'p_name',p_name})
 
             prob = Problem(p_name,c_name)
             prob.pull_problem(force=False)
             prob.display_problem()
-            Colour.print(Colour.CYAN+prob.link+Colour.END)
+            Colour.print(prob.link,Colour.CYAN)
 
         elif(second_arg == "upcoming"):
             Contest.upcoming_contest(display=True)
