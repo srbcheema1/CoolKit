@@ -94,7 +94,8 @@ def safe_main():
         args['c_site'] = config_data['c_site'] # can be None
 
         if(not args['c_name']):
-            Colour.print('contest not set, please set contest using `coolkit set -c <contest_num>`',Colour.RED)
+            Colour.print('contest not set, please set it : `coolkit set -c <contest_num>`',Colour.RED)
+            if(debug): Colour.print('repo at : '+ Args.check_init(),Colour.CYAN)
             sys.exit(1)
 
         if(not args['inp']):
@@ -130,7 +131,8 @@ def safe_main():
         args['c_site'] = config_data['c_site']
 
         if(not args['c_name']):
-            Colour.print('contest not set, please set contest using `coolkit set -c <contest_num>`',Colour.RED)
+            Colour.print('contest not set, please set it : `coolkit set -c <contest_num>`',Colour.RED)
+            if(debug): Colour.print('repo at : '+ Args.check_init(),Colour.CYAN)
             sys.exit(1)
 
         if(not args['inp']):
@@ -186,6 +188,7 @@ def safe_main():
             args['c_name'] = config_data['c_name'] # can be none
             if(not args['c_name']):
                 Colour.print('contest not set, use `coolkit set -c <contest num>`, or provide contest name using -c parameter',Colour.RED)
+                if(debug): Colour.print('repo at : '+ Args.check_init(),Colour.CYAN)
                 sys.exit(1)
         Args.fetch_contest(args)
 
