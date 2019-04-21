@@ -6,6 +6,7 @@ import sys
 from srblib import show_dependency_error_and_exit
 from srblib import verify_file, verify_folder
 from srblib import Soup
+from srblib import SrbJson
 from srblib import path_hash
 from srblib import Tabular
 
@@ -52,7 +53,7 @@ class Problem:
         self.link = "https://codeforces.com/"+self.c_type+"/"+self.c_name+"/problem/"+self.p_name
         self.dir = Const.cache_dir + '/'+self.c_type+'/' + self.c_name + "/prob/" + self.p_name
 
-        srbjson.dump_data({
+        SrbJson.dump_data({
                 "c_name":self.c_name,
                 "c_type":self.c_type,
                 "p_name":self.p_name
@@ -64,7 +65,7 @@ class Problem:
 
 
     def _load_problem(self):
-        data = srbjson.extract_data(self.dir+'/config',srbjson.prob_template)
+        data = SrbJson(self.dir+'/config',srbjson.prob_template)
 
         self.hash = data['hash']
         self.is_good = data['is_good']
@@ -85,14 +86,14 @@ class Problem:
             Colour.print('Warning prob '+self.p_name+' has been modified', Colour.END)
             self.hash = now_hash
             self.is_good = False
-            srbjson.dump_data({"is_good":self.is_good}, self.dir + "/config",srbjson.prob_template)
+            SrbJson.dump_data({"is_good":self.is_good}, self.dir + "/config",srbjson.prob_template)
 
         io = os.listdir(self.dir+'/io')
         if(len(io) != 2* self.num_test):
             if(len(io)!=0):
                 Colour.print(self.p_name + ' testcases corrupt' + str(io), Colour.RED)
             self.is_good = False
-            srbjson.dump_data({"is_good":self.is_good}, self.dir + "/config",srbjson.prob_template)
+            SrbJson.dump_data({"is_good":self.is_good}, self.dir + "/config",srbjson.prob_template)
 
         if(self.is_good): # load i/o
             self.inputs = [''] * self.num_test
@@ -134,7 +135,7 @@ class Problem:
 
         self.hash = path_hash(self.dir +'/io')
 
-        srbjson.dump_data({
+        SrbJson.dump_data({
                 "hash":self.hash,
                 "is_good":self.is_good,
                 "mult_soln":self.mult_soln,

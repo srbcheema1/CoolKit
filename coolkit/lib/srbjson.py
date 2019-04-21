@@ -7,22 +7,6 @@ class srbjson:
     def __init__(self):
         pass
 
-    @staticmethod
-    def create_file(file_name,template):
-        SrbJson(file_name,template)
-
-    @staticmethod
-    def extract_data(file_name,template):
-        return SrbJson(file_name,template).data
-
-    @staticmethod
-    def dump_data(data,file_name,template):
-        temp = SrbJson(file_name,template)
-        for key in data:
-            if(key in temp):
-                temp.data[key] = data[key]
-        temp._burn_data_to_file() # lazy burning
-
     global_template = {
         "coolkit":{
             "user":None,

@@ -4,6 +4,7 @@ import sys
 from srblib import show_dependency_error_and_exit
 from srblib import verify_folder, verify_file
 from srblib import Soup
+from srblib import SrbJson
 from srblib import Tabular
 
 try:
@@ -40,12 +41,9 @@ class Contest:
         self.link = "https://codeforces.com/"+self.c_type+"/"+self.c_name
         self.prob_mapp = {}
 
-        srbjson.dump_data({
-                "c_name":self.c_name,
-                "c_type":self.c_type
-            },
-            self.dir+ "/config",
-            srbjson.contest_template)
+        json_file = SrbJson(self.dir+'/config',srbjson.contest_template)
+        json_file['c_name'] = self.c_name
+        json_file['c_type'] = self.c_type
 
         self._load_contest()            # pick cached data
         # haven't called fetch_contest from constructor as it may be slow
@@ -105,7 +103,7 @@ class Contest:
 
 
     def dump_contest(self):
-        srbjson.dump_data({
+        SrbJson.dump_data({
                 "ann_arr":self.announce_arr,
                 "c_title":self.c_title,
                 "is_good":self.is_good,
@@ -145,7 +143,7 @@ class Contest:
         loads contest from cache if exists else create an empty contest and loads it up
         also cleans useless folders in prob folder if they aren't in config of p_name_list
         '''
-        data = srbjson.extract_data(self.dir+'/config',srbjson.contest_template)
+        data = SrbJson(self.dir+'config',srbjson.contest_template).data
 
         self.announce_arr = data['ann_arr']
         self.c_title = data['c_title']

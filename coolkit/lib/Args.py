@@ -36,8 +36,7 @@ class Args:
             sys.exit(1)
 
         if(now == home_loc):
-            verify_folder(cwd+'/.coolkit/')
-            srbjson.create_file(cwd+'/.coolkit/config',srbjson.local_template)
+            SrbJson(cwd+'/.coolkit/config',srbjson.local_template)
             Colour.print('initialized empty CoolKit repository in '+cwd+'/.coolkit/',Colour.GREEN)
         elif(now != cwd):
             verify_folder(cwd+'/.coolkit/')
@@ -52,7 +51,7 @@ class Args:
                 args['c_name'] = None
             else:
                 args['c_name'] = contest_name
-        srbjson.dump_data(args,cwd+'/.coolkit/config',srbjson.local_template)
+        SrbJson.dump_data(args,cwd+'/.coolkit/config',srbjson.local_template)
 
     @staticmethod
     def set_local_config(args={},debug=False):
@@ -77,7 +76,7 @@ class Args:
             Colour.print('Coolkit should be run in path under home directory',Colour.RED)
             sys.exit(1)
 
-        srbjson.dump_data(args,now+'/.coolkit/config',srbjson.local_template)
+        SrbJson.dump_data(args,now+'/.coolkit/config',srbjson.local_template)
 
     @staticmethod
     def check_init():
@@ -90,7 +89,7 @@ class Args:
         now = cwd
         while(now != home_loc and now != root_loc):
             if('.coolkit' in os.listdir(now) and os.path.isdir(os.path.join(now,'.coolkit'))):
-                return True
+                return now # path of .coolkit
             now = abs_path(os.path.join(now,os.pardir))
         if(now == root_loc):
             Colour.print('Coolkit should be run in path under home directory',Colour.RED)
@@ -136,8 +135,7 @@ class Args:
             Colour.print('Coolkit should be run in path under home directory',Colour.RED)
             sys.exit(1)
 
-        data = srbjson.extract_data(now+'/.coolkit/config',srbjson.local_template)
-        return data
+        return SrbJson(now+'/.coolkit/config',srbjson.local_template).data
 
     @staticmethod
     def fetch_global_config():
